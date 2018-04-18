@@ -1,0 +1,252 @@
+LABSP_SW04#sh run
+Building configuration...
+
+Current configuration : 5660 bytes
+!
+version 12.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname LABSP_SW04
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$q6Mi$YhwHSrgwB2q0PMUAOTWWv/
+!
+username suporte privilege 15 secret 5 $1$WHFV$obW2ktArTwhp0T1CPLjN41
+no aaa new-model
+system mtu routing 1500
+vtp mode transparent
+ip subnet-zero
+!
+!
+ip domain-name brisa-lge.local
+!         
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+vlan 61
+ name vBRISA-3G
+!
+vlan 62
+ name vBRISA-FT
+!
+vlan 63
+ name vVISIT
+!
+vlan 70
+ name vVPN
+!         
+vlan 71
+ name vNET
+!
+vlan 79
+ name vGER
+!
+ip tcp synwait-time 10
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh version 2
+!
+!
+interface Port-channel1
+ switchport mode trunk
+ switchport nonegotiate
+!
+interface FastEthernet0/1
+ description 6AR2-PP01-018
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/2
+ description 6AR2-PP02-026
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/3
+ description 6AR2-PP01-014
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/4
+ description 6AR2-PP01-024
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/5
+ description 6AR2-PP01-020
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/6
+ description 6AR2-PP01-013
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/7
+ description "Sala de reuniao"
+!
+interface FastEthernet0/8
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/9
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/10
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/11
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/12
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/13
+ description "INTERFACE LIVRE"
+ shutdown 
+!
+interface FastEthernet0/14
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/15
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/16
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/17
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/18
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/19
+ description "INTERFACE LIVRE"
+ shutdown 
+!
+interface FastEthernet0/20
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/21
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/22
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/23
+ description "INTERFACE LIVRE"
+ shutdown
+!
+interface FastEthernet0/24
+ description "Access-Point LABSP_AP04"
+ switchport trunk native vlan 79
+ switchport trunk allowed vlan 1,61-63,79
+ switchport mode trunk
+ switchport nonegotiate
+ macro description "CISCO AIRONET 1600"
+!
+interface GigabitEthernet0/1
+ description "Link Agregation LABSP_SW04 e LABSP_SW01"
+ switchport mode trunk
+ switchport nonegotiate
+ channel-group 1 mode active
+ spanning-tree link-type point-to-point
+!
+interface GigabitEthernet0/2
+ description "Link Agregation LABSP_SW04 e LABSP_SW01"
+ switchport mode trunk
+ switchport nonegotiate
+ channel-group 1 mode active
+ spanning-tree link-type point-to-point
+!
+interface Vlan1
+ no ip address
+ no ip route-cache
+!
+interface Vlan79
+ ip address 172.31.15.4 255.255.255.0
+ no ip route-cache
+!
+ip default-gateway 172.31.15.129
+no ip http server
+no ip http secure-server
+access-list 10 permit 136.166.97.246
+access-list 10 permit 136.166.97.243
+access-list 111 remark PERMITE ACESSO SSH APENAS MAQUINAS DE TI
+access-list 111 permit ip host 136.166.97.222 any
+access-list 111 permit ip host 136.166.97.218 any
+access-list 111 permit ip host 136.166.97.137 any
+access-list 111 deny   ip any any log
+access-list 111 deny   ip any any
+snmp-server community brisa-sp RO 10
+snmp-server location BRISA-SP 6Andar R2
+snmp-server contact Suporte - suporte@brisa.org.br
+snmp-server host 136.166.97.243 informs version 2c brisa-sp 
+snmp-server host 136.166.97.243 version 2c brisa-sp 
+snmp ifmib ifindex persist
+!
+control-plane
+!
+banner motd ^CCCC
+********************************* WARNING **************************************
+          
+          
+ WARNING NOTICE: This is a private system for use by BRISA The unauthorized
+ access or attempt, use or modification  of this system is  strictly prohibited.
+ Individuals  undertaking  such  unauthorized  access,  use or modification are
+ subject to company disciplinary proceedings and/or criminal and civil penalties
+ under applicable  domestic and  foreign  laws.  The use of  this system may be
+ monitored and  recorded for administrative and  security reasons in accordance
+ with local law.
+          
+          
+********************************** AVISO ***************************************
+          
+          
+ AVISO: Este e um sistema  privado para uso exclusivo  da BRISA . Acessos nao
+ autorizados ou  tentativas, uso ou modificacao  deste sistema sao estritamente
+ restritos.   Individuos  que  executam  tal  acesso,  usam  ou  modificam  sem
+ autorizacao  estao sujeitos a procedimentos  disciplinares e penalidades civis
+ com base em leis domesticas e estrangeiras aplicaveis. O uso deste sistema pode
+ ser monitorado e armazenado para uso posterior conforme a lei local.^C
+!
+line con 0
+ password 7 03376C480A080243405A5D
+ logging synchronous
+ login
+line vty 0 4
+ access-class 111 in
+ login local
+ transport input ssh
+line vty 5 15
+ access-class 111 in
+ login local
+ transport input ssh
+!
+end
+

@@ -1,0 +1,323 @@
+Objetivos
+=========
+
+"De-me seis horas para cortar uma árvore, e eu gastarei as primeiras quatro horas afiando o machado." Abraham Lincoln
+
+Footprint (Pégadas) Visa obter as seguintes informações:
+
+* Topologia da rede
+* Sistemas Operacionais
+* Quantidade de Máquinas
+* Localização Física
+* Funcionários da Empresa
+* Cargo
+* E-Mail
+* Função no Ambiente.
+
+Consulta informações de Domínio
+===============================
+
+Um atacante pode usar a base whois para levantar informações sobre o domínio e seus responsáveis que poderiam ser utilizadas para fazer uma investi da de engenharia social ou apenas para conhecer o domínio:
+
+Abaixo dessas entidades regionais, há outras entidades, responsáveis pelos domínios em cada país. No Brasil respondemos à http://registro.br.
+
+whois
+http://registro.br
+
+whois 4linux.com.br
+--==[ ... ]==--
+Mostre as informações
+--==[ ... ]==--
+
+veja a data de expiração do contrato... pode ser usado para Engenharia Social
+
+www.geoiptool.com --> podemos ver as origens dos endereços IP.
+
+via sites web:
+www.domaintools.com
+www.iptools.com
+registro.br
+
+Por convenção, a consulta é feita na base da Internic. Caso o domínio ou IP não esteja registrado em sua base, o invasor parte para consultar a base do país em que possivelmente o domínio está cadastrado.
+
+Registro    | Nome							| Web Site
+------------+-----------------------------------------------------------+------------
+ARIN	    | American Registry for Internet Numbers			| www.arin.net/
+RIPE	    | Réseaux IP Européens					| www.ripe.net/
+APNIC	    | Asia Pacific Network Information Cente			| www.apnic.net/
+AFRINIC	    | African Network Information Center			| www.afrinic.net/
+LACNIC	    | Latin America & Caribbean Network Information Center	| www.lacnic.net/
+
+Caso isso ocorra: Veja que o segundo endereço DNS (que provavelmente se encontra no Brasil) está fora do ar desde a ultima consulta do Registro BR (nsstat: 20120327 FAIL). Isso pode sinalizar que eles estão enfretando algum problema, ou atualizando a versão, etc.
+
+
+Cosultando Servidores DNS
+=========================
+
+host -v -t NS dominio.com.br
+dig NS dominio.com.br
+host -v -t MX domínio.com.br
+dig MX domínio
+dnsenum dominio.com.br dns.txt <-- esse arquivo faz o bruteforce atrás de nomes conhecidos.
+
+
+exemplos:
+	host -v -t NS 4linux.com.br
+	dig NS 4linux.com.br
+
+	apararece um 3º servidor que não foi registrado. Isso pode sinalizar que eles tem um servidor para testar configurações ou que eles estão homologando uma nova versão (ambas se verdadeiras pode ser promissora).
+
+
+	host -v -t MX 4linux.com.br
+	dig NS 4linux.com.br
+		boca.4linux.com.br
+		boca2.4linux.com.br
+
+
+cd /pentest/enumeration/dns/dnsenum
+./dnsenum.pl 4linux.com.br dns.txt
+./dnsenum.pl procardiaco.com.br dns-big.txt
+
+./dnsenum.pl notisa.com.br dns.txt <-------- esse permite zone transfer
+./dnsenum.pl tecla.com.br dns.txt <------´
+./dnsenum.pl dreamhost.com.br dns.txt <-´
+
+
+
+
+Consultando Websites Antigos
+============================
+
+Extrai as informações de produtos antigos, ex-funcionários, ex-clientes, dentre outras infor.
+
+www.archive.org
+
+
+Buscando Relacionamentos
+========================
+
+No Google
+
+* link
+* info
+* related
+
+Através de:
+
+www.unmaskparasites.com
+www.kartoo.com
+
+www.netcraft.com --> Busca informações dos servidores web e do domínio
+
+www.123people.com --> Pesquisa por pessoas, ai a importancia de levantar nome de fucionários e ex-funcionários
+			pode ser feita as pesquisa por nomes e email
+
+http://pipl.com/  <--------------> Sites esmelhantes
+http://people.yahoo.com/ <--´
+
+faça a pesquisa no google também tanto do nome como do email
+
+
+Rastreamento de Emails
+======================
+
+Envio de email para o domínio a ser pesquisado para um email que nós sabemos que não existe para
+
+analisarmos o cabeçalho do email para mapeamos a rede interna/dmz do cliente
+
+Veja que existem informações preciosas para um atacante. Essa é a tecnica de email bounce
+
+----- EXEMPLO -----
+
+postmaster@brisa.org.br
+14:55 (4 minutos atrás)
+
+para mim 
+Falha na entrega aos seguintes destinatários ou listas de distrbuição:
+
+drogasil@brisa.org.br
+Ocorreu um problema durante a entrega desta mensagem. O Microsoft Exchange não tentará entregar novamente este email para você. Tente reenviar esta mensagem mais tarde ou forneça o texto de diagnóstico a seguir para o administrador o sistema.
+
+Enviado pelo Microsoft Exchange Server 2007 <-- Servidor de email usado ###########################
+
+
+
+
+
+Informações de diagnóstico para administradores:
+
+Gerando servidor: brisa.org.br
+
+drogasil@brisa.org.br
+#554 5.4.4 SMTPSEND.DNS.MxLoopback; DNS records for this domain are configured in a loop ##
+
+Cabeçalhos de mensagem originais:
+
+			  +---------+===========+---------------------------- Servidor DMZ
+                         /          v           v
+Received: from sedna.brisa.org.br (189.86.123.24) by orion.brisa.org.br
+                                                        \
+  +=======+------------------------------------------------------------------ Servidor RI
+  v       v
+ (10.1.3.60) with Microsoft SMTP Server id 8.1.336.0; Tue, 3 Jul 2012 14:55:58
+ -0300
+Received: (qmail 13638 invoked by uid 1008); 3 Jul 2012 14:58:42 -0300
+Received: from mail-ee0-f51.google.com by sedna (envelope-from
+ <wellington.mobile@gmail.com>, uid 1001) with qmail-scanner-2.08  (clamdscan:  <--- Anti Spam
+ 0.95.3/10551. spamassassin: 3.2.5.
+   Clear:RC:0(74.125.83.51):SA:0(-102.1/1.6):.  Processed in 10.119066 secs);
+ 03 Jul 2012 17:58:42 -0000
+X-Spam-Status: No, score=-102.1 required=1.6
+X-Spam-Level:
+X-BRISA-Scanner-Mail-From: wellington.mobile@gmail.com via sedna
+X-BRISA-Scanner: 2.08 (Clear:RC:0(74.125.83.51):SA:0(-102.1/1.6):. Processed in 10.119066 secs)
+Received: from mail-ee0-f51.google.com (74.125.83.51)  by sedna.brisa.org.br
+ with SMTP; 3 Jul 2012 14:58:31 -0300
+Received: by eekc1 with SMTP id c1so2419274eek.10        for
+ <drogasil@brisa.org.br>; Tue, 03 Jul 2012 10:53:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:date:message-id:subject:from:to:content-type;
+        bh=YZ60KsCIHUdGMZr3/6Fhmi+3V9uASwcT0z7vWUxWu0Y=;
+        b=fPq2QLyJiEr6OSYgBHhcd1xihtZzqY5dJnZZwgtQUlkdI+mVGAd519XZiH55UKi3Iu
+         fsElIbGuFqOtXoF+4YxEh7zx1TTCxkko6xHmNizMD6yfiLIiShtV+AznXfJ1abi7jDXI
+         Jm5bU0xiN6fTtNI+KETJv6QwLJHe/qEAE47BD9Ck3sRFPsxGnWFbP4l2is9gFBjnrjcy
+         lds5KQgDyvzPr1E0JyRMAW6g7oUndcv2lpDiC2hmRoNS6OEMtisJsCLatiC5Fg6Tpt17
+         kLvHIaicKy5F62YD5EP87BBwleaMcgYScwLDXXQxq6bH5xKgUt56ppadCRsrQP8/EBKc
+         FQOA==
+MIME-Version: 1.0
+Received: by 10.14.188.140 with SMTP id a12mr4385663een.25.1341338002345; Tue,
+ 03 Jul 2012 10:53:22 -0700 (PDT)
+Received: by 10.14.28.72 with HTTP; Tue, 3 Jul 2012 10:53:22 -0700 (PDT)
+Date: Tue, 3 Jul 2012 14:53:22 -0300
+Message-ID: <CABKnOHWd274jRGv87JnCHM0jkXs8bQX_KmBagFf7SJYfachpJg@mail.gmail.com>
+Subject: [Teste]
+From: Wellington L S <wellington.mobile@gmail.com>
+To: <drogasil@brisa.org.br>
+Content-Type: multipart/alternative; boundary="bcaec52be543274fad04c3f09761"
+Return-Path: wellington.mobile@gmail.com
+Received-SPF: Neutral (orion.brisa.org.br: 189.86.123.24 is neither
+ permitted nor denied by domain of wellington.mobile@gmail.com)
+
+Final-Recipient: rfc822;drogasil@brisa.org.br
+Action: failed
+Status: 5.4.4
+Diagnostic-Code: smtp;554 5.4.4 SMTPSEND.DNS.MxLoopback; DNS records for this domain are configured in a loop
+
+
+
+---------- Mensagem encaminhada ----------
+From: Wellington L S <wellington.mobile@gmail.com>
+To: <drogasil@brisa.org.br>
+Cc: 
+Date: Tue, 3 Jul 2012 14:53:22 -0300
+Subject: [Teste]
+segue...
+
+-- 
+Atenciosamente,
+Wellington L. da Silva
+wellington.mobile@gmail.com
+
+---- FIM ----
+
+Caso o email fosse enviado da empresa para vc em Origination-IP sendo o email da máquina do cliente do servidor.
+
+Isso vai nos servir para Enviamos pequenas imagens (trojans) e envio de links (bots)
+
+Como obter os cabeçalhos dos emails
+
+Fingerprint
+===========
+
+Levantar as informações dos sistemas operacionais.
+
+Para que o fingerprint apresentar resultados confiáveis são necessárias análises complexas, como:
+	* Analise de pacotes que trafegam pela rede
+	* Leitura de banners (assinaturas do sistema)
+	* Análise de particulariedades da pilha TCP/IP
+
+
+Fingerprint passivo --> scanner de rede para farejar a rede
+fingerprint ativo -> o scanner envia pacotes manipulados e forjados.
+
+Fingerprint Passivo
+-------------------
+
+p0f para ouvir o trafego de rede
+
+vamos usar o app
+
+p0f -i eth0 -o p0f.log
+
+ele tenta capturar o banner e com isso revelar qual o sistema operacional que o usuário final está usando.
+
+cat p0f.log | less
+
+
+Vamos olhar o TTL para comparar com alguns padrões de TTLs
+
+Cyclades 	- 30
+Linux 		- 64
+Windows		- 128
+Cisco		- 255
+Linux + Netfilter - 255
+
+vamos dar um ping no www.google.com
+
+TTL = 56
+
+o mais próximo é o do Linux 64 --> agora podemos fazer um traceroute para ver quantos saltos ouve para termos certeza
+
+traceroute www.googole.com
+
+nº de saltos =
+
+TTL + Saltos = S.O.
+56 + 8 = 64 = Linux
+
+mtr www.google.com
+
+existem formas de alterar o TTL então não é uma analise 100% real apenas uma ideia de qual o S.O. no alvo
+
+Fingerprint Ativo
+-----------------
+
+nmap -v -O IP_ADDR
+
+Xprobe2 IP_ADDR
+
+Xporbe2 -p TCP:PORT:open IP_ADDR
+
+nmap -v -O 192.168.5.146
+
+xprobe2 -p tcp:25:open 192.168.1.104
+
+faz em linux e windows os testes
+
+xprobe2 -p tcp:25:open boca.4linux.com.br
+
+contramedidas
+=============
+
+* Configurar as aplicações corretamente
+* Configurar as regras de firewall corretamente
+* ter cuidado com as informações publicada na Web
+* ter o robots.txt configurado corretamente evitando que informações sejam idexada pelos robos do Google
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

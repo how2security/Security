@@ -1,0 +1,112 @@
+Enumeração
+==========
+
+As técnicas de enumeração é um complemento as fazes de fingerprint e varredura.
+
+O objetivo desta faze é descobrir serviços e versões que estão rodando no alvo para que possamos pesquisar por vulnerabilidades e exploits.
+
+
+Técnicas Classicas
+==================
+
+* ftp ip-alvo
+
+* telnet ip_alvo porta_app-alvo
+
+faz os exemplos no metasploitable
+
+	ftp ip_metasploitable
+	anonymous
+	anonymous
+
+	telnet ip-metasploitable 25
+	HELO metasploitable.localhost
+	MAIL FROM: teste@attack.com
+	
+para verificar se ele mermite relay para fazermos engenharia social
+
+	telnet ip_metasplit 80
+	GET / HTTP/1.1
+	HTTP/1.1 400 Bad Request
+	Date: Thu, 05 Jul 2012 04:02:21 GMT
+	Server: Apache/2.2.6 (Unix) PHP/5.2.5
+	Content-Length: 226
+	Connection: close
+	Content-Type: text/html; charset=iso-8859-1
+	
+	telnet ip_metasploit
+
+Agora vamos para as ferramentas dos dias ordienos =]
+
+	* nmap
+	* xprobe2
+	* amap
+	* autoscan
+	* maltego <-- precisa de registro
+	* lanmap
+	* cheops
+	* nesus <-- precisa de registro
+
+
+
+Capturando Banners
+==================
+
+	-sV --> banner de aplicação, -O banner de SO
+	nmap -sV -O ip_metasploit
+
+	SO apenas
+	xprobe2 -t TCP:80:open ip_metasploit
+	
+	Aplicações
+	amap ip_metasploit porta
+
+
+Mapemento Gráfico
+=================
+
+
+prática:
+	cd /pentest/enumeration/lanmap2
+	vi README
+	cd src
+	./cap
+	
+gere trafego para começar a montar o grafico, pois ele usa o trafego capturado da rede. para finalizar clique CTRL+C e gerar o gráfico.
+	graph/graph.sh
+
+	vá até a pasta graph e veja a imagem .png gerada.
+
+Vamos configurar o AutoScan
+	Application -> BackTrack -> Information Gathering -> Network Analysis -> Network Scanners -> autoscan
+
+	No Wizard --> clique em Forward -> Escolha a rede - > Forward -> Escolha a rede localhost -> Forward -> Escolha a interface -> Forward -> Forward e ele começa a fazer o scan na rede.
+
+
+voce pode usar o torsocks para mascarar suas conexões para usar as ferramentas com anonymize
+
+Vamos configurar o Maltego
+	Application -> BackTrack -> Information Gathering -> Network Analysis -> DNS Analysis -> maltego
+
+	No Wizard --> precisa logar (caso não tenha tem que se registrar) -> Após logado é só usar
+
+
+Vamos criar uma nova investigação.
+
+* No lado esquerdo estão as opções de buscas;
+* No centro a tela de gráfico
+* No diretito são as opções de busca
+
+Clique no objeto na janela da esq e arraste para a tela central do gráfico (DNS|Domain), no painel da direita alter o DNS Name para o domínio que desejamos investigar (www.4linux.com.br) e de enter.
+
+Agora na tela central clique com o btn dir do mouse e selecione Run Transform -> All Transform (mas podemos ser mais seletivos na busca).
+
+
+Será necessário passar as credenciais novamente.
+
+Achamos um diretor o Francisco Saito para analisarmos sobre ele vamos clicar no objeto com o btn dir do mouse e selecionar Run Transform --> All Transform -> clqie em Yes -> na tela para prencher basta dar espaço nos campos e mandar executar e ele vai trazer mais informações sobre aquele objeto.
+
+
+Descobrindo Vulnerabilidades
+============================
+

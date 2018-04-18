@@ -1,0 +1,1007 @@
+Relatório
+=========
+
+Senhas:
+Metasploitable 1:
+	user:user
+	msfadmin:msfadmin
+	root:msfadmin
+Metasploitable2:
+	
+
+
+Script
+-=-=-=-=
+
+Vamos auditar nossos comandos
+
+formato arquivo de auditoria
+----------------------------
+
+script auditoria-2015-11-10-17-41.txt
+nmap -sS 192.168.5.10
+exit
+cat auditoria-2015-11-10-17-41.txt | more
+
+
+
+formato video
+--------------
+
+script -t 2> auditoria-2015-11-10-17-46.tmp -a auditoria-2015-11-10-17-46.txt 
+ping -c 2 2 192.168.5.10
+exit
+
+scriptreplay auditoria-2015-11-10-17-46.tmp auditoria-2015-11-10-17-46.txt 
+
+Dradis
+======
+
+Clique em Application --> Reporting Tools --> Dradis
+
+Navegue nas guias do Wizard, depois clique em: back to the app
+
+Cadastre uma senha e confirme: P@ssw0rd P@ssw0rd
+
+Em seguida logue no sistema: Login: admin Password: P@ssw0rd
+
+Clique no botão: add branch
+De o nome do projeto: Workshop Pen-Test
+
+Agora clique no nome do projeto com o botão direito do mouse e selecione: add child --> Host
+De o nome do Host ou o IP --> 192.168.5.10
+
+Com o Host selecionado clique no botão: add note
+
+e cole o conteúdo do nmap
+
+clique no botão note categories e aponte para add category, eadicione a categoria: Enumeração
+
+Cliqeu com o botão direito do mouse na nota que criou, aponte para Assign to --> Enumeração
+
+Reconhecimento 
+==============
+
+
+Google Hacking
+--------------
+
+No Google Hacking não existe o conseito de busca errada. Tem sim, a da busca mais eficiente para nossas necessidades.
+
+Um busca sem sentido hoje pode se tornar uma excelente regra amanhã. Acredito que esse é o espírito Hacker de buscar coisas novas e tentar novos meios para resultados iguais ou difrentes. O que não é bom e sempre fazer a mesma coisa esperando resultados diferentes.
+
+Jonny Long
+
+Criador de uma base de dados de Google Hacking, com diversas pesquisas promissoras dessa técnica. Essa base se chama GHDB (Google Hacking Data Base).
+
+GHDB - Google Hacking Data Base --> Contém as Dorks com consultas personalizadas.
+
+site Oficial:
+	http://www.hackersforcharity.org/ghdb/
+	http://johnny.ihackstuff.com/ghdb/
+Pelo Exploit-DB:
+	https://www.exploit-db.com/google-hacking-database/
+
+site:
+treinamento site:www.microsoft.com --> observe que só veio links começando com www --> site
+treinamento site:microsoft.com --> observe que veio links dentro do domínio da microsoft --> domínio
+
+filetype:
+filetype --> Procura por aqruivos com a extensão procurada. caso vc precise consultar extensões pode ser feito através do site: http://filext.org.
+
+treinamento filetype:pdf
+treinamento filetype:doc
+treinamento filetype:xls
+filetype:sql site:agenersa.rj.gov.br
+
+link:
+link:brisa.org.br pesquisa --> observe que os sites tem links para brisa.org.br
+
+cache:
+brisa.org.br --> observe a seta para baixo clique nela
+
+também podemos utilizar direto no endereço:
+cache:www.brisa.orr.br
+
+Observe também a URL
+http://webcache.googleusercontent.com/search?q=cache:brisa.org.br&biw=1038&bih=622&noj=1&strip=0&vwsrc=0 --> Versão Completa
+http://webcache.googleusercontent.com/search?q=cache:brisa.org.br&biw=1038&bih=622&noj=1&strip=1&vwsrc=0 --> Versão Texto
+http://webcache.googleusercontent.com/search?q=cache:brisa.org.br&biw=1038&bih=622&noj=1&strip=0&vwsrc=1 --> Código Fonte
+
+Explique as três e explique que somente texto não deixa rastros
+mostre a utilização do google como proxy
+cache:www.meuip.com.br
+www.meuip.com.br
+
+intitle:
+intile:joomla --> tem que vim sites que contenha no título o termo pesquisado
+intext:"~~Joomla1.txt" title:"Index of /"
+
+inurl:
+inurl:inc=
+
+
+Consultas interessantes:
+currículo +identidade +cpf --> olha quantos laranjas =S
+
+site:gov.br filetype:sql \_DBs expostos na internet
+site:gov.ar filetype:sql /
+
+allintitle:index of --> Servidores Web permitindo listar seu conteúdo
+intitle:index+of
+
+intitle:intranet + intext:telefone --> Intranet não deveria está dentro da rede???
+http://www.unoesc.edu.br/portal/intranet --> olhe esse aqui --> tem helpdesk ocomon =[ e tem telefones e ramais ]=
+
+site:oracle.com -site:www.oracle.com --> pesquisando outros subdomínios
+
+https://sourcevirtues.wordpress.com/2012/07/01/enable-java-plugin-in-iceweasel-firefox-and-chrome-in-debian/
+apt-get install icedtea-7-plugin
+
+intitle:"VNC Viewer for Java"
+intitle:VNC inurl:5800
+
+vamos pesquisar possíveis acessos de VNC.
+	intitle:VNC inurl:5800
+	"VNC desktop" inurl:5800
+	intitle:VNC inurl:5900
+
+Vamos buscar TS do windows Web Aberto:
+	intitle:Remote+Desktop inurl:tsweb
+	intitle:Remote+Desktop inurl:tsweb intext:Domain
+
+Vamos pesquisar Windows Small Business
+	inurl:ConnectComputer/precheck.htm
+	inurl:Remote/logon.aspx
+
+Achando console de aplicações aberta
+inurl:"/jmx-console' intext:"JMX Agent View"
+
+Achando aplicações em outras portas:
+inurl:8080 -intext:8080 site:edu.br
+
+Procurando sites com ferramentas on-line
+filetype:php inurl:nqt intext:"Network Query Tool"
+
+Cameras - 
+inurl:/view.shtml; intitle:”Live View / – AXIS” | inurl:view/view.shtml^ 
+
+82.188.208.242/view/view.shtml
+192.171.163.3/view/view.shtml
+140.115.33.51/view/view.shtml
+c-cam.uchicago.edu/view/view.shtml
+
+Achando senha de conexão
+intitle:index.of config.php
+http://www.arss.com.br/config/    \___ Baixar como > .php
+http://www.medix.com.my:8080/src/ /
+
+
+"Uma mentira é bem mais aceita quando colocada entre duas verdades". Joseph Goebbels (Ministro da Propaganda de Hitler).
+
+Google Maps and Eath
+--------------------
+
+http://maps.google.com --> Rua alexandre dumas, 2220 -->  Search Nearby (Proximidades) -->  cafeteria
+Olhe quantas cafeterias nas proximidades da empresa, basta analisar o comportamentendo dos colaboradores, podemos fazer um ataque de rougue ap, onde analisamos as beacon dos dispositivos moveis e criamos uma ap falso para ele se autenticar.
+
+www.cantenna.com --> Comprar super-antenas para Wi-Fu =]
+
+# airmon-ng start wlan0
+# airmon-ng mon0
+
+# airodump-ng mon0 --> ache o MAC do AP Olhe o canal no caso exemplo foi 1
+# ifconfig wlan0 channel 1
+# ifconfig mon0 channel 1
+
+# airbase-ng -a AA:AA:AA:AA:AA:AA -e SSID_NAME mon0
+
+# ifconfig at0 up
+
+Outro Terminal
+# aireplay-ng --deauth 0 -a MA:C0:DO:AP:00 mon0
+
+ 
+
+Footprinting - Passive Recon Resource
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+- Public Records
+  - Se captal aberto, dados financeiros em: http://www.econoinfo.com.br/mercados/empresas
+
+  - Também podemos utilizar Google Hacking para entender as conexões da organização
+
+  - Patentes (no Brasil https://gru.inpi.gov.br/pePI/jsp/patentes/PatenteSearchBasico.jsp nos USA 
+http://www.uspto.gov/patents/search)
+
+  - EDGAR --> Banco de dados publico onde as empresa apresenta dados de sua siteuação, (USA) http://www.sec.gov/edgar.shtml --> Eletronic Data Gatheringt, Analysis, and Retrieval.As empresas no EUA são obrigados por lei a publicar alguns documentos.
+
+  - Social Media --> Facebook, Twitter, Foruns, etc)
+
+ICANN e RIRs
+-=-=-=-=-=-=
+
+Por convenção, a consulta é feita na base da Internic. Caso o domínio ou IP não esteja registrado em sua base, o invasor parte para consultar a base do país em que possivelmente o domínio está cadastrado.
+
+Registro    | Nome							| Web Site
+------------+-----------------------------------------------------------+------------
+ICANN       | Internet Corporation for Assigned Names and Numbers       | www.icann.org/ --> ICANN organiza a distribuíção
+ARIN	    | American Registry for Internet Numbers			| www.arin.net/      mundial de endereços IP Público
+RIPE	    | Réseaux IP Européens					| www.ripe.net/
+APNIC	    | Asia Pacific Network Information Cente			| www.apnic.net/
+AFRINIC	    | African Network Information Center			| www.afrinic.net/
+LACNIC	    | Latin America & Caribbean Network Information Center	| www.lacnic.net/
+  `--> RegistroBR e NIC.BR						  registro.br e nic.br
+
+Whois
+-=-=-
+
+Via Sites:
+whois.domaintools.com
+www.whois.com
+www.iptools.com
+http://registro.br
+www.geoiptool.com --> podemos ver as origens dos endereços IP.
+
+http://ip-api.com
+
+Observação: Caso isso ocorra: Veja que o segundo endereço DNS (que provavelmente se encontra no Brasil) está fora do ar desde a ultima consulta do Registro BR (nsstat: 20120327 FAIL). Isso pode sinalizar que eles estão enfretando algum problema, ou atualizando a versão, etc.
+
+Via CLI
+# whois brisa.org.br
+
+Levante informações através de ferramentas externas
+filetype:php inurl:nqt intext:"Network Query Tool"
+
+Levantando Informações de Footprinting e Fingerprinting
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+http://www.unmaskparasites.com/ --> Faz uma analise de referencias do site
+
+http://www.netcraft.com/ --> Faz uma analise no site em busca de informações de aplicações, sistemas e riscos
+
+www.archive.org --> Extrai as informações de produtos antigos, ex-funcionários, ex-clientes, dentre outras infor.
+
+Buscando Relacionamentos
+========================
+
+Busca Por Pessoa
+===============-=-
+
+http://pipl.com/  <----------+----> Busca por pessoas
+http://people.yahoo.com/ <--´
+
+faça a pesquisa no google também tanto do nome como do email
+
+
+Pesquise por Documentos
+-=-=-=-=-=-=-=-=-=-=-=-
+
+site:brisa.org.br filetype:pdf ou doc ou docx, etc...
+Analise os metadados
+
+Footprinting - Active Recon Resource
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+- Jobs
+  - Search Sites
+  - Interviews
+
+Anúncios de emprego, contêm uma riqueza de informações sobre o ambiente do alvo, pois eles podem fornecer mais detalhes sobre que tipo de sistemas operacionais são instalados, quem os administra, tamanho da equipe de TI, o nível de habilidade dos funcionários, pessoal do RH. Em uma vaga, você pode ligar para o departamento de RH para fazer algumas perguntas como:
+ - Quais as versões que eu terei que trabalhar?
+ - Podemos trabalhar de Casa (Home Office)? Quais as maneiras de acesso de casa?
+
+- View Webpage Source
+
+Podemos olhar o código fonte atrás de comentários, lógica do desenvolvedor, etc...
+
+- Mirror Sites
+
+# mkdir -p wget_brisa
+# cd wget_brisa
+# wget -r http://www.brisa.org.br --> r = recusive
+# wget -r -erobots=off http://www.brisa.org.br --> erobots=off desativa a verificação de user-agent do robots no download
+# wget -r -erobots=off -A ".png" http://www.brisa.org.br --> -A "extensão" baixa os arquivos com a extensão
+
+http://www.vivaolinux.com.br/dica/Wget-Baixando-sites-inteiros
+
+root@kali-well:~# cd httrack_brisa/
+root@kali-well:~/httrack_brisa# httrack 
+
+Welcome to HTTrack Website Copier (Offline Browser) 3.48-20
+Copyright (C) 1998-2014 Xavier Roche and other contributors
+To see the option list, enter a blank line or try httrack --help
+
+Enter project name :www.brisa.org.br
+
+Base path (return=/root/websites/) :/root/httrack_brisa
+
+Enter URLs (separated by commas or blank spaces) :www.brisa.org.br
+
+Action:
+(enter)	1	Mirror Web Site(s)
+	2	Mirror Web Site(s) with Wizard
+	3	Just Get Files Indicated
+	4	Mirror ALL links in URLs (Multiple Mirror)
+	5	Test Links In URLs (Bookmark Test)
+	0	Quit
+: 1
+
+Proxy (return=none) :
+
+You can define wildcards, like: -*.gif +www.*.com/*.zip -*img_*.zip
+Wildcards (return=none) :
+
+You can define additional options, such as recurse level (-r<number>), separed by blank spaces
+To see the option list, type help
+Additional options (return=none) :
+
+---> Wizard command line: httrack www.brisa.org.br  -O "/root/httrack_brisa/www.brisa.org.br"  -%v  
+
+Ready to launch the mirror? (Y/n) :y
+
+--==[ Resumido ]==--
+
+WARNING! You are running this program as root!
+It might be a good idea to run as a different user
+Mirror launched on Mon, 23 Nov 2015 14:39:58 by HTTrack Website Copier/3.48-20 [XR&CO'2014]
+mirroring www.brisa.org.br with the wizard help..
+Done.
+Thanks for using HTTrack!
+* 
+root@kali-well:~/httrack_brisa# 
+
+Faça uma navegação offline
+
+- Traceroute|Tracert
+
+vamos dar um tracert|treceroute para discobrimos o caminho que os dados fazem para chegar ao destino.
+Com isso. podemos descobrir em quais equipamentos ele passou, como roteadores, firewalls, etc. Além disso, podemos observar quantos saltos (hosts) o pacote passou e o tempo que levou.
+ 
+C:\Users\Aline>tracert www.google.com.br
+
+Tracing route to www.google.com.br [173.194.42.152]
+over a maximum of 30 hops:
+
+  1    <1 ms    <1 ms    <1 ms  mercurio.brisa.org.br [10.1.5.100]
+  2    <1 ms    <1 ms     1 ms  189.86.123.1
+  3     1 ms     1 ms     1 ms  embratel-t0-4-0-0-152126-uacc02.spomb.embratel.net.br [200.250.15.217]
+  4     2 ms     2 ms     2 ms  200.244.213.68
+  5     3 ms     2 ms     2 ms  peer-b51-puacc01.spolp.embratel.net.br [201.64.46.58]
+  6    10 ms    18 ms     3 ms  209.85.254.11
+  7     8 ms     9 ms     8 ms  72.14.235.137
+  8    54 ms    36 ms    47 ms  209.85.253.169
+  9   150 ms   152 ms   152 ms  rio01s05-in-f24.1e100.net [173.194.42.152]
+
+Trace complete.
+
+C:\Users\Aline>
+
+Tivemos 9 saltos, agora vamos dar um ping no endereço
+
+Observe o penultimo salto, levou um tempo maior, possívelmente temos filtros nele, como um firewall, acls, ids, etc
+
+Agora vamos testar a conectividade com o ping e comparar com uma tabela padrão de TTL.
+
+Padrões de TTLs
+
+Cyclades 		- 30
+Linux 			- 64
+Windows			- 128
+Cisco			- 255
+Linux + Netfilter 	- 255
+
+
+
+C:\Users\Aline>ping 173.194.42.152
+
+Pinging 173.194.42.152 with 32 bytes of data:
+Reply from 173.194.42.152: bytes=32 time=10ms TTL=55
+Reply from 173.194.42.152: bytes=32 time=9ms TTL=55
+Reply from 173.194.42.152: bytes=32 time=186ms TTL=55
+Reply from 173.194.42.152: bytes=32 time=184ms TTL=55
+
+Ping statistics for 173.194.42.152:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 9ms, Maximum = 186ms, Average = 97ms
+
+C:\Users\Aline>
+
+observe que o TTL = 55
+
+TTL = 55
+
+o mais próximo é o do Linux 64 --> agora podemos pegar o número de saltos do traceroute para ver quantos saltos ouve para uma ideia do S.O. rodando no alvo
+
+nº de saltos = 9
+
+TTL + Saltos = S.O.
+55 + 9 = 64 = Linux
+
+existem formas de alterar o TTL então não é uma analise 100% real apenas uma ideia de qual o S.O. no alvo
+
+podemos analisar também com o PING o MTU do nosso alvo, para isso, iremos utilizar as opções -f para não fragmentar o pacote, a pção -l para informar o tamanho do payload e -n para informar a quantidade de pacotes a serem enviado.
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1500 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1500 bytes of data:
+Packet needs to be fragmented but DF set.
+Packet needs to be fragmented but DF set.
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1400 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1400 bytes of data:
+Reply from 10.2.0.8: bytes=1400 time=1ms TTL=254
+Reply from 10.2.0.8: bytes=1400 time=1ms TTL=254
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 1ms, Maximum = 1ms, Average = 1ms
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1470 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1470 bytes of data:
+Reply from 10.2.0.8: bytes=1470 time=1ms TTL=254
+Reply from 10.2.0.8: bytes=1470 time=1ms TTL=254
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 1ms, Maximum = 1ms, Average = 1ms
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1480 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1480 bytes of data:
+Packet needs to be fragmented but DF set.
+Packet needs to be fragmented but DF set.
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1475 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1475 bytes of data:
+Packet needs to be fragmented but DF set.
+Packet needs to be fragmented but DF set.
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1474 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1474 bytes of data:
+Packet needs to be fragmented but DF set.
+Packet needs to be fragmented but DF set.
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1473 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1473 bytes of data:
+Packet needs to be fragmented but DF set.
+Packet needs to be fragmented but DF set.
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1472 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1472 bytes of data:
+Reply from 10.2.0.8: bytes=1472 time=2ms TTL=254
+Reply from 10.2.0.8: bytes=1472 time=1ms TTL=254
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 1ms, Maximum = 2ms, Average = 1ms
+
+C:\Users\Aline>
+
+
+
+- DNS
+  - NSLookup
+  - Set Type (Query)
+  - 
+
+
+C:\Users\Aline>nslookup
+Default Server:  titan.brisa.org.br
+Address:  10.1.3.8
+
+> server 8.8.8.8                                -+
+Default Server:  google-public-dns-a.google.com  |--> Utilizando outro servidor DNS para fazer nossas consultas
+Address:  8.8.8.8                               -+
+
+> set type=ns  <--------------- Modificando o tipo de registro a ser  consultado
+> notisa.com.br
+Server:  google-public-dns-a.google.com
+Address:  8.8.8.8
+
+Non-authoritative answer:
+notisa.com.br   nameserver = ns2.tecla.com.br
+notisa.com.br   nameserver = ns1.tecla.com.br
+>
+>
+> set type=mx
+> notisa.com.br
+
+> set type=soa
+> notisa.com.br
+
+> ls -d notisa.com.br <-- Validando se o servidor permite transferencia de zona
+
+> exit
+
+root@kali-well:~# dig @8.8.8.8 NS notisa.com.br
+
+root@kali-well:~# dig @8.8.8.8 NS notisa.com.br
+
+root@kali-well:~# dig @8.8.8.8 MX notisa.com.br
+
+root@kali-well:~# dig @8.8.8.8 SOA notisa.com.br
+
+root@kali-well:~# host -v -t NS notisa.com.br
+
+root@kali-well:~# host -v -t MX notisa.com.br
+
+root@kali-well:~# host -v -t HINFO notisa.com.br
+
+root@kali-well:~# host -v -t TXT notisa.com.br
+
+
+Agora vamos agora utilizar uma ferramenta de varredura DNS o dnsenum
+
+root@kali-well:~# dnsenum notisa.com.br
+dnsenum.pl VERSION:1.2.3
+
+Trying Zone Transfer for notisa.com.br on ns1.tecla.com.br ... 
+notisa.com.br.                           86400    IN    SOA      ns1.tecla.com.br.
+notisa.com.br.                           86400    IN    NS       ns1.tecla.com.br.
+...
+
+Trying Zone Transfer for notisa.com.br on ns2.tecla.com.br ... 
+notisa.com.br.                           86400    IN    SOA      ns1.tecla.com.br.
+notisa.com.br.                           86400    IN    NS       ns1.tecla.com.br.
+...
+
+No caso acima temos um DNS que está aberto para transferencia de zona, porém, isso não é comum nos serviores DNS mais noveos. Vamos utilizar um exemplo:
+
+root@kali-well:~# dnsenum brisa.org.br
+dnsenum.pl VERSION:1.2.3
+
+Trying Zone Transfer for brisa.org.br on vesuvio.brisa.org.br ... 
+AXFR record query failed: RCODE from server: REFUSED
+
+Trying Zone Transfer for brisa.org.br on titan.brisa.org.br ... 
+AXFR record query failed: RCODE from server: REFUSED
+
+O domínio da BRISA não está entregando as zonas DNS para ser analisada off-line, porém nem tudo está perdido. O DNS por sua própria natureza é um serviço que responde a consulta e, portanto, um invasor pode usar uma lista com centenas de nomes para consulta. Este tipo de consulta é muito escandaloso e pode ser percebido pela equipe de TI.
+
+root@kali-well:~# dnsenum -f /usr/share/dnsenum/dns.txt  brisa.org.br
+dnsenum.pl VERSION:1.2.3
+
+Brute forcing with /usr/share/dnsenum/dns.txt:
+_______________________________________________
+
+extranet.brisa.org.br.                   5        IN    CNAME    tritao.brisa.org.br.
+tritao.brisa.org.br.                     5        IN    A          10.2.0.6
+forum.brisa.org.br.                      5        IN    A          10.2.0.6
+
+outra ferramenta é o fierce
+
+root@kali-well:~# fierce -dns brisa.org.br
+
+Checking for wildcard DNS...
+Nope. Good.
+Now performing 2280 test(s)...
+10.2.0.9	proteus.brisa.org.br
+10.2.0.4	nm04.brisa.org.br
+10.2.0.1	venus.brisa.org.br
+
+outros para teste
+
+./dnsenum.pl notisa.com.br dns.txt <-------- esse permite zone transfer
+./dnsenum.pl tecla.com.br dns.txt <------´
+./dnsenum.pl dreamhost.com.br dns.txt <-´
+
+ROBOTS
+------
+
+Arquivo robots.txt é um aquivo com instruções para os robôs web, sobre o que eles podem ou não podem "indexar" utilizando o protocolo REP (Robots Exclclusion Protocol). Podemos acessa-lo e ver o que o pessoal está escondendo dos buscadores.
+
+http://www.brisa.org.br/robots.txt
+
+# If the Joomla site is installed within a folder such as at
+# e.g. www.example.com/joomla/ the robots.txt file MUST be
+# moved to the site root at e.g. www.example.com/robots.txt
+# AND the joomla folder name MUST be prefixed to the disallowed
+# path, e.g. the Disallow rule for the /administrator/ folder
+# MUST be changed to read Disallow: /joomla/administrator/
+#
+# For more information about the robots.txt standard, see:
+# http://www.robotstxt.org/orig.html
+#
+# For syntax checking, see:
+# http://www.sxw.org.uk/computing/robots/check.html
+
+User-agent: *
+Disallow: /administrator/ <-- Promissor
+Disallow: /cache/
+Disallow: /cli/
+Disallow: /components/
+Disallow: /images/
+Disallow: /includes/
+Disallow: /installation/ <-- Promissor
+Disallow: /language/
+Disallow: /libraries/
+Disallow: /logs/
+Disallow: /media/
+Disallow: /modules/
+Disallow: /plugins/
+Disallow: /templates/
+Disallow: /tmp/
+
+Fingerprint
+-----------
+
+Tecnica de identificar a versão e distribuição do sistema operacional que irá receber a tentativa de intrusão
+
+Podemos fazer o fingerprint pelos seguintes meios:
+- Analise de pacotes que trafegam pela rede
+- Leitura de banners (assinaturas do sistema)
+- Analise de particularidade da pilha TCP/IP
+
+C:\Users\Aline>telnet www.brisa.org.br 80
+HEAD / HTTP/1.0
+
+HTTP/1.1 200 OK
+Date: Tue, 24 Nov 2015 14:50:48 GMT
+Server: Apache/2.2.22 (Debian)  <-- Banner S.O.
+Set-Cookie: fe2e13390973a1924184ef6c4b98a867=n613utufemas6kienc3t6votd2; path=/
+P3P: CP="NOI ADM DEV PSAi COM NAV OUR OTRo STP IND DEM"
+Cache-Control: no-cache
+Pragma: no-cache
+Vary: Accept-Encoding
+Connection: close
+Content-Type: text/html; charset=utf-8
+
+Connection to host lost.
+
+C:\Users\Aline>
+
+
+Tivemos 9 saltos, agora vamos dar um ping no endereço
+
+Observe o penultimo salto, levou um tempo maior, possívelmente temos filtros nele, como um firewall, acls, ids, etc
+
+Agora vamos testar a conectividade com o ping e comparar com uma tabela padrão de TTL.
+
+Padrões de TTLs
+
+Cyclades 		- 30
+Linux 			- 64
+Windows			- 128
+Cisco			- 255
+Linux + Netfilter 	- 255
+
+
+
+C:\Users\Aline>ping 173.194.42.152
+
+Pinging 173.194.42.152 with 32 bytes of data:
+Reply from 173.194.42.152: bytes=32 time=10ms TTL=55
+Reply from 173.194.42.152: bytes=32 time=9ms TTL=55
+Reply from 173.194.42.152: bytes=32 time=186ms TTL=55
+Reply from 173.194.42.152: bytes=32 time=184ms TTL=55
+
+Ping statistics for 173.194.42.152:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 9ms, Maximum = 186ms, Average = 97ms
+
+C:\Users\Aline>
+
+observe que o TTL = 55
+
+TTL = 55
+
+o mais próximo é o do Linux 64 --> agora podemos pegar o número de saltos do traceroute para ver quantos saltos ouve para uma ideia do S.O. rodando no alvo
+
+nº de saltos = 9
+
+TTL + Saltos = S.O.
+55 + 9 = 64 = Linux
+
+existem formas de alterar o TTL então não é uma analise 100% real apenas uma ideia de qual o S.O. no alvo
+
+podemos analisar também com o PING o MTU do nosso alvo, para isso, iremos utilizar as opções -f para não fragmentar o pacote, a pção -l para informar o tamanho do payload e -n para informar a quantidade de pacotes a serem enviado.
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1500 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1500 bytes of data:
+Packet needs to be fragmented but DF set.
+Packet needs to be fragmented but DF set.
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1400 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1400 bytes of data:
+Reply from 10.2.0.8: bytes=1400 time=1ms TTL=254
+Reply from 10.2.0.8: bytes=1400 time=1ms TTL=254
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 1ms, Maximum = 1ms, Average = 1ms
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1470 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1470 bytes of data:
+Reply from 10.2.0.8: bytes=1470 time=1ms TTL=254
+Reply from 10.2.0.8: bytes=1470 time=1ms TTL=254
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 1ms, Maximum = 1ms, Average = 1ms
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1480 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1480 bytes of data:
+Packet needs to be fragmented but DF set.
+Packet needs to be fragmented but DF set.
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1475 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1475 bytes of data:
+Packet needs to be fragmented but DF set.
+Packet needs to be fragmented but DF set.
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1474 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1474 bytes of data:
+Packet needs to be fragmented but DF set.
+Packet needs to be fragmented but DF set.
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1473 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1473 bytes of data:
+Packet needs to be fragmented but DF set.
+Packet needs to be fragmented but DF set.
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+
+C:\Users\Aline>ping www.brisa.org.br -f -l 1472 -n 2
+
+Pinging vy.brisa.org.br [10.2.0.8] with 1472 bytes of data:
+Reply from 10.2.0.8: bytes=1472 time=2ms TTL=254
+Reply from 10.2.0.8: bytes=1472 time=1ms TTL=254
+
+Ping statistics for 10.2.0.8:
+    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 1ms, Maximum = 2ms, Average = 1ms
+
+C:\Users\Aline>
+
+nmap -v -O 192.168.5.146
+
+
+Rastreamento de Emails
+======================
+
+Envio de email para o domínio a ser pesquisado para um email que nós sabemos que não existe para
+
+analisarmos o cabeçalho do email para mapeamos a rede interna/dmz do cliente
+
+Veja que existem informações preciosas para um atacante. Essa é a tecnica de email bounce
+
+----- EXEMPLO -----
+
+postmaster@brisa.org.br
+14:55 (4 minutos atrás)
+
+para mim 
+Falha na entrega aos seguintes destinatários ou listas de distrbuição:
+
+drogasil@brisa.org.br
+Ocorreu um problema durante a entrega desta mensagem. O Microsoft Exchange não tentará entregar novamente este email para você. Tente reenviar esta mensagem mais tarde ou forneça o texto de diagnóstico a seguir para o administrador o sistema.
+
+Enviado pelo Microsoft Exchange Server 2007 <-- Servidor de email usado ###########################
+
+
+
+
+
+Informações de diagnóstico para administradores:
+
+Gerando servidor: brisa.org.br
+
+drogasil@brisa.org.br
+#554 5.4.4 SMTPSEND.DNS.MxLoopback; DNS records for this domain are configured in a loop ##
+
+Cabeçalhos de mensagem originais:
+
+			  +---------+===========+---------------------------- Servidor DMZ
+                         /          v           v
+Received: from sedna.brisa.org.br (189.86.123.24) by orion.brisa.org.br
+                                                        \
+  +=======+------------------------------------------------------------------ Servidor RI
+  v       v
+ (10.1.3.60) with Microsoft SMTP Server id 8.1.336.0; Tue, 3 Jul 2012 14:55:58
+ -0300
+Received: (qmail 13638 invoked by uid 1008); 3 Jul 2012 14:58:42 -0300
+Received: from mail-ee0-f51.google.com by sedna (envelope-from
+ <wellington.mobile@gmail.com>, uid 1001) with qmail-scanner-2.08  (clamdscan:  <--- Anti Spam
+ 0.95.3/10551. spamassassin: 3.2.5.
+   Clear:RC:0(74.125.83.51):SA:0(-102.1/1.6):.  Processed in 10.119066 secs);
+ 03 Jul 2012 17:58:42 -0000
+X-Spam-Status: No, score=-102.1 required=1.6
+X-Spam-Level:
+X-BRISA-Scanner-Mail-From: wellington.mobile@gmail.com via sedna
+X-BRISA-Scanner: 2.08 (Clear:RC:0(74.125.83.51):SA:0(-102.1/1.6):. Processed in 10.119066 secs)
+Received: from mail-ee0-f51.google.com (74.125.83.51)  by sedna.brisa.org.br
+ with SMTP; 3 Jul 2012 14:58:31 -0300
+Received: by eekc1 with SMTP id c1so2419274eek.10        for
+ <drogasil@brisa.org.br>; Tue, 03 Jul 2012 10:53:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:date:message-id:subject:from:to:content-type;
+        bh=YZ60KsCIHUdGMZr3/6Fhmi+3V9uASwcT0z7vWUxWu0Y=;
+        b=fPq2QLyJiEr6OSYgBHhcd1xihtZzqY5dJnZZwgtQUlkdI+mVGAd519XZiH55UKi3Iu
+         fsElIbGuFqOtXoF+4YxEh7zx1TTCxkko6xHmNizMD6yfiLIiShtV+AznXfJ1abi7jDXI
+         Jm5bU0xiN6fTtNI+KETJv6QwLJHe/qEAE47BD9Ck3sRFPsxGnWFbP4l2is9gFBjnrjcy
+         lds5KQgDyvzPr1E0JyRMAW6g7oUndcv2lpDiC2hmRoNS6OEMtisJsCLatiC5Fg6Tpt17
+         kLvHIaicKy5F62YD5EP87BBwleaMcgYScwLDXXQxq6bH5xKgUt56ppadCRsrQP8/EBKc
+         FQOA==
+MIME-Version: 1.0
+Received: by 10.14.188.140 with SMTP id a12mr4385663een.25.1341338002345; Tue,
+ 03 Jul 2012 10:53:22 -0700 (PDT)
+Received: by 10.14.28.72 with HTTP; Tue, 3 Jul 2012 10:53:22 -0700 (PDT)
+Date: Tue, 3 Jul 2012 14:53:22 -0300
+Message-ID: <CABKnOHWd274jRGv87JnCHM0jkXs8bQX_KmBagFf7SJYfachpJg@mail.gmail.com>
+Subject: [Teste]
+From: Wellington L S <wellington.mobile@gmail.com>
+To: <drogasil@brisa.org.br>
+Content-Type: multipart/alternative; boundary="bcaec52be543274fad04c3f09761"
+Return-Path: wellington.mobile@gmail.com
+Received-SPF: Neutral (orion.brisa.org.br: 189.86.123.24 is neither
+ permitted nor denied by domain of wellington.mobile@gmail.com)
+
+Final-Recipient: rfc822;drogasil@brisa.org.br
+Action: failed
+Status: 5.4.4
+Diagnostic-Code: smtp;554 5.4.4 SMTPSEND.DNS.MxLoopback; DNS records for this domain are configured in a loop
+
+
+
+---------- Mensagem encaminhada ----------
+From: Wellington L S <wellington.mobile@gmail.com>
+To: <drogasil@brisa.org.br>
+Cc: 
+Date: Tue, 3 Jul 2012 14:53:22 -0300
+Subject: [Teste]
+segue...
+
+-- 
+Atenciosamente,
+Wellington L. da Silva
+wellington.mobile@gmail.com
+
+---- FIM ----
+
+Caso o email fosse enviado da empresa para vc em Origination-IP sendo o email da máquina do cliente do servidor.
+
+Isso vai nos servir para Enviamos pequenas imagens (trojans) e envio de links (bots)
+
+Como obter os cabeçalhos dos emails
+
+
+Sites de E-mail tracker
+http://www.ip2location.com/free/email-tracer
+http://ipaddress.com/trace-email.html
+https://www.whatismyip.com/email-header-analyzer/?iref=button-trace-email
+http://www.iptrackeronline.com/email-header-analysis.php
+http://whatismyipaddress.com/trace-email
+
+
+Scanning - Varredura
+====================
+# script varreduras_data
+
+fping -f arquivo_armazenado_ips 2>/dev/null --> Ping para multiplos hosts
+
+fping -c1 -g 192.168.5.0/24 2> /dev/null > ip_net.txt --> especifica uma range de ip
+
+estamos definindo 1 ping para cada host com a opção -c1 isso é bom para não sobrecarregarmos a rede nem levantar suspeitas nos dispositivos de contramedidas. A opção -g informa que estamos passando uma range de ip em vez de um arquivo com ip com a opção -f
+
+root@kali-well:~# theharvester -d brisa.org.br -l 500 -b all
+
+*******************************************************************
+*                                                                 *
+* | |_| |__   ___    /\  /\__ _ _ ____   _____  ___| |_ ___ _ __  *
+* | __| '_ \ / _ \  / /_/ / _` | '__\ \ / / _ \/ __| __/ _ \ '__| *
+* | |_| | | |  __/ / __  / (_| | |   \ V /  __/\__ \ ||  __/ |    *
+*  \__|_| |_|\___| \/ /_/ \__,_|_|    \_/ \___||___/\__\___|_|    *
+*                                                                 *
+* TheHarvester Ver. 2.6                                           *
+* Coded by Christian Martorella                                   *
+* Edge-Security Research                                          *
+* cmartorella@edge-security.com                                   *
+*******************************************************************
+
+
+Full harvest..
+[-] Searching in Google..
+	Searching 0 results...
+	Searching 100 results...
+	Searching 200 results...
+	Searching 300 results...
+	Searching 400 results...
+	Searching 500 results...
+[-] Searching in PGP Key server..
+
+[+] Emails found:
+------------------
+mario.alves@brisa.org.br
+Luiz.lisboa@brisa.org.br
+andrea.rodrigues@brisa.org.br
+@df.brisa.org.br
+eduardo.rodrigues@brisa.org.br
+alexandre.barbosa@brisa.org.br
+armando.rech@brisa.org.br
+Andreia.faria@brisa.org.br
+denis.souza@brisa.org.br
+.eduardo.resende@brisa.org.br
+brisa@brisa.org.br
+solon.pinto@brisa.org.br
+adauto.freitas@brisa.org.br
+paulo.toledo@brisa.org.br
+nfaria@brisa.org.br
+@brisa.org.br
+paulo.miranda@brisa.org.br
+henrique.conti@brisa.org.br
+handrey.cunha@brisa.org.br
+@brisa.org.br
+@brisa.org.br
+3cOCEOIMEFHMHIHMGFAOFCKEILCAAA.eduardo.resende@brisa.org.br
+OCEOIMEFHMHIHMGFAOFCKEILCAAA.eduardo.resende@brisa.org.br
+
+root@kali-well:~# 
+
+# maltego
+Next
+
+
+
+Social Engineering
+==================
+
+termos
+
+Shred Documentos (Documentos em farrapo)
+
+Escort Visitors (Escoltar os Visitantes)
+
+Hoax (Enganar)
+
+Tailgating (Assim como um motorista pode bagageira do carro de um outro motorista , seguindo muito de perto, no sentido de segurança , utilização não autorizada meios para comprometer a segurança física , seguindo alguém através de uma porta destina-se a impedir a entrada de intrusos. A utilização não autorizada é na verdade uma forma de engenharia social, onde alguém que não está autorizado a entrar em uma área particular, faz isso logo atrás de alguém que esteja autorizado)
+
+Piggybacking (Um engenheiro social aparece como um empregado legítimo e entra em um prédio seguro, seguindo atrás de alguém que tem acesso)

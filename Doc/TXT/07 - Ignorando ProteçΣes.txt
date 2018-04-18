@@ -1,0 +1,108 @@
+Ignorando Proteções
+===================
+
+Objetivos
+
+	* Conhecer os mecanismos de evasão de firewall
+	* Conhecer as técnicas de evasão de IDS/IPS
+	* Entender as técnicas de anti-forense
+
+
+Aqui iremos ver como fazer o bypass (burlar os sistemas de segurança) passando por eles sorrateiramente por esses sistemas.
+
+Além de burlar ainda forjar minha as entradas como sendo de outra origem estamos praticando o antiforense.
+
+Comandos usados para fazer evasão com o nmap
+	-f
+	-D <decoy1, decoy2, ..., decoyN> <seuip> --> esconde o ip verdadeiro em meio aos falsos.
+	-S <IP>
+	--source-port <port>
+	--randomize-hosts
+	--spoof-mac <MAC_Falso>
+
+-f
+--
+
+Subir o BT e o MSFtable (VMs)
+
+Vamos startar o wireshark no BT.
+
+vamos criar um filtro:
+
+ip.src==192.168.5.149 <-- ip do metasploitable (posso fazer isso no windows)
+
+do msftable vamos fazer uma varredura com o nmap:
+instala ele
+	aptitude install nmap
+	nmap -sT 192.168.5.144 <-- ip do BT
+
+Observe no Wireshark os fragmento é feito na camada 3 IP de uma olhada nos cabeçalhos IP
+
+
+agora vamos fazer com a opção de fagrimentação -f
+
+	nmap -sT -f 192.168.5.144
+
+Observe novamente no wireshark
+
+Decoy
+-----
+
+Ele é usado para camuflar nossa varredura usando endereços que nós colocamos, isso dificulta para o investigador na hora de saber de qual ip realmente sai o ataque.
+
+refazer o filtro do wireshark para visualizarmos o Decoy
+
+ip.src==192.168.5.meu or ip.src==192.168.5.200 or ip.src==192.168.5.201 or ip.src==192.168.5.202 and dst.src==192.168.5.144
+
+pratica:
+
+	nmap -sS -e eth0 -S 192.168.5.155 -O -sV -P0 -n 192.168.5.144
+
+	nmap -sS -e eth0 -S 192.168.5.155 --spoof-mac 08:00:27:aa:aa:01 -O -sV -P0 -n 192.168.5.144 (com mac-spoof ele não conseguiu)
+
+	nmap -sS --source-port 53 -p 80 -P0 -n -D 192.168.5.200,192.168.5.201,192.168.5.202,192.168.5.meu 192.168.5.144
+
+
+
+Ferramenta para teste de Firewall/IDS
+
+Firewall Tester (FTester) ele analisa o comportamento do firewall referente ao pacote enviado.
+./ftest
+./ftestd
+
+site: www.inversepath.com/ftester.html
+
+Detectando Honeypots
+====================
+
+NESUS
+
+Nmap
+
+OpenVAS
+
+Send Safe Honeypot (para windows)
+
+ha dois tipos de honeypot. O de alta e de baixa interatividades.
+
+Baixa Interatividade: honeyd e Dyonea
+
+Vamos ver se é possível detectar, vamos instalar ele no metasploitable.
+
+	aptitude install honeyd	
+	cd /etc/honeypot
+	ls
+	vi honeyd.conf
+	vi /etc/default/honeyd
+
+	Mude a var RUN para RUN="yes"
+	NETWORK=192.168.5.0/24
+	sai e salva
+	/etc/init.d/honeyd start
+	
+	da máquina BT
+	nmap -sS -sV -PN 192.168.1.149
+
+
+da uma apronfundada no assunto
+

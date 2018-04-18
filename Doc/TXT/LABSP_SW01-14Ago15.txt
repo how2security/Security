@@ -1,0 +1,309 @@
+LABSP_SW01#sh run
+Building configuration...
+
+Current configuration : 8233 bytes
+!
+! Last configuration change at 18:39:58 UTC Fri Jul 24 2015 by suporte
+! NVRAM config last updated at 20:04:50 UTC Thu Jul 23 2015 by suporte
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname LABSP_SW01
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$66iz$.irqbKPEtJ8B3PjYAgQIF/
+!
+username suporte privilege 15 secret 5 $1$QYMf$TW1wDLtahGDC6ppDg3Pts/
+no aaa new-model
+!
+!
+!         
+ip domain-name brisa-lge.local
+vtp mode off
+!
+!
+crypto pki trustpoint TP-self-signed-3275384192
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-3275384192
+ revocation-check none
+ rsakeypair TP-self-signed-3275384192
+!
+!
+crypto pki certificate chain TP-self-signed-3275384192
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 33323735 33383431 3932301E 170D3135 30353331 31353239 
+  35365A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 32373533 
+  38343139 3230819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  81008FC8 8B72FCCE 453B075F AA16422C 2B28C1CA AA268E97 8A5EAC0F 4F28233B 
+  92FB3395 2338D7A2 A8B63C3D 6D14E8C6 B5A57441 B0FEC1A7 25FC731A 38D9A434 
+  832D8A41 03C84B24 788AB2F3 29172413 666390C7 84A1FA2B 90D4E5D0 C4A148F3 
+  4287ED8C F775150F 14D326CC FB524DAD CB07F84B FBF8C9D6 47B85965 3A47899D 
+  F67F0203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 14022699 FB35B28A EE45E055 576DDEBE 7897E51C D5301D06 
+  03551D0E 04160414 022699FB 35B28AEE 45E05557 6DDEBE78 97E51CD5 300D0609 
+  2A864886 F70D0101 05050003 81810068 85E6248E 9E5512DD F94BA72E 9187EB53 
+  BF4BE1D8 B4F71A62 2BFC6F8D 1A9CF0D7 0365E6B2 8BE51CE7 66D87DC9 96D27F52 
+  1ED265FC 2976DA2A 09205259 9FB922C7 74C7EB26 9DA4CE0E 0D52B061 771AA569 
+  BB993363 48E9885B 19EEA758 7A92BF57 D922338D E9C75E06 CDA183A4 A866E362 
+  BA8DE1D4 0A849E64 752A0F78 13EE11
+        quit
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+!
+!
+!
+!
+!
+vlan internal allocation policy ascending
+!
+vlan 61
+ name vBRISA-3G
+!
+vlan 62
+ name vBRISA-FT
+!         
+vlan 63
+ name vVISIT
+!
+vlan 70
+ name vVPN
+!
+vlan 71
+ name vNET
+!
+vlan 79
+ name vGER
+!
+ip tcp synwait-time 10
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh version 2
+!
+!
+!
+!
+!
+interface Port-channel1
+ switchport mode trunk
+ switchport nonegotiate
+!
+interface Port-channel2
+ switchport mode trunk
+ switchport nonegotiate
+!
+interface Port-channel3
+ switchport mode trunk
+ switchport nonegotiate
+!
+interface FastEthernet0
+ no ip address
+!
+interface GigabitEthernet0/1
+ description CONEXAO SERVIDOR SATURNO
+ switchport mode access
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface GigabitEthernet0/2
+ description CONEXAO SERVIDOR DENEB
+ switchport mode access
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!         
+interface GigabitEthernet0/3
+ description CONEXAO SERVIDOR CANOPUS
+ switchport mode access
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface GigabitEthernet0/4
+ description CONEXAO SERVIDOR HALLEY
+ switchport mode access
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface GigabitEthernet0/5
+ description CONEXAO SERVIDOR DIRAN
+ switchport mode access
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface GigabitEthernet0/6
+ description CONEXAO STORAGE 01
+ switchport mode access
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!         
+interface GigabitEthernet0/7
+ description CONEXAO STORAGE 02
+ switchport mode access
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface GigabitEthernet0/8
+ description CONEXAO SERVIDOR ZAVIJAVA
+ switchport mode trunk
+!
+interface GigabitEthernet0/9
+ description "PORTA LIVRE"
+ switchport trunk allowed vlan 61-63,71,79
+ switchport mode trunk
+!
+interface GigabitEthernet0/10
+ description "PORTA LIVRE"
+ shutdown
+!
+interface GigabitEthernet0/11
+ description "PORTA LIVRE"
+ shutdown
+!
+interface GigabitEthernet0/12
+ description "PORTA LIVRE"
+ shutdown
+!
+interface GigabitEthernet0/13
+ description "PORTA LIVRE"
+ shutdown
+!
+interface GigabitEthernet0/14
+ description "PORTA LIVRE"
+ shutdown
+!
+interface GigabitEthernet0/15
+ description "PORTA LIVRE"
+ shutdown
+!
+interface GigabitEthernet0/16
+ description "PORTA LIVRE"
+ shutdown
+!
+interface GigabitEthernet0/17
+ description "PORTA LIVRE"
+ shutdown
+!
+interface GigabitEthernet0/18
+ description "CONEXAO ROUTER02 - INTELIG-SA e LEVEL3-LGE"
+ switchport trunk allowed vlan 1,79
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree bpdufilter enable
+!
+interface GigabitEthernet0/19
+ description "Etherchannel LABSP_SW01 e LABSP_SW04"
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree link-type point-to-point
+ channel-group 3 mode active
+!
+interface GigabitEthernet0/20
+ description "Etherchannel LABSP_SW01 e LABSP_SW04"
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree link-type point-to-point
+ channel-group 3 mode active
+!
+interface GigabitEthernet0/21
+ description "Etherchannel LABSP_SW01 e LABSP_SW02"
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree link-type point-to-point
+ channel-group 1 mode active
+!
+interface GigabitEthernet0/22
+ description "Etherchannel LABSP_SW01 e LABSP_SW02"
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree link-type point-to-point
+ channel-group 1 mode active
+!
+interface GigabitEthernet0/23
+ description "Etherchannel LABSP_SW01 e LABSP_SW03"
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree link-type point-to-point
+ channel-group 2 mode active
+!
+interface GigabitEthernet0/24
+ description "Etherchannel LABSP_SW01 e LABSP_SW03"
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree link-type point-to-point
+ channel-group 2 mode active
+!         
+interface GigabitEthernet0/25
+!
+interface GigabitEthernet0/26
+!
+interface Vlan1
+ no ip address
+!
+interface Vlan79
+ ip address 172.31.15.1 255.255.255.0
+!
+ip default-gateway 172.31.15.129
+no ip http server
+no ip http secure-server
+!
+access-list 10 permit 136.166.97.243
+access-list 111 permit ip host 136.166.97.222 any
+access-list 111 permit ip host 136.166.97.218 any
+access-list 111 permit ip host 136.166.97.137 any
+access-list 111 deny   ip any any log
+access-list 111 deny   ip any any
+snmp-server community brisa-sp RO 10
+snmp-server location BRISA-SP
+snmp-server contact Suporte - suporte@brisa.org.br
+snmp-server host 136.166.97.243 informs version 2c brisa-sp 
+snmp-server host 136.166.97.243 version 2c brisa-sp 
+snmp-server host 136.166.97.246 version 2c brisa-sp 
+snmp ifmib ifindex persist
+!
+banner motd ^CCCC
+********************************* WARNING **************************************
+          
+          
+ WARNING NOTICE: This is a private system for use by BRISA The unauthorized
+ access or attempt, use or modification  of this system is  strictly prohibited.
+ Individuals  undertaking  such  unauthorized  access,  use or modification are
+ subject to company disciplinary proceedings and/or criminal and civil penalties
+ under applicable  domestic and  foreign  laws.  The use of  this system may be
+ monitored and  recorded for administrative and  security reasons in accordance
+ with local law.
+          
+          
+********************************** AVISO ***************************************
+          
+          
+ AVISO: Este e um sistema  privado para uso exclusivo  da BRISA . Acessos nao
+ autorizados ou  tentativas, uso ou modificacao  deste sistema sao estritamente
+ restritos.   Individuos  que  executam  tal  acesso,  usam  ou  modificam  sem
+ autorizacao  estao sujeitos a procedimentos  disciplinares e penalidades civis
+ com base em leis domesticas e estrangeiras aplicaveis. O uso deste sistema pode
+ ser monitorado e armazenado para uso posterior conforme a lei local.^C
+!
+line con 0
+ password 7 113A2E461B1528030A796F
+ logging synchronous
+ login
+line vty 0 4
+ access-class 111 in
+ login local
+ transport input ssh
+line vty 5 15
+ access-class 111 in
+ login local
+ transport input ssh
+!
+end
+

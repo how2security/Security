@@ -1,0 +1,453 @@
+Aprendendo Experct
+==================
+
+1 - Introdução
+--------------
+
+O expect é uma ferramenta para automatizar um processo que recebe comando interativos, isto é, que exibe um prompt e espera que o usuário digite alguma resposta. Alguns exemplos de aplicações interativas são: passwd, ftp, fsck, ssh, telnet, gdb, entre outras.
+
+Três comandos compõe a estrutura do expect: spawn, expect e send e o uso dele é simples. O comando spawn inicia o processo, expect aguarda por uma sequência de strings de um processo e send envia uma string para um processo (comandos, senhas e outros).
+
+
+Instalação
+----------
+
+Expect é uma extensão Tcl e pode ser instalado em praticamente todas distribuições Linux, seja através de um gerenciador de pacotes como por exemplo apt-get no Debian, yum no Red Hat ou ainda através do código fonte. No meu caso, estou utilizando o Linux Debian e para instalar execute:
+
+# sudo apt-get install expect
+
+Vamos a um exemplo, onde imagine você como administrador de uma grande rede de uma universidade com mais de 1000 estudantes por turno, e a cada semestre você necessite "resetar" todas as senhas desses estudantes. Bom seria um trabalhão já que não conseguiriamos fazer isso com um ShellScript, pois é necessário a interação com o utilitário passwd. Então poderiamos fazer algo assim:
+
+# passwd Well
+Changing password for libes on thunder.
+New password:
+Retype new password:
+
+Então podemos fazer algo como:
+
+spawn passwd [lindex $argv 0]			# Inicia o utilitário passwd utilizando o argumento 0
+   set password [linex $argv 1]			# Cria uma variável chamada password e atribui o valor do argumento 1
+   expect "password:"					# Espera pelo prompt com as seguintes strings "password:"
+   send "$password\r"					# Envia a senha armazenada na variável password
+   expect "password:"
+   send "$password\r"
+   expect eof							# Informa o fim do script EoF - End of File
+   
+Outro exemplo seria o debugging de uma aplicação no GDB (GNU Debugger), onde necessitamos ver o endereço da de uma variável com o comando:
+
+(gdb) print &var
+$1 = (int *) 0xe008
+
+Poderiamos fazer o seguinte:
+send "print &var\r"
+expect "0x*\r" {								# Aqui fazemos uma RegEx para encontrar o padrão (pattern) 0x e qualquer coisa após (*)
+   send_user "$expect_out(0,string)\n"			# Aqui utilizamos a variável interna expect_out para enviar o que deu match na RegEx para
+}												# enviar para o usuário esse resultado.
+
+Podemos ter uma interação parcial utilizando o comando Expect interact, interrompendo a automatização e deixando o usuário que executou o script para ele interagir com o dispositivo.
+
+Um exemplo seria o utilitário fsck que faz uma checagem do file system em busca de inconcistências e questiona se você deseja corrigir ou não, poderiamos responder para alguns tipos e erro yes, para outros no e ainda para aqueles que não foi identificado pelo script solicitar uma interação do usuário:
+
+while 1 {
+   expect {
+      eof						{break}
+	  "UNREF FILE*CLEAR\\?"		{send "y\r"}
+	  "BAD INODE*FIX\\?"		{send "n\r"}
+	  "\\? "					{interact +}
+   }
+}
+
+Assim o script irá automatizar a tarefa e apenas irá solicitar interação do usuário em casos especificos, que se eles não ocorrerem o script cumprirá a automatização.
+
+A ideia não utiliza-lo com muita frequência, pois quebraria a ideia de automatizar as tarefas.
+
+
+2 - TCL (Terminal Command Line)
+===============================
+
+Tudo é uma string em TCL (Everything Is A String)
+-------------------------------------------------
+
+Não existe o conceito de tipo de variáveis em TCL. Tudo nele é string, todos os comandos e variáveis são strings: Por exemplo:
+
+set name DON
+set word footbar
+set pi 3.14159
+
+todas as variáveis $name, $word e $pi contém as STRINGS "DON", "footbar" e "3.14159" respectivamente.
+
+root@fusion:~# tclsh8.6
+% echo $name
+DON
+% echo $word
+footbar
+% echo $pi
+3.14159
+%
+
+Além disso, os nomes de variáveis são case sensitive, a variável "name" é diferente de "Name". E todas as vezes que desejamos acessar o valor da variável temos que preefixar a variável com um dólar ($).
+
+podemos ainda atribuir valores da seguinte forma:
+
+% set phrase $word
+footbar
+% set phrase2 word=$word
+word=footbar
+%
+
+Se necessitarmos anexar o símbolo de dólar dentro do valor podemos utilizar o barra invertida (\ = backslash) para escapar, da seguinte fomra:
+
+% set money \$1000
+$1000
+%
+
+O TCL é semelhante a linguagem C, onde podemos inserir caracteres epeciais com o \, alem de poder inserir valores em hexadecimal e octal, como na tabela a seguir:
+
++---------------+---------------------------------------+
+| Comando		| Descrição								|
++---------------+---------------------------------------+
+| \\			| Barra Invertida (mantem uma \\)		|
++---------------+---------------------------------------+
+| \'			| Apostrofo (mantem \')					|
++---------------+---------------------------------------+
+| \"			| Aspas (mantem \")						|
++---------------+---------------------------------------+
+| \a			| Bip									|
++---------------+---------------------------------------+
+| \b			| Retrocesso							|
++---------------+---------------------------------------+
+| \f			| Avanco de formulario					|
++---------------+---------------------------------------+
+| \n			| Nova Linha							|
++---------------+---------------------------------------+
+| \r			| Carriage Return						|
++---------------+---------------------------------------+
+| \t			| Tabulacao horizontal					|
++---------------+---------------------------------------+
+| \v			| Tabulacao vertical					|
++---------------+---------------------------------------+
++---------------+---------------------------------------+
+| \xhh			| Valor de digito em hexadecimal hh		|
++---------------+---------------------------------------+
+| \0hh			| Valor de digito Octal					|
++---------------+---------------------------------------+
+| \0			| Nulo (nao termina string				|
++---------------+---------------------------------------+
+| \other		| Nao e escape (mantido)				|
++---------------+---------------------------------------+
+
+Para consultar os valores possíveis utilize o arquivo Tabela de Encode ASCII.txt.
+
+Todas as linha que inicie com um # será considerado como uma linha de comentário, também podemos utiliza-lo após um comando como segue o exemplo;
+
+% set word1 foot; set word2 bar ;# two commands
+bar
+% set word3 foo\;bar            ;# one command
+foo;bar
+%
+
+Podemos utilizar a barra invertida para continuar escrevendo o comando na próxima linha:
+
+% set word \
+really-Iong-string-which-does-not-quite-fit-on-previous-line
+really-Iong-string-which-does-not-quite-fit-on-previous-line
+%
+
+Uso de Aspas
+------------
+
+Para escrever uma string que contenha espaço devemos utiliza aspas:
+
+% set string1 "Hello World!"
+Hello World!
+% set string2 "A semicolon ; is in here"
+A semicolon ; is in here
+%
+
+% set name "Sam"
+Sam
+% set age 12
+12
+% set word2 "My name is $name; my age is $age;"
+My name is Sam; my age is 12;
+%
+
+Retornando Valores
+------------------
+Todos os comandos retornam valores. Por exemplo, o PID (Process IDentify) pode ser retornado através de colchetes [].
+
+% set p "My pid is [pid]."
+My pid is 842.
+% echo $p
+My pid is 842.
+%
+
+Também podemos atribuir o mesmo valor a variáveis diferentes na utilização dos colchetes:
+
+% set b "[set a 0]"
+0
+% echo $a
+0
+% echo $b
+0
+%
+
+% set b [set a 0]
+0
+% set b "[set a 0]"
+0
+% set b "[set a 0] hello world!"
+0 hello world!
+% set b [set a 0]hello
+0hello
+% set c [set b]
+0hello
+%
+
+% set d [set p]hello
+My pid is 842.hello
+%
+
+Puts
+----
+
+Quando desejamos printar na saida padrão do usuário podemos utilizar o comando puts:
+
+% puts "Hello World"
+Hello World
+% puts "The value of name is $name"
+The value of name is Sam
+%
+
+Expressões
+----------
+
+Podeemos utilizar o comando expr dentro de colchetes para executar operações tais como:
+
+% puts [expr 1 + 5]
+6
+% puts [expr 1+5.5]
+6.5
+% puts [expr 1e10+5.5]
+10000000005.5
+% puts [expr (5%3)*sin(4)]
+-1.5136049906158564
+% puts [expr 1 <= 2]
+1
+% puts [expr (1 <= 2) || (2 != 3)]
+1
+% puts [expr 1 >= 2]
+0
+%
+
+
+Podemos utilizar todos os operadores como:
++		->	Soma
+-		->	Subtração
+*		-> Multiplicação
+/		-> Divisão
+%		-> Módulo
+sin		-> Seno
+cos		-> Coseno
+log		-> Log
+sqrt	-> Square root (Raiz quadrada)
+||		-> OU
+&&		-> AND
+!		-> NOT
+<		-> Less
+<=		-> Less than or equal
+>		-> Greater
+>=		-> Greater than or equal
+==		-> Equal
+!=		-> Not equal
+
+
+Podemos fazer operações com valores hexadecimais colocando o prefixo 0x e também octal com o prefixo 0:
+
+% puts [expr 0xA + 0x1]
+11
+% puts [expr 0xE + 1]
+15
+% puts [expr 011 + 1]
+10
+%
+
+Quando utilizamos expressões de comparação será retornado 0 para False e 1 para True.
+
+% puts [expr 1 < 2]
+1
+% puts [expr 1 > 2]
+0
+% puts [expr [pid] == 0]
+0
+% puts [expr [pid] != 0]
+1
+%
+
+Podemos utilizar uma variável para armazenar uma resultado de uma expressão:
+
+% set x "The answer is [expr 1 + 4]"
+The answer is 5
+%
+
+Utilizando Chaves
+-----------------
+
+O uso das chaves {} é similar as aspas duplas. Ambos funcionam para agrupar. Porém as chaves armazena literalmente os dados:
+
+% set b Hello
+Hello
+% set c World
+World
+% set var1 "a$b[set c]\r"
+aHelloWorld
+% set var2 {a$b[set c]\r}
+a$b[set c]\r
+%
+
+Estruturas de Controle
+----------------------
+
+While Command
+-------------
+
+O uso do loop while até que a expressão seja falsa.
+
+% set count 10
+10
+% set total 1
+1
+% while {$count > 0 } {
+   set total [expr $total * $count]
+   set count [expr $count - 1]
+}
+% echo $total
+3628800
+% echo $count
+0
+%
+
+Aqui criamos duas variáveis uma para conter o valor total e outra para nos servir como contador.
+
+No comando de loop informamos que enquanto a variável count for maior que zero execute: a multiplicação do valor de total com o valor do contador, em seguida a o contador é decrementado em 1 e volta ao inicio do loop. Ele irá repeti até que a condição do loop while for falsa.
+
+Incr Command
+------------
+O comando incr serve tanto para incrementar como decrementar.
+
+% set count 10
+10
+% set total 1
+1
+% while {$count > 0} {
+   set total [expr $total * $count]
+   incr count -1
+}
+% echo $total
+3628800
+% echo $count
+0
+% set count 1
+1
+% while {$count < 10} {
+   set total [expr $total / $count]
+   incr count +1
+}
+% echo $total
+1
+% echo $count
+10
+%
+
+For Command
+-----------
+O comando for é similar ao comando while, porém ele necessita de um inicio, uma expressão e o próximo passo.
+
+% for {set total 1} {$count > 0} {incr count -1} {
+   set total [expr $total * $count]
+}
+% echo $total
+3628800
+% echo $count
+0
+%
+
+If Command
+----------
+
+O comando if serve para tomar decisões e ele é executando apenas uma vez.
+
+% if {$count == 0} {
+   set total 1
+}
+1
+% echo $total
+1
+%
+
+% if {$count != 0} {
+   puts "Counter is not zero"
+} else {
+   puts "Counter is zero => $count"
+}
+Counter is zero => 0
+%
+
+% if {$count < 0} {
+   puts "Counter is less than zero"
+} elseif {$count > 0} {
+   puts "Counter is greater than zero"
+} else {
+   puts "Counter is equal to zero"
+}
+Counter is equal to zero
+%
+
+
+Switch Command
+--------------
+O comando Switch é similar ao comando if, porám mais especializado. Ele permite que seja executado dependendo do dado armazenado e caso nenhum de match você ainda pode utilizar a opção default para ser exexcutada.
+
+% switch -- $count \
+   1 {
+      set type byte
+   } 2 {
+      set type word
+   } big {
+      set type array
+   } default {
+      puts "$count is not a valid type"
+}
+0 is not a valid type
+%
+
+O switch pode ser precedido de alguns comandos como -glob -regexp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+página -> (33) - 65 de 610

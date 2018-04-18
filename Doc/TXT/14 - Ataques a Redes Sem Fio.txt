@@ -1,0 +1,28 @@
+Ataques a Redes Sem Fio
+=======================
+
+Wardriving
+----------
+
+Esta técnica tem como objetivo identificar as redes sem fio accessíveis de um determinado local.
+
+Simbulos
+
+)(   -- Open Mode
+()  -- Closed Mode
+(w) -- WEP Mode
+
+# ifconfig wlan0 down hw ether 00:00:00:00:00:01
+
+WPA Rainbon Tables
+------------------
+
+Programa para usar rainbon tables
+./cowpatty -r <dump> -d <raibon_tables> -s <SSID>
+./cowpatty -r arquivo.pcap -d arquivo.rainbow.rb -s ALVO
+
+http://securitytube.net/Using-CowPatty-in-Backtrack-4-video.aspx
+
+Download de Rainbow tables
+http://www.security-database.com/toolswatch/WPA-Rainbon-Tables-Offensive.html
+

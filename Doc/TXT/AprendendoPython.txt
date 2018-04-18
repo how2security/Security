@@ -1,0 +1,3229 @@
+PYTHON
+======
+
+Strings
+=======
+
+As strings em Python suportam operações de expressão, como concatenação (combinação de strings), fracionamento (extração de seções), indexação (busca pelo deslocamento) etc.
+
+Podemos ver os exemplos dos Literais no arquivio strLiterais.py.
+
+Aspas triplas definem strings de blocos de várias linhas
+--------------------------------------------------------
+
+O Python também tem um formato literal de strings de aspas triplas, às vezes chamadas de string de bloco, que é uma conveniência sintática para escrever dados textuais de várias linhas.
+
+Opreadores em Strings
+---------------------
+
+Podem ser visto nos exemplos em strOperadores.py
+
+Indexação e Fracionamento
+-------------------------
+
+No Python, os caracteres de uma string são buscados por indexixação, fornecendo o deslocamento numérico do componente desejado, entre colchetes, após a string.
+
+Assim como na linguagem C, os deslocamentos do Python começam em zero e terminam em um a menos do que o comprimento da string. A difeerença fica por conta de buscar itens usando deslocamentos negativos. Tecnicamente, deslocamentos negativos são somados ao cumprimento de uma string para deduzir um deslocamento positivo. Você também pode considerar os deslocamentos negativos como uma contagem regressiva a partir do final.
+
+O fracionamento retorna um novo objeto contendo a seção adjancente pelo par de deslocamentos.
+
+Assim, no exemplo do arquivo anterior, S[1:3] extrai itens como os deslocamentos 1 e 2. Ele pega o segundo e o terceiro itens e pára antes do quarto, no descocamento 3. Em seguida, S[1:] obtém todos os itens após o primeiro - o limite tem como padrão o comprimento da string. Finalmente, S[:-1] busca todos os itens, menos o último - o limite inferior tem zero como padrão e -1 refere-se ao último item, não incluído. 
+
+A idenxação (S[i]) busca componetes em deslocamentos
+.	O primeiro está no deslocamento 0.
+.	S[0] busca o primeiro item.
+.	S[-2] busca o segundo item a partir do fim (como S[ len(S) - 2).
+
+O fracionamento (S[i:j]) extrai seções adjacentes de uma sequências
+.	O limite superior é não-inclusivo.
+.	Os limites do fracionamento terão 0 e o comprimento da sequência com padrão, se forem omitidos.
+.	S[1:3] busca do deslocamento 1 até, mas não incluindo, 3.
+.	S[1:] busca do deslocamento 1 até o fim (comprimento).
+.	S[:3] busca do descocamento 0 até, mas não incluindo, 3.
+.	S[-1] busca do deslocamento 0 até, mas não incluindo, o último item.
+.	S[:] busca do deslocamento 0 até o fim - uma cópia de nível superior de S.
+
+
+Lista
+=====
+
+As listas representam o tipo de objeto coleção ordenada mais flexível do Python. Ao contrário das strings, as listas podem conter qualquer tipo de objeto: números, strings e até outras listas. As listas são mutáveis, como as strings elas respondem as operações de indexação, fracionamento, concatenação e exclusão. Além de serem indexadas,Seu acesso se dá por deslocamento como as strings.
+
+Podemos ver os exemplos no arquivo listExemplos.py.
+
+Operadores						Interpretação
+----------						-------------
+L1 = []							Uma lista vazia
+L2 = [0, 1, 2, 3]				Lista com 4 itens: indices 0..3
+L3 = ['abc', ['def', 'ghi']]	Sublista aninhadas
+L2[i]							Indice
+L3[i][j]						Indice de indice
+L2[i;j]							Fracionamento
+len(L2)							Comprimento
+L1 + L2							Concatenacao
+L2 * 3							Repeticao
+for x in L2						Iteracao
+3 in L2							Participacao como membro
+L2.append(4)					Metodos: Append
+L2.extend([5,6,7])				Metodo: Extend
+L2.sort()						Metodo: Sort
+L2.index(1)						Metodo: Index
+L2.reverse()					Metodo: Reverse
+L2.pop()						Metodo: POP
+L2[i] = 1						Atribuicao de indice
+L2[i:j] = [4,5,6]				Atribuicao de fracionamento
+range(4)						Produz listas/tuplas de inteiros
+xrange(0, 4)					Produz um range de 0 a 4
+L4 = [x**2 for x in range(5)]	Abrangencias de lista
+
+Observação: O arquivo com os exemplos é: listExemplos.py
+
+Dicionário
+==========
+
+Além das listas, os dicionários talvez sejam o tipo de dados interno mais flexível no Python. Se você considera as listas como coleções ordenadas de objetos, os dicionários são coleções desordenadas; a pricipal diferença é que, nos dicionários, os itens são armazenados e buscados pela chave, em vez do deslocamento posicional.
+
+Os dicionários são mutáveis porém não suportam as operações de sequência que funcionam em strings e listas. Como os dicionários são coleções desordenadas, operções que depedem de uma ordem fixa não tem sentido, tais como: concatenação, fracionamento, etc.
+
+Os exemplos podem ser vistos em dictExemplos.py.
+
+O Python também nos peermite percorrer a lista de chaves de um dicinário sem realmente chamar o método keys na maioria dos loops for. Para qualquer dicionário D, escrever:
+
+for key in D:
+
+Funciona da mesma forma que escrever:
+
+for key in D.keys():
+
+Esse é apenas outro exemplo dos iteradores mencionados anteriormente, os quais peermitem que o teste de participação como membro in funcione também em dicionários.
+
+Operadores									Interpretadores
+----------									---------------
+D1 = {}										Dicionario vazio
+D2 = { 'spam': 2, 'eggs' : 3 }				Dicionario de dois itens
+D3 = { 'food': { 'ham' : 1, 'eggs' : 2}}	Aninhados
+D2['eggs']									Indexacao pela chave
+D3['food']['ham']							Indexacao pela chaves aninhadas
+D2.has_key('eggs'), 'eggs' in D2			Participacao como membro
+D2.keys()									Listas as chaves
+D2.values()									Lista os valores
+D2.copy()									Copia
+D2.get(key, default)						Padroes
+D2.update(D1)								Atualiza
+len(D1)										Compimento
+D2[key] = 42								Adicao/Alteracao
+del D2[key]									Exclusao
+D4 = dict(zip(keys, valslist))				Construcao
+
+Observação: O arquivo com os exemplos é: dictExemplos.py
+
+
+Tuplas
+======
+As tuplas constrém grupos de objetos simples. Elas funcionam exatamente como as listas, exceto que não podem seer alteradas no local (são imutáveis) e, normalmente, são escritas como uma série de itens entre parênteses e não entre conchetes. Embora não suportem nenhuma chamada de método, as tuplas compartilham das suas proptiedades com as listas.
+
+Operadores						Interpretação
+----------						-------------
+()								Uma tupla vazia
+T1 = (0,)						Uma tupla de um item (não é uma expressão
+T2 = (0, 'Ni', 1.2, 3)			Uma tupla de quatro itens
+T3 = 0, 'Ni', 1.2, 3			Outra tupla de quatro itens (igual a linha anterior)
+T4 = ('abc', ('def', 'ghi')		Tuplas aninhadas
+T1[i]							Índice
+T3[i][j]						Índice de índice
+T1[i:j]							Fracionamento
+len(T1)							Comprimento da tupla
+T1 + T2							Concatenação das tuplas
+T2 * 3							Repetição (3x)
+for x in T2						Iteração
+3 in T2							Participação como membro
+
+Note que as tuplas não têm métodos (por exemplo, uma chamada de append não funcionará aqui), mas suportam as operações de sequências comuns que vimos para as strings e listas. Outra coisa se você quiser uma tupla de um único item, basta uma vírgula no final, após o item do parênteses de fechamento. Além disso, o Python permite que você omita os parênteses de abertura e fechamento de uma tupla. Os operadores +, * e frações retornam novas tuplas.
+
+Para ordenar uma tupla, normalmente precisará primeiro convertê-la para uma lista, para teer acesso a uma chamada de método de ordenação e transform-al em um objeto mutável (veja o exemplo tuplaOrdenada.py).
+
+Uma lista dentro de uma tupla pode ser alterada (veja o exemplo tupleLista.py).
+
+Arquivos
+========
+
+A função interna open cria um objeto arquivo do Python, o qual serve como um vínculo para um arquivo residente em sua máquina. Após chamar open, você pode ler e gravar o arquivo externo associado, chamando métodos do objeto arquivo. O nome interno file é sinônimo de open e os arquivos podem seer abertos chamando-se qualquer um desses nomes.
+
+Quando utilizamos o método open devemos informa o caminho do objeto arquivo de forma relativa ou absoluta entre aspas, também informar um modo de processamento, tais como: 'r' para ler, 'w' para criar e escrever, 'a' para anexar dados no final do arquivo.
+
+Operadores							Interpretação
+----------							-------------
+output = open('tmp/spam', 'w')		Cria arquivo de saída ('w' significa gravação)
+input = open('data', 'r')			Cria arquivo de entrada ('r' significa leitura)
+S = input.read()					Lê o arquivo inteiro em uma única string
+S = input.read(N)					Lê N bytes do arquivo (1 ou mais)
+S = input.readline()				Lê a próxima linha (até o marcador de final de linha)
+L = input.readlines()				Lê o arquivo inteiro na lista de strings da linha
+output.write(S)						Grava a string S no arquivo
+output.writelines(L)				Grava no arquivo todas as strings da linha da lista L
+output.flush()						Obriga a saída do buffer a ser gravada no disco (por padrão, os arquivos são colocados em buffer).
+output.close()						Fechamento manual (feito para você quando o arquivo é coletado)
+
+Vamos a um exemplo criando um arquivo, inserindo dados neste arquivo e em seguida iremos fechá-lo. Depois podemos abrir e ler seu conteúdo (o exemplo está em arqExemplo.py).
+
+Existem outros métodos de arquivos mais avançados, tais como: seek reconfigura sua posição corrente em um arquivo, o flush obriga a saída do buffer a ser gravada no disco, etc.
+
+Classificações de objetos
+=========================
+
+Tipo de objeto			Categoria			Multável?
+Números					Numérico			Não
+Strings					Sequência			Não
+Listas					Sequência			Sim
+Dicionários				Mapeamento			Sim
+Tuplas					Sequência			Não
+Arquivos				Extensão			N/A
+
+
+Generalidade de Objeto
+======================
+
+L = ['abc', [(1, 2), ([3], 4)], 5]
+
+							L
+						[0] [1] [2]
+					   ´     |    `
+					  /      |     \
+					[abc]    |     [5]
+                             |
+                          [0] [1]
+						 ´       `
+						/         \
+					[0][1]       [0][1]
+					 |  |         |  |
+					[1][2]       [0][4]
+                                  |
+                                 [3]
+
+L[0] = abc
+L[1] = [(1, 2), ([3], 4)
+L[1][0] = (1, 2)
+L[1][0][0] = 1
+L[1][0][1] = 2
+L[1][1] = ([3], 4)
+L[1][1][0] = [3]
+L[1][1][0][0] = 3
+L[1][1][1] = 4
+L[2] = 5
+
+
+Referências vs Cópias
+=====================
+
+Alterar as atribuições podem gerar várias referências para o mesmo objeto, às vezes precisa estar ciente de que alterar um objeto mutável no local pode afetar outras referências para o mesmo objeto em outra parte de seu programa.
+
+Veja o exemplo:
+
+X = [1, 2, 3]
+L = ['a', X, 'b']
+D = { 'x' : X, 'y' : 2 }
+
+Neste ponto, existem três referências para a primeira lista criada: a partir do nome X, dentro da lista atribuída a L e dentro do dicionário atribuído D.
+
+X[1] = 'surprise'
+L
+[ 'a', [1, 'surprise', 3], 'b' ]
+D
+{ 'x' : [1, 'surprise', 3], 'y' : 2 }
+
+Nomes			Objetos
+
+[L] -------------> [ | | ]
+                      `-----------+
+					              |
+					              v
+[X] ------------------------[ 1 | ? | 3 ]
+                                  ^
+								  |
+					   ,----------+
+[D] -------------> [ | | ]
+
+As refeerências são uma analogia de nível mais alto aos ponteiros de outras linguagens. Embora você não possa pegar a referência em si, é possível armazenar a mesma referência em mais de um lugar: em variáveis, em lista etc. Esse é um recurso - você pode passar um objeto grande em um programa, sem gerar cópia dele pelo caminho. Se você realmente quer cópias, podem solicitá-las:
+.	Expressões de fracionamento com limites vazios copiam sequências.
+.	O método de dicionário copy copia um dicionário.
+.	Algumas funções internas, como list, também fazem cópias.
+.	O módulo de biblioteca padrão copy faz cópias completas.
+
+Por exemplo, se você tiver uma lista e um dicionário e não quiser que seus valores sejam alterados por meio de outras variáveis:
+L = [ 1, 2, 3 ]
+D = { 'a' : 1, 'b' : 2 }
+
+simplesmente atribua cópias a outras variáveis e não referências para os mesmos objetos:
+
+A[1] = L[:]		# Em vez de: A = L (ou list(L))
+B = D.copy()	# Em vez de: B = D
+
+Desse modo, as alterações feitas a partir de outras variáveis alteram as cópias e não os originais:
+
+A[1] = 'Ni'
+B['c'] = 'spam'
+
+L, D
+([1, 2, 3], {'a' : 1, 'b' : 2})
+
+A, B
+([1, 'Ni', 3], {'a' : 1, 'c' : 'spam', 'b' : 2})
+
+Em termos do exemplo original, você pode evitar os efeitos colaterais da referência fracionando a lista original, em vez de simplesmente atribuir um nome a ela:
+
+X = [1, 2, 3 ]
+L = ['a', X[:], 'b']			# Incorpora cópias do objeto de X
+D = { 'x' : X[:], 'y' : 2} 
+
+Com isso, L e D apontarão para listas diferentes de X. O resultado é que as alterações feitas por meio de X terão impactos apenas em X e não em L e D. Analogamente, as alterações feitas em L ou D não terão impactos em X.
+
+Uma nota sobre cópia: os fracionamentos de limite vazio é o mnétodo copy de dicionários ainda só fazem uma cópia de nível superior - eles não copiam estruturas de dados aninhadas, se alguma estiver presente. Se você precisar de uma cópia completa, totalmente independente, de uma estrutura de dados profundamente aninhada, use o módulo de cópia padrão import copy e, digamos, X=copy.deepcopy(Y) para copiar totalmente um objeto Y arbirtrariamente aninhado. Essa chamada percorre os objetos recursivamente para copiar todas as suas partes. Contudo, esse é um caso muito mais raro. Normalmente, as referências são o comportamento que você desejará; quando não forem, os métodos de fracionamento e cópia normalmente serão a cópia que precisará fazer.
+
+Comparação
+----------
+
+Todas as comparações do Python sempre inspecionam todas as partes de objeos compostos, até que um resultado possa ser determinado.
+
+L1 = [1, ('a', 3)]		# O mesmo valor, objetos exlusivos
+L2 = [1, ('a', 3)]
+L1 == L2, L1 is L2		# Equivalentes? O mesmo objeto?
+(1, 0)
+
+S1 = 'spam'
+S2 = 'spam'
+S1 == S2, S1 is S2
+(1, 1)
+
+No exemplo acima as strings estão no mesmo endereço de memória, por isso, ambos são o mesmo objeto. Para ativar o comportamento normal, precisamos usar strings mais longas, que ficam fora do mecanismo de cache:
+
+S1 = 'a longer string'
+S2 = 'a longer string'
+S1 == S2, S1 is S2
+(1, 0)
+
+Como regra geral, o operador == é o que desejamos usar para quase todas as verificações de iguadade; is é reservado para funções altamente especializadas.
+
+Veja que as comparações de grandeza relativa também são aplicadas recursivamente em estruturas de dados aninhadas:
+L1 = [1, ('a', 3)]
+L2 = [1, ('a', 2)]
+L1 < L2, L1 == L2, L1 > L2
+(0, 0, 1)
+
+Exemplos de valores cverdadeiros e falsos de objetos
+Objeto			Valor
+"spam"			Verdadeiro
+""				Falso
+[]				Falso
+{}				Falso
+1				Verdadeiro
+0				Falso
+0.0				Falso
+True			Verdadeiro
+False			Falso
+None			Falso
+
+O Python também fornece um objeto especial chamado None que também é considerado falso. None é o único valor de um tipo de dados especial no Python; normalmente, ele serve como um lugar reservado vazio, muito parecido com um ponteiro NULL na linguagem C.
+
+Atribuição, Expressões e Impressão
+==================================
+
+Tabela de atribuições
+---------------------
+
+Operação						Interpretação
+spam = 'Spam'					Forma básica
+Spam, ham = 'yum', 'YUM'		Atribuição de tupla (posicional)
+[spam, ham] = ['yum', 'YUM']	Atribuição de lista (posicional)
+spam = ham = 'lunch'			Destino múltiplos
+
+Regras de Nomes de Variáveis
+----------------------------
+
+Sitaxe: (sublinhado ou letra)+(qualquer número de letras, algarismos ou sublinhados)
+
+Não pode ser usadopalavras reservadas ao Python
+
+Tabela de Palavras reservadas
+and				del				for				is				raise
+assert			elif			from			lambda			return
+break			else			global			not				try
+class			except			if				or				while
+continue		exec			import			pass			yield
+def				finally			in				print			
+
+Você não deve utilizar nem mesmo como nome, pois isso, pode causar problemas no fulturo. Por exemplo, uma arquivo que se chame and.py pode ser usado porém não pode ser importado.
+
+Outro detalhe é que nomes com dois sublinhados no inicio e no fim (por exemplo: __name__) geralmente têm significado especial para o interpretador Python.
+
+.	Os nomes que começam com um único sublinghado (por exemplo: _X) não são importados por uma instrução:
+	from module import *
+.	Os nomes que têm dois sublinhados no inicio e no fim (por exemplo: __X__) são nomes definidos pelo sistema, os quais têm significado especial para o interpretador.
+.	Os nomes que começam com dois sublinhados e não terminam com mais dois (por exemplo: __X) são localizados (mutilados) nas classes que os englobam.
+.	O nome que é apenas um único sublinhado (por exemplo: _) mantém o resultado da última expressão, ao se trabalhar interativamente.
+
+Existem outras palavras conhecidas como internos, os quais são predefinidos, mas não reservados. Como o caso de self em classes.
+
+Outra observação é que por convensão os nomes de classes começe com uma letra maiúscula.
+
+Para ver algumas regras de concatenação olhe os exemplos conctExemplo.py.
+
+Expressões
+----------
+
+Tabela de Instruções de Expressões Comuns do Python
+
+Operação					Interpretação
+spam(eggs, ham)				Chamada de função
+spam.ham(eggs)				Chamada de método
+Spam						Impressão interativa
+spam < ham and ham != eggs	Exporessões compostas
+spam < ham < eggs			Testes de intervalos
+
+A última linha da tabela é uma forma especial: O Python nos permite enfilerar testes de comparação de grandeza para escrever comparações encadeadas, como os testes de intervalo. Por exemplo, a expressão (A < B < C) tersta se B está entre A e C; isso é equivalente ao teste booleano (A < B and B < C), mas é mais fácil de ler.
+
+Impressão
+---------
+
+Aqui nada mais é que a função print que utiliza a saida padrão para imprimir dados/informações na tela do usuário. Ele utiliza o stdout (sys.stdout).
+
+import sys
+sys.stdout.write('hello world\n')
+
+ou
+
+print('hello world\n')
+
+Podemos ver vários exemplos de uso nos arquivos numExemplos.py, str(CaracteresEspeciais.py e StringFormat.py.
+
+Redirecionamento do Fluxo de Saída
+----------------------------------
+
+Podemos redirecionar o fluxo de saída do stdout para outro lugar, por exemplo, podemos redirecionar todas as saídas em nosso script para um arquivo.
+
+import sys
+
+sys.stdout = open('log.txt', 'a')	# Redireciona impressões para o arquivo log.txt
+print("Hello World!!!\n")
+
+Aqui, reconfiguramos sys.stdout para um objeto arquivo de saída aberto manualmente no modo append. Após a reconfiguração, todas instruções print, em qualquer parte do programa, gravará seu texto no final do arquivo log.txt, em vez de gravar no fluxo de saída original. 
+
+Uma boa prática é criar uma variável para guardar o fluxo de saída original, caso você precise voltar atrás após imprimir em um arquivo.
+
+import sys
+
+temp = sys.stdout							# Salva para restaurar
+sys.stdout = open('log.txt', 'a')			# Redireciona a saída padrão para o arquivo lot.txt
+
+print("xpto")								# Imprime no arquivo
+
+sys.stdout = temp							# Restaura a saída padrão
+print("xpto")								Imprime na saída padrão
+
+Teste IF..ELIF..ELSE
+====================
+
+A instrução if do Python é típica da maioria das linguagem procedurais. Ela assume a forma de um teste if, seguido de um ou mais testes elif (significando "else if"), e termina com um bloco else opcional. Cada teste e a cláusula else têm um bloco associado de instruções aninhadas, endentadas sob uma linha de cabeçalho. Quando a instrução é executada, o Python executa o bloco associado que possuir o primeiro teste avaliado como verdadeiro ou bloco else, caso todos os testes sejam falsos.
+
+if <teste1:				# Teste if
+   <instrução1>			# Bloco associado
+elif <teste2>:			# Instruções elif opcionais
+   <instrução2>
+else
+   <instrução3>
+   
+Essa instrução de várias linhas vai da linha if até o bloco else. Quando executada, o Python executa as instruções aninhadas sob o primeiro teste que seja verdadeiro ou a parte else, caso todos os testes sejam falsos. Na prática, as partes elif e else podem ser omitidas e pode haver mais de uma instrução aninhada em cada seção. Além disso, as palavras if, elif e else são associadas pelo fato de serem aninhadas verticalmente, com a mesma endentação.
+
+Desvio de vários caminhos
+-------------------------
+
+Em Python não existe a instrução "switch" ou "case", que seleciona uma ação com base no valor de uma variável. Em vez disso, o desvio de vários caminhos são codificados com uma série de testes if/elif, como foi feito no exemplo anterior, ou pela indexação de dicionários ou pesquisa em listas.
+
+choice = 'ham'
+print({ 'spam' : 1.25,
+   'ham' : 1.99,
+   'eggs' : 0.99,
+   'bacon' : 1.10}[choice])
+
+ou
+
+if choice == 'spam':
+   print(1.25)
+elif choice == 'ham':
+   print(1.99)
+elif choice == 'eggs':
+   print(0.99)
+elif choice == 'bacon':
+   print(1.10)
+else:
+   print('Bad choice')
+
+Observe aqui a cláusula else na instrução if para tratar do caso padrão, quando nenhuma chave corresponde.
+
+Para criamos os casos padrões no uso de dicionários podemos fazer assim:
+
+branch = {'spam' : 1.25,
+   'ham' : 1.99,
+   'eggs' : 0.99}
+
+print(branch.get('spam', 'Bad choice'))
+1.25
+print(branch.get('bacon', 'Bad choice'))
+Bad choice
+
+Outra observação é que se utilizarmos os pares de (), {} ou [] o Python permite que você continue a digitar a instrução na linha seguinte. A sua instrução não termina até a linha na qual você dgita a parte referente ao fechamento do par ( ), } ou ] ).
+
+Além dos pares você também pode utilizar a barra invertida para indicar que a instrução continua na próxima linha.
+
+Também podemos executar mais de uma instrução na mesma linha utilizando o ponto-e-vírgula da seguinte forma:
+
+x = 1; y = 2; print(x)
+
+Finalmente, o Python permite que você mova o corpo de uma instrução composta para a linha de cabeçalho, desde que o corpo seja apenas uma instrução simples.
+
+if 1: print 'hello'
+
+Regras do Teste
+---------------
+
+.	Verdadeiro significa qualquer número diferente de zero ou objeto não-vazio
+.	Falso significa não verdadeiro: um número zero, um objeto vazio ou None
+.	As comparações e testes de igualdade são aplicados recursivamente nas estruturas de dados
+.	As comparações e testes de igualdade retornam 1 ou 0 (verdadeiro ou falso)
+.	Os operadores booleanos and e or retornam um objeto operando verdadeiro ou falso.
+
+>>> 2 < 3, 3 < 2
+(True, False)
+
+Loops WHILE e FOR
+=================
+
+A instrução while do Python é sua construção de iteração mais geral. Em termos simples, ela executa repetidamente um bloco de instroções endentadas, contanto que um teste  no início continue avaliando um valor verdadeiro. Quando o teste se torna falso, o controle continua após todas as instruções presentes no bloco while; o miolo nunca é executado se o teste é falso desde do início.
+
+Em sua forma mais compklexa, a instrução while consiste em uma linha de cabeçalho com uma expressão de teste, um miolo com uma ou mais instruções endentadas e uma parte else opcional, que é executada se o controle sai do loop sem passar por uma instrução break.
+
+while <teste>:				# Faz um loop em teste
+   <instrução1>				# Miolo do loop
+else:						# Else opcional
+   <instrução2>				# Executadas se não saiu do loop com break
+
+Os ezxemplos podem ser vistos no arquivo whileLoopExemplo.py
+
+Break, Continue, Pass e a Cláusula Else
+---------------------------------------
+
+.	break		-> Sai do loop mais próximo que a envolve (após a instrução de loop ineira)
+.	continue 	-> Pula para o início do loop mais próximo que a envolve (para a linha de cabeçalho do loop)
+.	pass 		-> Não faz absolutamente nada; trata-se de um lugar reservado de instrução vazio
+.	Bloco else	-> É executado se, e somente se, saímos do loop normalmente - sem atingir uma instrução break
+
+while <teste1>:
+   <instrução1>
+   if <teste2>: break
+   if <teste3>: continue
+else:
+   <instrução2>
+
+Loop For
+--------
+
+O loop for é um iterador de sequência genérico no Python: ele pode percorrer os itens de qualquer objeto sequência ordenada. O loop for funciona em strings, listas, tuplas e em novos objetos que criaremos posteriormente com classes.
+
+for <destino> in <objeto>:			# Atribui itens do objeto ao destino
+   <instroções>						# bloco do loop repetido: usa o destino
+else:
+   <instroções>						# Se não atingirmos uma instrução 'break'
+
+O destino costuma ser uma variável e seu valor permanece o ultimo valor da sequencia do objeto, exceto se sairmos do loop for através do break.
+Também podemos utilizar as instruções break, continue e else da mesma forma que utilizamos no loop while.
+
+for <destino> in <objeto>:
+   <instruções>
+   if <teste1>: break
+   if <teste2>: continue
+else:
+   <instruções>
+   
+Os exemplos podem ser vistos no arquivo forLoopExemplo.py
+
+Variações de Loop
+-----------------
+
+.	A função interna range retorna uma lista de inteiros sucessivamente mais altos, que podem ser usados como índices em um loop for.
+.	A função interna zip retorna uma lista de tuplas de itens paralelos, que podem ser usadas para percorrer várias sequências em um loop for.
+
+Com um argumento, a função range gera uma lista com inteiros de zero até (mas não incluso) o valor do argumento. Se você passar dois argumentos, o primeiro será considerado como o limite inferior. Um terceiro argumento opcional pode fornecer um passo; se for usado, o Python soma o passo a cada inteiro sucessivo no resultado (o padrão dos passos é um). Os intervalos também podem ser negativos, em ordem descendente, caso você queira.
+
+list(range(start, stop, step))
+
+Os exemplos podem ser vistos no arquivo forLoopExemplo.py
+
+O truque da função range percorre sequências com um loop for de maneira exaustiva. A função zip nos permite usar loops for para visitar várias sequências em paralelo. Na operação básica, a função zip pega uma ou mais sequências e retornam uma lista de tuplas que dispõe em pares os itens paralelos extraídos de seus argumentos. Por exemplo, suponha que estejamos trabalhando com duas listas:
+
+L1 = [1, 2, 3, 4]
+L2 = [5, 6, 7, 8]
+
+Para combinar os itens dessas listas, podemos usar a função zip:
+zip(L1, L2)
+[(1, 5), (2, 6), (3, 7), (4, 8)]
+
+Esse resultado pode ser útil em outros contextos. Contudo, quando aliado ao loop for, ele suporta iteração paralelas:
+
+for (x,y) in zip(L1, L2):
+   print(x, '+', y '=', x+y)
+1 + 5 = 6
+2 + 6 = 8
+3 + 7 = 10
+4 + 8 = 12
+
+
+
+Documentando Código Python
+==========================
+
+Tabela de Fontes de documentação do Python
+Forma						Função
+Comentários #				Documentação em arquivo
+A função dir()				Lista dos atributos disponíveis em objetos
+Docstrings: __doc__			Documentação em arquivo vinculada aos objetos
+PyDoc: a função de ajuda	Ajuda interativa para objetos
+PyDoc: relatórios em HTML	Documentação de módulo em um navegador
+Conjunto de manuais padrão	Descrições oficiais da linguagem e da biblioteca
+Recursos na Web				Exercícios dirigidos on-line, exemplos etc.
+Livros publicados			Texto de referência disponíveis comercialmente.
+
+
+Comentário #
+------------
+Os comentários com sinal # são a maneira mais básica de docuemtnar seu código. Todos o texto após o # é simplesmente ignorado pelo Python.
+
+A função dir()
+--------------
+A função interna dir é uma maneira fácil de ver uma lista que mostra todos os atributos disponíveis dentro de um objeto (isto é, seus métodos e itens de dados simples). Ela pode ser chamada com qualquer objeto que tenha atributos. Por exemplo, para descobrir o que está disponível no módulo sys da biblioteca, importe-o e passe para a função dir:
+
+import sys
+dir(sys)
+
+A função dir serve como um tipo de lembrete - ela fornece uma lista de nomes de atributo, mas não diz nada sobre o que esses nomes significam.
+
+Docstring: __doc__
+------------------
+Além dos comentários #, o Python suporta documentação que é mantida em tempo de execução para inspeção e a vincula automaticamente aos objetos. Sintaticamente, esses comentários são escritos como string no início de arquivos de módulo e no´início de instruções de função e de classe, antes de qualquer outro código executável. O Python preenche automaticamente a string, conhecida como docstring, no atributo __doc__ do objeto correspondente.
+
+Veja um exemplo no arquivo docstringExemplos.py.
+
+Agora podemos importar nosso arquivo de exemplo:
+
+>>> import docstringExemplos
+16
+
+      Documentação da função square()
+	  podemos ter seu fígado então?
+   
+>>> print(docstringExemplos.__doc__)
+
+   Documentação do módulo
+   As palavras ficam aqui
+
+>>> print(docstringExemplos.square.__doc__)
+
+      Documentação da função square()
+	  podemos ter seu fígado então?
+   
+>>> print(docstringExemplos.Employee.__doc__)
+
+      Documentação da Classe Employee
+   
+>>> 
+
+Aqui, após importar, exeibimos as docstrings associadas ao módulo e seus objetos, imprimindo seus atributos __doc__ onde o Python salvou o texto.
+
+Para ver as docstrings no interior das classes basta utyilizar a sintaxe: módulo.classe.método.__doc__
+
+Por exemplo:
+
+>>> import sys
+>>> print(sys.__doc__)
+This module provides access to some objects used or maintained by the
+interpreter and to functions that interact strongly with the interpreter.
+
+Dynamic objects:
+
+argv -- command line arguments; argv[0] is the script pathname if known
+path -- module search path; path[0] is the script directory, else ''
+modules -- dictionary of loaded modules
+
+--==[ Resumido ]==--
+
+>>> print(sys.exit.__doc__)
+exit([status])
+
+Exit the interpreter by raising SystemExit(status).
+If the status is omitted or None, it defaults to zero (i.e., success).
+If the status is an integer, it will be used as the system exit status.
+If it is another kind of object, it will be printed and the system
+exit status will be one (i.e., failure).
+
+>>> 
+
+PyDoc: A função de Ajuda
+------------------------
+A técnica das docstring se mostrou tão útil qe o Python vem com uma ferramenta que as tornam mais fáceis de exibir. A ferramenta padrão PyDoc é um código em Python que sabe extrair e formar suas docstrings, junto com as informações estrutureais extraídas automaticamente, em relatórios de vários tipos e bem organizados.
+
+>>> import sys
+>>> help(sys.exit)
+Help on built-in function exit in module sys:
+
+exit(...)
+    exit([status])
+    
+    Exit the interpreter by raising SystemExit(status).
+    If the status is omitted or None, it defaults to zero (i.e., success).
+    If the status is an integer, it will be used as the system exit status.
+    If it is another kind of object, it will be printed and the system
+    exit status will be one (i.e., failure).
+
+>>> 
+
+>>> help(str.replace)
+Help on method_descriptor:
+
+replace(...)
+    S.replace(old, new[, count]) -> str
+    
+    Return a copy of S with all occurrences of substring
+    old replaced by new.  If the optional argument count is
+    given, only the first count occurrences are replaced.
+
+>>> 
+
+Em fim a função help() funciona em seus módulos tão bem quanto nos internos.
+
+
+PyDoc: Relatórios em HTML
+-------------------------
+Para exibir uma tela mais grandiosa, a ferramenta PyDoc também fornce uma interface GUI e pode exibir seu relatório em formato de página HTML, visível em qualquer navegador da Web.
+
+Para ver sua documentação basta clique em Iniciar -> Todos os progeramas -> Python 3.6 -> Python 3.6 Module Docs (32-bits).
+Quando subir o servidor web do Python será listado todos os arquivos Python dentro do diretório de instalação do Python
+
+ou
+
+C:\Users\a80581592\AppData\Local\Programs\Python\Python36-32\python.exe -m pydoc -b
+
+Conjunto de Manuais Padrão
+--------------------------
+Estão disponíveis On-Line e são constantemente atualizados pela comunicade do Python.
+
+https://www.python.org/doc/
+
+
+Funções
+=======
+
+Instruções e Expressões Relacionadas às Funções
+Instrução					Exemplos
+Chamda						myfunc("spam", 1, "toast")
+def, return, yield			def addr(a, b=1, *c): return a+b+c[0]
+global						def func(): global x: x = 'new'
+lambda						funcs = [lambda x: x**2, lambda x: x*3]
+
+
+As duas funções das funções são:
+.	Reutilização de código -> Onde podemos utilizar uma lógica em vários lugares em nosso código
+.	Decomposição procedural -> As funções também forncem uma ferramenta para dividir os sistemas em partes, com tarefas bem definidas.
+
+A estrutura da função em Python é:
+.	def é códigfo exeutável
+.	def cria um objeto e atribui um nome a ele
+.	return/yield envia um objeto resultado de volta para quem fez a chamada
+.	os argumentos são passados por atribuição (referência de objeto)
+.	global declara variáveis em nível de módulo que devem ser atribuídas
+.	argumentos, valores de retorno e variáveis não são declarados
+
+def <nome>(arg1, arg2,...,argN):
+   <instruções>
+   return var1, var2,...,varN
+
+O return é opcional em uma função, e tecnicamente quando não informada a função retorna None automaticamente.
+
+podemos aninhar funções dentro de testes if.
+
+if test:
+   def func():		# Define func desta maneira
+      ...
+else:
+   def func():		# Ou, então, desta maneira
+      ,,,
+func()				# Chama a versão selecionada e construída
+
+Como a definição da função ocorre em tempo de execução, não há nada especial sobre o nome da função, apenas o objeto a que se refere:
+
+othernamefunc = func()		# Atribui o objeto função
+othername()					# Chama func novamente
+
+Aqui, a função recebeu um nome diferente e foi chamada por meio do novo nome. Assim como tudo em Python, as funções são apenas objetos; elas são gravadas explicitamente na memória, no momento da execução do programa.
+
+Espaço de Nomes
+---------------
+
+O Python utiliza o local da atribuição de um nome para associá-lo (isto é, vinculá-lo) a um espaço de nome em particular. Ou seja, o lugar onde você atribui um nome determina o espaço de nome em que ele ficará e, por tanto, seu escopo de visibilidade.
+.	Os nomes definidos dentro de uma instrução def só podem ser vistos pelo código que está dentro dessa instrução. Você não pode nem mesmo referir-se a esses nomes fora da função.
+.	Os nomes dentro de uma instrução def não entram em conflito com as variáveis fora dessa instrução, mesmo que um nome igual seja usado em qualquer outro lugar. Um nome X atribuído fora de uma instrução def é variável completamente diferente de um nome X atribuído dentro dessa instrução.
+
+O resultado é que os escopos de função ajudam a evitar conflitos de nomes em seus programas e ajudam a transformar as funções em unidades de programa mais auto-suficientes.
+
+Já o escopo global abrange apenas um arquivo. Não se engane com a palavra "global" aqui - os nomes no nível superior de um arquivo são globais apenas para o código que está dentro desse arquivo. Na realidade, no Python não há nenhuma noção de um único escopo global baseado em arquivo abrangendo tudo. Em vez disso, os nomes são particionados em módulos e você sempre deve importar um arquivo explicitamente se quiser usar os nomes que seu arquivo define. Quando você ouvir falar em global no Python, pense em "meu módulo".
+
+Cada vez que chamamos um função def ou lambda ela cria um espaço local. Caso precise utilizar uma variável no escopo global devemos declarar a variável como global dentro da função.
+
+A solução de nome do Python às vezes é chamada de regra LEGB, por causa dos nomes de escopo: Quando você usa um nome qualificado dentro de uma função, o Python pesquisa para cima em quatro escopos - o Local (L), depois o escopo local de quaisquer instruções def e lambda envolventes (E), em seguida o global (G) e, então, o interno (B, de Built-in) - e pára no primeiro lugar onde o nome foi encontrado. Se ele não for encontrado durantre essa pesquisa, o Python relatará um erro.
+
++---------------------------------------------------------------------------+
+| Inteerno (Python)															|
+| Nomes previamente atrubídos no módulo de nomes internos - open, range, 	|
+| SyntaxError...															|
+|+----------------------------------------------------------------+			|
+|| Global (Módulo)												  |			|
+|| Nomes atribuídos no nível superior de um arquivo de módulo ou  |			|
+|| declarados como globais em uma instrução def/lambda no arquivo |			|
+||+---------------------------------------------------+			  |			|
+||| Locais de função envolventes					  |			  |			|
+||| Nomes no escopo local de toda e qualquer função   |			  |			|
+||| envolvente def/lambda, da interna p/ externa	  |			  |			|
+|||+----------------------------------------+		  |			  |			|
+|||| Local (Função)							|		  |			  |			|
+|||| Nomes atrubuíds de qualquer maneira	|		  |			  |			|
+|||| dentro de uma função, não declarados	|		  |			  |			|
+|||| como global							|		  |			  |			|
+||||										|		  |			  |			|
+|||+----------------------------------------+		  |			  |			|
+||+---------------------------------------------------+			  |			|
+|+----------------------------------------------------------------+			|
++---------------------------------------------------------------------------+
+
+Exemplos
+
+# Escopo global
+X = 99					# X e func atribuídos no módulo: globais
+
+def func(Y):			# Y e Z atribuídos na função: locais
+   # Escopo local
+   Z = X + Y			# X é global
+   return Z
+
+func(1)					# func no módulo: resultado = 100
+
+Nomes Globais: X e func
+Nomes locais: Y, Z
+
+Um programador cuidadoso também poderá notar que, como o procedimento de pesquisa LEGB pega a primeira ocorrência de um nome que encontrar, os nomes no escopo local podem anular variáveis de mesmo nome nos escopos global e interno, e os nomes globais podem anular os internos. Por exemplo:
+
+def func():
+   open = 'spam'
+   ...
+
+Isso ocultará a função interna chamada open() que fica no escopo interno. O Python não emitirá um erro.
+
+Instruções Globais
+------------------
+
+A instrução global é a única coisa remotamente parecida com uma instrução de declaração no Python. Contudo, não é uma declaração de tipo ou tamanho, mas declaração de espaço de nome.
+.	global significa "um nome no nível superior do arquivo de módulo envolvente".
+.	Os nomes globais só devem ser declarados se forem atribuídos em uma função.
+.	Os nomes globais podem ser referenciados em uma função sem serem declarados.
+
+A instrução global é apenas a palavra-chave global, seguida por um ou mais nomes, separados por vírgulas. Poer exemplo:
+
+X = 88				# X global
+
+def func():
+   global X			# X global: fora de def
+   X = 99
+func()
+print(X)			# Imprime 99 e não 88 já que alteramos ela dentro da função func()
+
+Aqui x, y e z são todas globais dentro da função all_global(). y e z globais porque não são atribuídas na função; x é global porque foi listada em uma instrução global para fazer seu mapeamento para o escopo do módulo explicitamente. Sem a instrução global aqui, x seria considerada local, graças à atribuição.
+
+y, z = 1, 2
+
+def all_global():
+   global x
+   x = y + z
+
+all_global()
+print(y, '+', z, '=', x)
+
+
+Exemplo de escopo aninhado (a letra "E" da regra de pesquisa LEGB).
+
+de f1():
+   x = 88
+   def f2():
+      print(x)
+   f2()
+
+f1()
+
+def f1():
+   x = 88
+   def f2():
+      print(x)
+   return f2
+	  
+action = f1()
+action()
+
+def func():
+	x = 4
+	action = (lambda n: x ** n)
+	return action
+
+x = func()
+print(x(2))
+
+
+Passando Argumentos
+-------------------
+
+Por padrão, a correspondência dos argumentos é feita pela posição, da esquerda para a direitra, e você deve passar exatamente o mesmo número de argumentos quantos forem os nomes de argumentos no cabeçalho da função.
+
+Formas de Correspondência de Argumentos de Função
+Sintaxe					Localização				Interpreetação
+func(valor)				Quem fez a chamada		Argumento normal: Correspondência pela posição
+func(nome=valor)		Quem fez a chamda		Argumento de palavra-chave: Correspondência pelo nome
+def func(nome)			Função					Argumento normal: Correspondência pela posição ou pelo nome.
+def func(nome=valor)	Função					Valor de argumento padrão, se não for passado na chamada
+def func(*nome)			Função					Corresponde aos args posicionais restantes (em uma tupla)
+def func(**nome)		Funçao					Corresponde aos args de palavra-ajato restantes (em um dicionário)
+
+
+Exemplo de Palavra-Chave e Padrão
+---------------------------------
+
+Por padrão, o Python faz a correspondência de nomes pela posição, assim como a maioria das outras linguagens. Por exemplo, se você definir uma função que exige três argumentos, então deve chamá-la com três argumentos:
+
+>>> def f(a, b, c): print(a, b, c)
+
+Aqui, os passamos pela posição: a corresponde a 1, b corresponde a 2 e asim por diante:
+
+>>> f(1, 2, 3)
+1 2 3
+
+Contudo, no Python você pode ser mais específico quanto ao que vai onde, quando chama uma função. Os argumentos de palavra-chave nos permite fazer a correspondência pelo nome, em vez da posição:
+
+>>> f(c=3, b=2, a=1)
+1 2 3
+
+É possivel combinar argumentos posicionais e de palavra-chave em uma única chamada - a correspondência de todos os argumentos posicionais é feita primeiro, da esquerda para a direita no cabeçalho, antes da correspondência dos argumentos de palavra-chave pelo nome:
+
+>>> f(1, c=3, b=2)
+1 2 3
+>>> 
+
+No caso da função podemos atribuir valores padrões sendo necessário passar parametros apenas aos que não tem esses valores. Por exemplo:
+
+>>> def f(a, b=2, c=3): print(a, b, c)
+
+>>> f(1)
+1 2 3
+>>> f(a=1)
+1 2 3
+
+Se passarmos dois valores, apenas c receberá seu padrão. Com três valores, nenhum padrão será usado.
+
+>>> f(1, 4)
+1 4 3
+>>> f(1, 4, 5)
+1 4 5
+
+Aqui, a recebe 1 pela posição, c recebe 6 pela palavra-chave e b, entre eles, tem 2 como padrão.
+
+>>> f(1, c=6)
+1 2 6
+
+Exemplo de Argumentos Arbitrários
+---------------------------------
+
+As duas últimas extensões de correspondência, * e **, são projetadas para suportar funções que recebem qualquer número de argumentos. A primeira extensão coleta em uma tupla os argumentos posicionais sem correspondência:
+
+>>> def f(*args): print(args)
+
+Quando essa função é chamada o Python coleta todos os argumentos posicionais em uma nova tupla e atribui a variável args a essa tupla. Como se trata de um objeto tupla normal, ele poderia ser indexado, percorrido com um loop for etc.:
+
+>>> f()
+()
+>>> f(1)
+(1,)
+>>> f(1, 2, 3, 4)
+(1, 2, 3, 4)
+
+O recurso ** é semelhante, mas só funciona para argumentos de palavra-chave - ele os coleta em um novo dicionário, o qual pode então ser processado com as ferramentas de dicionário normais. De certo modo, a forma ** permite converter de palavra-chave para dicionários:
+
+>>> def f(**args): print(args)
+
+>>> f()
+{}
+>>> f(a=1, b=2)
+{'a': 1, 'b': 2}
+
+Finalmente, os cabeçalhos de função podem combinar argumentos normais, * e ** para implementar assinaturas de chama extremamente flexíveis:
+
+>>> def f(a, *pargs, **kargs): print(a, pargs, kargs)
+
+>>> f(1, 2, 3, x=1, y=2)
+1 (2, 3) {'x': 1, 'y': 2}
+
+
+Exemplo de como saber o menor argumento passado:
+
+>>> def min1(*args):
+	res = args[0]
+	for arg in args[1:]:
+		if arg < res:
+			res = arg
+	return res
+
+>>> def min2(first, *rest):
+	for arg in rest:
+		first = arg
+	return first
+
+>>> def min3(*args):
+	tmp = list(args)
+	tmp.sort()
+	return tmp[0]
+
+>>> print(min1(3, 4, 1, 2))
+1
+>>> print(min2("bb", "aa"))
+aa
+>>> print(min3([2,2], [1,1], [3,]))
+[1, 1]
+
+Um exemplo útil:
+
+Crie o arquivo def_inter2.py (olhe o conteúdo neste arquivo).
+
+
+Função Anônimas: Lambda
+=======================
+
+A forma geral de lambda é a palavra-chave lambda, seguida de um ou mais argumentos (exatamente como a lista de argumentos que você coloca entre parênteses em um cabeçalho de def), seguido(s) de uma expressão após os dois-pontos:
+
+lambda arg1, arg2,..., argN: expressão usando argumentos
+
+>>> def func(x, y, z): return x + y + z
+
+>>> func(1, 2, 3)
+6
+>>> f = lambda x, y, z: x + y + z
+>>> f(1, 2, 3)
+6
+>>> 
+
+Funções de Mapeamento Sobre Sequências
+--------------------------------------
+
+Uma das coisas mais comuns que os programas fazem com listas e outras sequências é aplicar uma operação a cada item e coletar os resultados. Por exemplo, a atualização de todos os contadores em uma lista pode ser feita facilmente com um loop for:
+
+>>> counters = [1, 2, 3, 4]
+>>> updated = []
+>>> for x in counters:
+	updated.append(x + 10)
+
+	
+>>> updated
+[11, 12, 13, 14]
+
+>>> def inc(x): return x + 10
+
+>>> list(map(inc, counters))
+[11, 12, 13, 14]
+
+>>> list(map((lambda x: x + 3), counters))
+[4, 5, 6, 7]
+
+>>> pow(3, 4)
+81
+
+>>> list(map(pow, [1, 2, 3], [2, 3, 4]))	# 1**2, 2**3, 3**4
+[1, 8, 81]
+
+Utilizando a função interna filter()
+
+>>> list(range(-5, 5))
+[-5, -4, -3, -2, -1, 0, 1, 2, 3, 4]
+
+>>> list(filter((lambda x: x > 0), range(-5, 5)))
+[1, 2, 3, 4]
+
+que equivaleria ao código abaixo, porém com a vantagem de ser mais rápida e interna:
+
+res = []
+for x in range(-5, 5):
+   if x > 0:
+      res.append(x)
+	 
+res
+
+Vamos ver um exemplo que demostra os fundamentos. A função interna ord(), do Python, retorna o código ASCII inteiro de um único caracter:
+>>> ord('A')
+65
+>>> ord('a')
+97
+>>> 
+
+A função interna chr() é o oposto - ela retorna o caracterte de um inteiro em código ASCII.
+
+Agora suponha que queiramos coletar os códigos ASCII de todos os caracteres em uma string completa. Talvez a estratégia mais elementar seja usar um loop for simples e anexar os resultados em uma lista:
+
+>>> res = []
+>>> for x in 'spam':
+	res.append(ord(x))
+
+>>> res
+[115, 112, 97, 109]
+
+Agora que conhecemos a função map, podemos obter resultados semelhantes com uma única chamada de função, sem ter de gerenciar construções de lista no código:
+
+>>> res2 = list(map(ord, 'spam'))
+>>> res2
+[115, 112, 97, 109]
+
+ ou 
+ 
+>>> res3 = [ord(x) for x in 'spam']
+>>> res3
+[115, 112, 97, 109]
+
+Lista de abrangências:
+
+Os códigos abaixo executam as mesmas tarefas e exige alguma digitação a mais do que a abrangência de lista equivalente. Contudo, para tipos de expressões mais avançados, as abrangências de lista frequentemente serão menores para vocÊ digitar.
+
+>>> [ x ** 2 for x in range(10)]
+[0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+>>> 
+
+ ou
+
+>>> list(map((lambda x: x**2), range(10)))
+[0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+Veja um exemplo para tiramos os números pares de uma range de 0 a 5:
+
+>>> [x for x in range(5) if x % 2 == 0]
+[0, 2, 4]
+
+>>> list(filter((lambda x: x % 2 == 0), range(5)))
+[0, 2, 4]
+
+>>> res = []
+>>> for x in range(5):
+	if x % 2 == 0: res.append(x)
+
+	
+>>> res
+[0, 2, 4]
+
+ 
+ >>> [x**2 for x in range(10)]
+[0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+>>> list(map((lambda x: x**2), range(10)))
+[0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+Na verdade, as abrangências de lista são ainda mais gerais. Você pode escrever for aninhados e cada um pode ter um teste if associado. A estrutura geral das abrangencias de lista é a seguinte:
+
+[ expressão for destino1 in sequencia1 [if condição]
+            for destino2 in sequencia2 [if condição]
+            for destinoN in sequenciaN [if condição]]
+
+Quando cláusulas for são aninhadas dentro de uma abrangência de lista, elas funcionam como instruções de loop for aninhadas equivalentes. Por exemplo, o código a seguir:
+
+>>> res = [x+y for x in [0,1,2] for y in [100, 200, 300]]
+
+>>> res
+[100, 200, 300, 101, 201, 301, 102, 202, 302]
+
+ ou
+
+>>> res = []
+>>> for x in [0,1,2]:
+	for y in [100,200,300]:
+		res.append(x+y)
+
+		
+>>> res
+[100, 200, 300, 101, 201, 301, 102, 202, 302]
+
+>>> [x+y for x in 'spam' for y in 'SPAM']
+['sS', 'sP', 'sA', 'sM', 'pS', 'pP', 'pA', 'pM', 'aS', 'aP', 'aA', 'aM', 'mS', 'mP', 'mA', 'mM']
+
+
+>>> [(x,y) for x in range(5) if x % 2 == 0 for y in range(5) if y%2 == 1]
+[(0, 1), (0, 3), (2, 1), (2, 3), (4, 1), (4, 3)]
+
+>>> res = []
+>>> for x in range(5):
+	if x % 2 == 0:
+		for y in range(5):
+			if y % 2 == 1:
+				res.append((x,y))
+
+				
+>>> res
+[(0, 1), (0, 3), (2, 1), (2, 3), (4, 1), (4, 3)]
+
+O ideal é desenvolver seus códigos o mais legivel possivel, e meno complexos.
+
+No entanto existe vantagens de desempenho significativos na complexidade extra, neste caso: com ase em testes executados, as chamadas de map() são aproximadamente duas vezes mais rápidas do que os loops for equivalentes e, normalmente, as abrangências de lista são muito mais rápidas do que a função map(). Essa diferença na velocidade se deve ao fato de que a função map() e as abrangências de lista são executadas na velocidade da linguagem C dentro do interpretador, em vez de percorrer código de loop for do Python dentro da PVM (Python Virtual Machine).
+
+Outros exemplos:
+
+Aqui está um exemplo mais realista das abrangências de lista e de função map() em ação. Lembrese de que o método de arquivo readlines retorna linhas com seu caractere de fim de linha \n no final:
+
+>>> open('log.txt').readlines()
+['Hello World!!!\n', 'bye =) ...........\n', 'teste\n', 'teste\n', 'teste\n']
+
+Se você não quiser o caractere de fim de linha, pode fracionar todas as linhas em um único paso, com uma abrangência de lista ou com uma chamada de map():
+
+>>> [line[:-1] for line in open('log.txt').readlines()]
+['Hello World!!!', 'bye =) ...........', 'teste', 'teste', 'teste']
+
+>>> [line[:-1] for line in open('log.txt')]
+['Hello World!!!', 'bye =) ...........', 'teste', 'teste', 'teste']
+
+>>> list(map((lambda line: line[:-1]), open('log.txt')))
+['Hello World!!!', 'bye =) ...........', 'teste', 'teste', 'teste']
+
+As abrangências de lista também podem ser usadas como uma espécie de operação de projeção de coluna. A API de banco de dados SQL padrão do Python retorna resultados de consulta como uma lista de tuplas - a lista é a tabela, as tuplas são linhas e os itens nas tuplas de coluna, muito parecido com a lista a seguir:
+
+>>> listoftuple = [('bob', 35, 'mgr'), ('mel', 40, 'dev')]
+
+Um loop for poderia extrair todos os valores de uma coluna selecionada manualmente, mas a função map e as abrangências de lista podem fazer isso em uma única etapa e mais rápido:
+
+>>> [age for (name, age, job) in listoftuple]
+[35, 40]
+
+>>> list(map((lambda row: row[1]), listoftuple))
+[35, 40]
+
+Os dois códigos utilizam atribuição de tupla para desempacotar tuplas de linha na lista.
+
+Como os loops for tornam a lógica mais explícita, os recomendamos em geral por causa da simplicidade. É importante conhecer a função map() e especialmente as abrangência de lista, se a velocidade de seu aplicativo for uma consideração importante. Além disso, como a função map() e as abrangências de lista são expressões, elas podem aparecer sintaticamente em lugares que as instruções de loop for não podem, como nos blocos de funções lambda, dentro  de literais de lista, dicionário e muito mais. Contudo, você deve manter suas chamadas de map() e aberangências de lista simples. Para tarefas mais complexas, use instruções completas, em vez disso.
+
+Funções Geradoras e Iteradores : yield vs return
+------------------------------------------------
+
+A principal diferença de código entre as funções geradoras (yield) e normais (return) é que as geradoras produzem um valor, em vez dee retornar um - a instrução yield suspende a função e envia um valor de volta para quem fez a chamada, mas mantém estado suficiente para permitir que a função retome a partir de onde parou. Isso permite que as funções produzam uma série de valores com o passar do tempo, em vez de calculá-los todos de uma vez, e os enviem de volta em algo como uma lista.
+
+As funções que contêm uma instrução yield são compiladas de forma especial como geradoras. Quando chamadas, elas retornam um objeto gerador que suporta a interface de objeto iterador.
+
+Os objetos iteradores, por sua vez, definem um método next, o qual retorna o próximo item na iteração ou lança uma exceção especial (StopIteration) no final da iteração. Os iteradores são buscados com a função interna iter. Os loops for do Python usam esse protocolo de interface de iteração para percorrer uma sequência (ou geradora de sequência), caso o protocolo seja suportado. Se não for, em vez disso o loop for retrocede repetidamente na indexação das sequências.
+
+Para ilustar os fundamentos, contudo, o código a seguir define uma função geradora que pode ser usada para gerar os quadrados de uma série de números com o passar do tempo.
+
+>>> def gensquare(N):
+	for i in range(N):
+		yield i**2
+
+		
+>>> for i in gensquare(5):
+	print(i, end=':',)
+
+0 : 1 : 4 : 9 : 16 :
+
+>>> x = gensquare(5)
+
+>>> x
+<generator object gensquare at 0x02E36660>
+
+>>> x.__next__()
+0
+>>> x.__next__()
+1
+>>> x.__next__()
+4
+>>> x.__next__()
+9
+>>> x.__next__()
+16
+>>> x.__next__()
+Traceback (most recent call last):
+  File "<pyshell#791>", line 1, in <module>
+    x.__next__()
+StopIteration
+>>> 
+
+
+Módulos
+=======
+
+Em termos comcretos, os módulos normalmente correspondem aos arquivos de programa do Python (ou extensões da linguagem C). Cada arquivo é um módulo e os módulos importam outros módulos para usar os nomes neles definidos. Os módulos são processados com duas novas instruções e uma função interna importante:
+
+.	import 		->  Permite que um cliente (importador) busque um módulo com um todo.
+.	from		-> Permite que os clientes busquem nomes específicos de um módulo.
+.	reload		-> Fornece uma maneira de recarregar o código de um módulo sem interromper o Python.
+
+As funções dos módulos:
+.	Reutilização de código -> Os módulos nos permitem salvar código permanentemente em arquivos. Ao contrário do código digitado no prompt interativo do Python, o qual desaparece quando você sai dele, o código que fica em arquivos de módulo eé persistente - ele pode ser recarregado e novamente executado quantas vezes forem necessárias. Mais objetivamente, os módulos são locais para definir nomes (ou atributos) que podem ser referênciados por clientes externos.
+.	Particionamento do espaço de nome do sistema -> Os módulos também são as unidades de organização de nível mais alto no Python. Basicamente são apenas pacotes de nomes. Os módulos encerram nomes em pacotes auto-suficientes que evitam conflitos de nome - você nunca pode ver um nome em utro arquivo, a menos que o importe explicitamente. Na verdade, tudo "vive" em um módulo: o código que você executa e os objetos que cria são sempre englobados implicitamente por um módulo. Por isso, os módulos são uma ferramenta natural para agrupar componentes de sistema.
+.	Implementar serviços ou dados compartilhados -> A partir de uma perspectiva funcional, os módulos também são úteis para implementar componentes compartilhados em um sistema e, por isso, só existem uma única cópia. Por exemplo, se você precisa fornecer um objeto global usado por mais de uma função ou arquivo, pode escrevê-lo em um módulo que será importado por muitos clientes.
+
+
+Arquitetura de Programas em Python
+Nível Superior		Módulos
+					+--------+					+--------------+
+					|  b.py  |					|			   |
++--------+		,-->|		 |----------------->|  Módulos da  |
+|  a.py  |-----´+-->|		 |-------+			|  biblioteca  |
+|        |		|   +--------+		 |			|  padrão	   |
+|        |		| 					 |			|			   |
++--------+		|	+--------+		 |			|			   |
+				+---|  c.py  |<------+			|			   |
+					|		 |----------------->|			   |
+					|		 |					|			   |
+					|		 |					|			   |
+					+--------+					+--------------+
+					
+As imporações no Python são realmente operações em tempo de execução que realizam três etapas dsitintas na primeira vez que um arquivo é importado por um programa:
+.	Localizar o arquivo do módulo
+.	Compilá-lo no código de byte - bytecode(se necessário)
+.	Executar o código do módulo para construir os objetos que ele define.
+
+Localização
+-----------
+
+A grosso modo, o caminho de pesquisa de módulo do Python é composto automaticamente como a concatenação dos seguintes componentes principais:
+1.	O diretório de base do arquivo de nível mais alto -> Procura o arquivo importado no diretório de base.
+2.	Diretório de PYTHONPATH (se estiver configurada) -> Os diretórios listados na condiguração de sua variável de ambiente PYTHONPATH, da esquerda para a direita.
+3.	Diretório da blibioteca padrão -> Pesquisa automaticamente os diretórios onde os módulos da biblioteca padrão estão instalados em sua máquina.
+4.	O conteúdo de todos os arquivos .pth (se estiver presentes) -> Permite aos usuários adicionarem diretórios válidos no caminho de pesquisa de módulo, simplesmente listando-os, um por linha, em um arquivo de texto cujo nome termine com o sufixo .pth (de path - caminho).
+
+O Python lé os caminhos de cima para baixo concatenando eles.
+
+A lista sys.path
+----------------
+
+Se você quiser ver como o caminho está realmente configurado em sua máquina, sempre pode inspecionar o caminho de pesquisa de módulo, como é conhecido no Python, imprimindo a lista insterna sys.path (isto é, o atributo path do módulo interno sys). Essa lista de strings de nome de diretório do Python é o caminho de pesquisa real. Nas importações, o Python pesquisa cada diretório da lista, da esquerda para a direita.
+
+Como veremos posteriormente, modificando a lista sys.path(), você pode modificar o caminho de pesquisa para todas as importações futuras. Entretanto, essas alterações duram apenas enquanto o script existe; PYTHONPATH e os arquivos .pth são maneiras mais permanentes de modificar o caminho.
+
+Seleção de arquivo de módulo
+----------------------------
+Lembre-se de que o sufixo de nome de arquivo (por exemplo, .py) são omitidos intencionalmente nas instruções de importação. O Python escolhe o primeiro arquivo que encontrar no caminho de pesquisa, que corresponda ao nome importado. Por exemplo, uma instrução de importação da forma "import b" poderia carregar:
+.	O arquivo-fonte b.py
+.	O arquivo de código de byte b.pyc
+.	Um diretório chamado b, para importações de pacotes
+.	Um módulo de extensão C (por exemplo, b.so no Linux)
+.	Uma imagem na memória, para executáveis congelados
+.	Uma classe Java, no sistema Jython
+.	Um componente de arquivo zip, usando o módulo zipímport
+
+Criação de Módulos
+------------------
+
+Se criamos um arquivo module1.py, e no início digitarmos a instrução def e a seguir o nome printer, esse será o atributo do módulo. Por exemplo:
+
+def printer(x):			# Atributo do módulo
+   print(x)
+  
+Utilização do Módulo
+--------------------
+Os clietes podem usar o arquivo de módulo que acabamos de escrever, executando instruções import ou from. Ambas localizam, compilam e executam o código de uma arquivo de módulo, se ela ainda tiver sido carregado. A principal diferença é que import busca o módulo como um todo, de modo que você precisa qualificar para buscar seus nomes; em vez disso, from busca (ou copia) nomes específicos do módulo.
+
+Vamos ver o que isso significa em termos de código. Todos os exemplos a seguir acabam chamando a função printer definida no arquivo de módulo externo model1.py, mas de mandeiras diferentes.
+
+usando o import:
+No primeiro exemplo, o nome model1 tem dois própositos diferentes. Ele identifica um arquivo externo a ser carregado e torna-se uma variável no scrit, a qual referencia o objeto módulo após o arquivo ser carregado:
+>>> import model1							# Obtém o módulo como um todo
+>>> module1.printer('Hello world!')			# Qualifica parte obter nomes
+
+Como import fornece um nome que se refere ao objeto módulo como um tudo devemos passar pelo nome do módulo paa buscar seus atributos.
+
+usando from:
+Em contraste, como from também copia nomes de um arquivo para outro escopo, devemos, em vez disso, usar os nomes copiados diretamente, sem passar pelo módulo.
+
+>>> from module1 import printer		# Copia uma variável1
+>>> printer('Hello world!')			# Não precisa qualificar o nome
+
+Quando usamos *, obtemos cópia de todos os nomes atribuídos no nível superior do módulo referenciado. Aqui, novamente, usamos o nome copido e não passamos pelo nome do módulo:
+>>> from module1 from *				# Copia todas as variáveis
+>>> printer('Hello world!')
+
+O from equivale ao importe na seguinte situação:
+>>> from module import name1, name2		# Copia esses dois nomes (apenas).
+
+>>> import module						# Busca o objeto módulo
+>>> name1 = module.name1				# Copia nomes pela atribuição
+>>> name2 = module.name2
+>>> del module							# Desfaz-se do nome do módulo
+
+Assim como todas as atribuições, a instrução from cria novas variáveis no importador, as quais inicialmente refere-se aos objetos de mesmo nome no arquivo importado. Contudo, apenas os nomes são copiados e não o módulo em si.
+
+Aninhamento de espaço de nome
+-----------------------------
+
+arquivo mod1.py
+
+X = 3
+
+arquivo mod2.py
+X = 2
+import mod3
+print(X)			# Meu X global
+print.mod3.X		# X de mod3
+
+arquivo mod1.py
+X = 1
+import mod2
+
+print(X)			# Meu X global
+print(mod2.X)		# X de mod2
+print(mod2.mod3.X	# X de mod3 aninhado
+
+Na verdade, quando mod1 importa mod2 aqui, ele estabelece uma aninhamento de espeço de nome de dois níveis. Usando o caminho de nomes mod2.mod3.X, ele descee para mod3, que está aninhando no arqivo importado mod2. O resultado é que mod1 pode ser as variáveis X de todos os três arquivos e, por isso, tem acesso a todos os três escopos globais.
+
+Inversa, mod3 não pode ver nomes em mod2 e este não pode ver nomes em mod1.
+
+Recarregando Módulos
+--------------------
+Por padrão, o código de um módulo é executado apenas uma vez por processo, Para obrigar o código de um módulo a ser recarregado novamente e executado, você precisa pedir ao Python explicitamente para que faça isso, chamando a função interna reload. Nesta seção, exploraremos o uso de recarregamentos para tornar seus sistemas mais dinâmicos. Em resumo:
+.	As importações (tanto instruções import como from) carregam e executam o código de um módulo apenas na primeira vez que o módulo é importado em um processo.
+.	As importações posteriores usam o objeto módulo já carregado, sem recarregar nem executar novamente o código do arquivo.
+.	A função reload() obriga o código de um módulo já carregado a ser recarregado e novamente executado. As atribuições no novo código do arquivo fazem alterações no local do objeto módulo existente.
+
+A função reload() só funciona em módulos escritos em Python; módulos de extensão C também podem ser carregados dinamicamente, mas eles não podem ser recarregados.
+
+Ao contrário das instruções import e from:
+.	reload() é uma fuhnção interna e não uma instrução.
+.	reload() recebe um objeto módulo existente e não um nome.
+
+Por exemplo:
+import mod1					# Importação inicial
+  usa módulo.atributos
+							# Agora, altera o arquivo de módulo
+reload(mod1)				# Obtém exportações atualizadas.
+   usa módulo.atributos
+   
+Exemplo:
+Arquivo mod1.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+message = "First version"
+
+def printer():
+    print(message)
+
+>>> import mod1
+>>> mod1.printer()
+First version
+>>> 
+
+Vamos alterar o arquivo mod1.py para:
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+message = "After editing"
+
+def printer():
+    print("Reload:", message)
+
+Agora vamos importar novamente e depois fazer um reload:
+
+>>> import mod1
+>>> mod1.printer()
+First version
+
+>>> from imp import reload
+>>> reload(mod1)
+<module 'mod1' from 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\mod1.py'>
+
+>>> mod1.printer()
+Reload: After editing
+
+Pacotes de Módulo
+=================
+Aqui está como as importações de pacote funcionam. No lugar onde estivemos nomeando um arquivo simples, podemos, em vez disso, listar um caminho de nomes separados por pontos:
+
+import dir1.subdir1.mod1
+ou
+from dir1.subdir1.mod1 import x
+
+O caminho com os pontos nessas instruções devem corresponder a um caminho pela hierarquia 
+
+Exemplo:
+
+Errado:
+>>> import C:\\mycode\\ipconvert\\lib\\colors
+SyntaxError: unexpected character after line continuation character
+
+Em vez de criar uma instrução inválida como esta, adicione C:\mycode em sua variável PYTHONPATH ou arquivo .pth, a menos que ele seja o diretório de base do programa, e escreva isto:
+
+Correto:
+>>> import ipconvert.lib.colors
+
+Arquivos de pacotes __init__.py
+-------------------------------
+Vamos criar três arquivos em dois diretórios (dir1 e subdir1:
+# Arquivo: dir1\__init__.py
+print("dir1 init")
+x = 1
+
+# Arquivo: dir1\subdir1\__init__.py
+print("subdir1 init")
+y = 2
+
+# Arquivo: dir1\subdir1\mod1.py
+print("in mod1")
+z = 3
+
+Aqui, dir1 será um subdiretório do diretório em que estamos trabalhando (isto é, o diretório de base) ou um subdiretório de um diretório listado no caminho de pesquisa de módulo (tecnicamente, em sys.path). De qualquer modo, o contêiner de dir1 não precisa de um arquivo __init__.py.
+
+>>> import dir1.subdir1.mod1
+dir1 init
+subdir1 init
+in mod1
+>>> 
+
+>>> reload(dir1)
+dir1 init
+<module 'dir1' from 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\dir1\\__init__.py'>
+>>> 
+
+>>> reload(dir1.subdir1)
+subdir1 init
+<module 'dir1.subdir1' from 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\dir1\\subdir1\\__init__.py'>
+ 
+>>> dir1
+<module 'dir1' from 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\dir1\\__init__.py'>
+
+>>> dir1.subdir1
+<module 'dir1.subdir1' from 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\dir1\\subdir1\\__init__.py'>
+
+>>> dir1.subdir1.mod1
+<module 'dir1.subdir1.mod1' from 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\dir1\\subdir1\\mod1.py'>
+
+>>> dir1.x
+1
+>>> dir1.subdir1.y
+2
+>>> dir1.subdir1.mod1.z
+3
+ 
+Como podemos ver os pacotes aninham as chamadas de módulos.
+
+Para não precisar ficar passando o caminho completo todas as vezes que quiser utilizar um atributo do mod1.py podemos utilizar o from.
+
+>>> from dir1.subdir1 import mod1
+dir1 init
+subdir1 init
+in mod1
+
+>>> mod1.z
+3
+>>> from dir1.subdir1.mod1 import z
+
+>>> z
+3
+
+Ocultação de dados em módulos
+-----------------------------
+Para evitar que a importação com a instrução from * polua o espaço de nomes de variáveis (incluindo nomes que sobrescreva outros), utiliza-se um sublinhado no início do nome da variável (por exemplo, _x). Com isso, essas variáveis não serão importadas com a instrução from, apenas explicitamente om o import.
+
+Além dele. podemos utilizar a variável __all__ e uma lista de strings de nome de variável, no nível superior do módulo. Por exemplo:
+
+__all__ = ["Error", "encode", "decode"]		# Exporta apenas estes
+
+Quando esse recurso é usado, a instrução _x: __all__ contém os nomes a serem copiados, mas _x identifica os nomes a não serem copiados. O Python procura uma lista __all__ primeiro no módulo. Se não houver nenhuma definida, a instrução from* copiará todos os nomes sem um único sublinhado no início.
+
+Ativando futuros recursos da linhguagem
+---------------------------------------
+
+Para ativar extensões opcionais que apareceream em versões futuras utilize a instrução __future__ da seguinte forma:
+
+from __future__ import nome_do_recurso
+
+Geralmente, essa instrução deve aparecer no início de um arquivo de módulo (possivelmente após uma docstring), pois ele ativa compilação de código especial.
+
+Modos de utilização mistos
+--------------------------
+
+Aqui está um truque relacionado aos módulos que permite a você importare um arquivo como módulo e executá-lo como um programa independente. Cada módulo tem um atributo interno chamado __name__, que o Python configura automaticamente, como segue:
+
+.	Se o arquivo estiver sendo executado como um arquivo de programa de nível superior, __name__ será configurado como a string "__main__", quando ele começar.
+.	Se o arquivo estiver sendo importado, em vez disso, __name__ será configurado com o nome do módulo, confogme é conhecido por sues clientes.
+
+A conclusão é que um módulo pode testar seu próprio atributo __name__ para determinar se está sendo executado ou importado. Por exemplo, suponha que criamos o arquivo de módulo a seguir, chamado runme.py, para exportar uma única função, chamada tester:
+
+def tester():
+   print("Its's Christmas in Heaven...")
+  
+if __name__ == '__main__' :			# Somente quando executa
+   tester()							# Não quando importado
+
+Desta forma se você executar direto ele irá executar a função tester() caso ele sejá importado você deverá chamar o atributo tester().
+
+Alterando o caminho de pesquisa de módulo
+-----------------------------------------
+
+Além de utilizar a variável de ambiente PYTHONPATH e arquivos .pth, podemos utilizar o atributo sys.path do módulo sys, que tem uma lista de caminhos de execução na inicialização do sistema.
+
+>>> import sys
+>>> sys.path
+['', 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\Lib\\idlelib', 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\python36.zip', 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\DLLs', 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\lib', 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32', 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\lib\\site-packages']
+
+>>> sys.path = [r'C:\\Temp']
+
+>>> sys.path.append('C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32')
+
+>>> sys.path
+['C:\\\\Temp', 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32']
+
+A instrução import como extensão
+--------------------------------
+
+As instruções import e from foram estendidas para permitir que um módulo receber nomes diferentes em seu script:
+
+import long_module_name as name
+
+é equivalente a:
+import long_module_name
+name = long_module_name
+del long_module_name
+
+Com isso, utilizamos o nome que atribuímo ao módulo. Podemos utiliza a instrução from também:
+
+from module import long_module_name as name
+
+Os módulos são objetos
+----------------------
+Analisando os módulos com uma script mydir.py
+
+# Um módulo que lista os espaços de nome de outros módulos
+verbose = 1
+
+def listing(module):
+   if verbose:
+      print("-" * 30)
+	  print("Name:", module.__name__, "file:" module.__file__)
+	  print("-" * 30)
+	  
+	 count = 0
+	 
+	 for attr in module.__dict__.keys():		# Percorre o espaço de nome
+	    print("%02d) %s" % (count, attr))
+		if attr[0:2] == "__":
+		   print("<build-in name>")				# Pula __file__ etc.
+		else:
+		   print(getattr(module, attr))			# O mesmo que __dict__[attr]
+		
+		count += 1
+		
+	if verbose:
+	   print("-" * 30)
+	   print(module.__name__, "has %d names" % count)
+	   print("-" * 30)
+	
+	if __name__ == "__main__":
+	   import mydir
+	   listing(mydir)							# Código de auto-teste: lista myself
+
+
+
+Como executar um módulo passando uma string, já que no import não podemos passar uma string apenas arquivos.
+
+>>> modname = "string"
+
+>>> exec("import " + modname)
+
+>>> string
+<module 'string' from 'C:\\Users\\a80581592\\AppData\\Local\\Programs\\Python\\Python36-32\\lib\\string.py'>
+
+A função exec() compila uma string de código e a passa para o interpretador do Python para ser executada (A prima da função exec() é a eval()).
+ 
+O único inconveniente da função exec() é que ela precisa compilar a instrução import sempre que é executada. Se ela for executada muitas vezes, seu código poderá ser mais rápido se usar a função interna __import__ para carregar a partir de uma string de nome. O efeito é semelhante, mas __import__ retorna  objeto módulo; portanto, para mantê-lo, atribua um nome a ele aqui:
+
+Classes e OOP
+=============
+As classes representam uma unidade de programação do Python, exatamente como as funções e os módulos. Elas são outro compartimento do empacotamento de lógica e dados. Na verdade, as classes também definem um novo espaço de nome, exatamente como os módulos. Mas comparadas com outras unidades de progerama que já vimos, as classes têm três distinções fundamentais que as tornam mais úteis quando se trata de construir novos objetos:
+.	Instâncias múltiplas -> A grosso modo, as classes são fábricas para gerar um ou mais objetos. Sempre que chamamos uma classe, geramos um novo objeto, com um espaço de nome distinto. Cada objeto gerado a partir de uma classe tem acesso aos atributos da classe e recebe seu próprio espaço de nome para dados, que varia de acordo com o objeto.
+.	Personalização por meio de herança -> As classes também suportam a noção de herança POO. Elas são estendidas pela redefinição de seus atributos fora da classe em si. Em geral, as classes podem construir hierarquias de espaço de nome, as quais definem os nomes a serem usados pelos objetos criados a partir das classes da hierarquia.
+.	Sobrecarga de operador -> Fornecendo métodos de protocolo especiais, as classes podem definir objetos feitos com classes podem ser fracionados, concatenados, indexados etc. O Python fornece ganchos que as classes podem usar para interceptar e implementar qualquer operação do tipo interno.
+
+Uma árvore de classe:
+
+
+
+			+----------+						+----------+
+			|   C2     |						|    C3    |
+			| .x       |<------+    +---------->| .w       |
+			| .z       |		|	|			| .z       |
+			+----------+		|	|			+----------+
+								|   |
+							+----------+
+							|    C1    |
+							| .x       |
+							| .y       |
+							+----------+
+								^	^
+								|	|
+			+----------+		|	|			+----------+
+			|   L1     |		|	|			|    L2    |
+			| .nome    |---------+   +--------->| .nome    |
+			| 	       |						| 	       |
+			+----------+						+----------+
+
+.	Classes -> Serevem como fábricas de instância. Seus atributos forncem comportamento - dados e função - que é herdado por todas as instências geradas a partir delas (por exemplo, uma função para calcular salário de funcionários a partir do ordenado e das horas).
+.	Instâncias -> Representam os itens concretos no domínio de um programa. Seus atributos registram dados que variam de acordo com o objetivo específico (por exemplo, o número do RG/CPF).
+
+Em termos de árvores de pesquisa, uma instância herda atributos de sua classe e uma classe herda atributos de todas as classes acima dela na árvore.
+
+C2 e C3 -> Classes que estão acima na árvore, são conhecida como Superclasses
+C1 -> Classes que estão abaixo são conhecidas como subclasses.
+
+
+Fundamentos do Desenvolvimento de Classes
+=========================================
+
+As classes têm três distinções principais. Em um nível básico, elas são principalmente apenas espaço de nome, muito parecidos com os módulos estudados na parte sobre Módulos. Mas, ao contrário dos módulos, as classes também têm suporte para gerar vários objetos, herança de espaço de nome e sobrecarga de operadores.
+
+Para começar, vamos definir uma classe chamada FirstClass, executando uma instrução class do Python interativamente:
+
+>>> class FirstClass:				# Define um objeto classe
+		def setdata(self, value):	# Define métodos de classe
+			self.data = value 		# Self é a instância.
+		def display(self):			#
+			print(self.data)		#self.data: por instância
+
+			
+Estamos trabalhando interativamente aqui, mas normalmente uma instrução assim seria executada quando o arquivo de módulo em que está escrita fosse importado. Assim como as funções, sua classe não existirá até que o Python obtenha e execute essa instrução.	
+
+Assim como todas as instruções compostas, class começa com uma linha de cabeçalho que lista o nome da classe, seguida de um bloco com uma ou mais instruções aninhadas e (normalmente) endentadas. Aqio, as instruções aninhadas são instruções def, elas definem funções que implementam o comportamento que a classe deve exportar. Conforme aprendemos, na verdade, a instrução def é uma atribuíção; aqui aos nomes setdata e display no escopo da instrução class e, portanto, gera atributos vinculados à classe: FirstClass.setdata e FirstClass.display.
+
+Normlamente, as funções dentro de uma classe são chamadas de métodos; elas são instruções def normais, mas o primeiro argumento recebe automaticamente um objeto instância implícito, quando chamadas - o sujeito de uma chamada. Precisamos de duas instâncias para vermos como isso acontece:
+
+>>> x = FirstClass()			# Produz duas instâncias
+>>> y = FirstClass()			# Cada uma é um novo espaço de nome
+
+Aqui temos três objetos - duas instâncias e uma classe.
+
+[ x ] --------> +------------+
+				| FirstClass |
+[ y ] --------> +------------+
+
+As duas instâncias começam vazias, mas têm vínculos de volta para a classe a partir da qual foram geradas. Se qualificarmos uma instância com o nome de um atributo residente no objeto classe, o Python buscará o nome da classe por meio de pesquisa de herança (a não ser que ele também resida na instância):
+
+>>> x.setdata("King Arthur")	# Chama métodos: self é x
+>>> y.setdata(3.14159)			# Executa: FirstClass.setdata(y, 3.14159)
+
+Nem x nem y tem sua própria função setdata: em vez disso, o Python segue o vínculo da instância para a classe, se um atributo não existe em uma instância. Isso é  tudo que há sobre herança no Python: ela ocorre no momento da qualificação do atributo e envolve apenas pesquisa de nomes em objetos vinculados.
+
+Na função setdata dentro de FirstClass, o valor passado é atribuído a self.data. Dentro de um método, self - o nome dado ao argumento mais à esquerda, por convenção - refere-se automaticamente à instância que está sendo processada (x ou y); portanto, as atribuições armazenam valores nos espaços de nome das instâncias e não na classe.
+
+Como as classes geram várias instâncias, os métodos precisam passar pelo argumento self para chegar à instância a ser processada. Quando chamamos o método display da classe para imprimir self.data, vemos que ele é diferente em cada instância; por outro lado, display é o mesmo em x e y, pois é proviniente (é herdado) da classe:
+
+>>> x.display()					# self.data difere em cada um
+King Arthur
+>>> y.display()
+3.14159
+>>> 
+
+Note que armazenamos tipos de objeto diferentes no membro data (uma string e um número de ponto flutuante). Assim como tudo no Python, não existem declarações para atributos de instânci (às vezes chamados de membros); eles começam a existir na primeira vez que recebem um valor, exatamente como as variáveis simples. Na verdade, podemos alterar atributos de insância na própria instrução class, atribuindo a self em métodos, ou fora da classe, atribuíndo a um objeto instância explícito:
+
+>>> x.data = "New value"	# Também pode obter/configurar atributos
+>>> x.display()			# fora da classe.
+New value
+>>> 
+
+Embora seja menos comum, poderámos até gerar um novo atributo na instância, atribuindo a seu nome fora das funções de método da classe:
+
+>>> x.anothername = "spam"	# Pode obter/configurar atributos
+>>> 
+
+Isso anexaria um novo atributo, chamado anothername, no objeto instância x, o qual poderia ou não ser usado por qualquer um dos métodos da classe. Normalmente, as classes criam todos os atributos da instância por meio de atribuição ao argumento self, mas não são obrigadas a fazer isso. Os programas podem buscar, alterar ou criar atributos em qualquer objeto para o qual tenham uma referência.
+
+O próximo exemplo complementa o anterior. Vamos definir uma nova classe, SecondClass, que herda todos os nomes de FirstClass e também fornece um nome próprio:
+
+>>> class SecondClass(FirstClass):	# Herda setdata
+		def display(self):			# Altera display
+			print('Current value = "%s"' % self.data)
+
+		
+>>> 
+>>> 
+
+SecondClass define o método display paa imprimir com um formato diferente. Mas, como SecondClass define um atributo do mesmo nome, ela efetivamente anula e substitui o atributo display em FirstClass.
+
+O resultado aqui é que SecondClass especializa FirstClass, alterando o comportamento do método display. Por outro lado, SecondClass (e as instâncias criadas a partir dela) ainda herda o método setdata de FirstClass literalmente.
+
+>>> z = SecondClass()
+>>> z.setdata(42)		# setdata encontrado em FirstClass
+>>> z.display()			# encontra método anulado em SecondClass
+Current value = "42"
+>>> 
+														+---------------+
+														| FirstClass	|
+														| - setdata		|
+														| - display		|
+							+---------------+ -------->	+---------------+
+							| SecondClass	|                         ^
+							| - display		|                          \
++---------------+ --------> +---------------+ <-+                       \
+| z instancia	|							     \                       \
+| - data		| <--------------- [z.data ]       `[z.display]     [ z.setdata ]
++---------------+
+
+
+
+Classes e Módulos
+-----------------
+
+Vale lembrar que podemos ter o módulo e a classe com o mesmo nome, por exemplo um arquivo chamado person.py que contém a seguinte classe:
+
+class person:
+
+Precisamos passar pelo módulo para buscar a classe, como sempre:
+
+import person		# Importa o módulo
+x = person.person()	# Classe dentro do módulo
+
+Embora esse caminho possa parecer redundante, ele é exigido: person.person refere-se à classe person dentro do módulo person. Escrever apenas person obtém o módulo e não a classe, a menos que a instrução from seja usada:
+
+from person import person	# Obtémn a classe a partir do módulo
+x = person()				# Usa o nome da classe
+
+As Classes Podem Interceptar Operacores do Pyhton
+-------------------------------------------------
+
+
+
+>>> class ThirdClass(SecondClass):				# É um SecondClass
+	def __init__(self,value):					# Em ThirdClass(value)
+		self.data = value
+		print("Iniciado automaticamente")
+	def __add__(self,other):					# Em self + other
+		return ThirdClass(self.data + other)
+	def __mul__(self,other):					# Em self other
+		self.data = self.data * other
+	def __str__(self):
+		return '[ThirdClass: %s]' % self.data
+
+	
+>>> a = ThirdClass("abc")
+Iniciado automaticamente
+
+>>> a.display()
+Current value = "abc"
+
+>>> print(a)
+[ThirdClass: abc]
+
+>>> b = a + 'yxz'
+Iniciado automaticamente
+
+>>> b.display()
+Current value = "abcyxz"
+
+>>> print(b)
+[ThirdClass: abcyxz]
+
+>>> a * 3
+
+>>> print(a)
+[ThirdClass: abcabcabc]
+
+>>> a.display()
+Current value = "abcabcabc"
+>>> 
+
+
+Normalmente, um certo método de sobrecarga aparece em quase toda classe real: o método construtor __init__. Como ele permite que as classes preencham imediatamente os atributos em suas instâncias recentemente criadas, o constructor é útil para quase todo tipo de classe que você possa desenvolver. Na verdade, mesmo que os atributos de instância não seja declarados no Python, normalmente você pode descobrir quais atributos uma instância terá, inspecionando o código do método __init__ de sua classe.
+
+Detalhes do desenvolvimento de Classes
+======================================
+
+>>> class NextClass:				# Definee a classe
+	def printer(self, text):		# Define o método
+		self.message = text 		# Altera a instância
+		print(self.message)			# Acessa a instância
+
+		
+>>> x = NextClass()					# Produz instância
+
+>>> x.printer('instance call')		# Chama seu método
+instance call
+
+>>> x.message						# Instância alterada
+'instance call'
+
+>>> 
+
+O nome printer refeerência um objeto função; como ele é atribuído no escopo da instrução class, torna-se um atributo do objeto classe e é herdado por toda instância produzida a partir da classe. Notmalmente, como métodos como printer são projetados para processar instâncias, os chamamos por meio de instâncias:
+
+Técnicas  de interface de classe
+--------------------------------
+
+A extensão é apenas uma maneira de fazer interface com uma superclasse. O arquivo a exemploClass.py, define várias classes que ilustram diversas técnicas comuns:
+
+.	Super -> Define uma função method e uma delegate que espera um membro action em uma subclasse.
+.	Inheritor -> Não fornece novos nomes; portanto, recebe tudo que está definido em Super.
+.	Replacer -> Anula a função method de Super com sua própria versão.
+.	Extender -> Personaliza a função method de Super, anulando e chamando de volta para executar o padrão.
+.	Provider -> Implementa o método action esperado pelo método delegate de Super.
+
+class Super:
+    def method(self):
+        print('in Super.method')        # Comportamento padrão
+    def delegate(self):
+        self.action()                   # Esperando para ser definido
+
+class Inheritor(Super):                 # Método herdadi literalmente.
+    pass
+
+class Replacer(Super):                  # Substitui o método completamente
+    def method(self):
+        print('in Replacer.method')
+
+class Extender(Super):                  # Estende o comportamento de method
+    def method(self):
+        print('starting Extender.method')
+        Super.method(self)
+        print('ending Extender.method')
+
+class Provider(Super):                  # Preenche um método exigido
+    def action(self):
+        print('in Provider.action')
+
+if __name__ == '__main__':
+    for klass in (Inheritor, Replacer, Extender):
+        print('\n' + klass.__name__ + '...')
+        klass().method()
+
+    print('\nProvider...')
+    x = Provider()
+    x.delegate()
+	
+	
+C:\Users\a80581592> python exemploClass.py
+
+Inheritor...
+in Super.method
+
+Replacer...
+in Replacer.method
+
+Extender...
+starting Extender.method
+in Super.method
+ending Extender.method
+
+Provider...
+in Provider.action
+
+C:\Users\a80581592>
+
+Método					Sobrecarga							Chamado por
+------					----------							-----------
+__init__				Construtor							Criação de objeto: Class():
+__del__					Destrutor							Recuperação de objeto
+__add__					Operador +							X + Y, X += Y
+__or__					Operador |	(or redirecionar bit)	X | Y, X |= Y
+__repr__, __str__		Impressão, conversão				print(X), 'X', str(X)
+__call__				Chamada de função					X()
+__getattr__				Qualificação						X.undefined
+__setattr__				Atribuíção de atributo				X.any = value
+__getitem__				Indexação							X[key], loops for, testes in
+__setitem__				Atribuíção de índice				X[key] = value
+__len__					Comprimento							len(X), testes de verdade
+__cmp__					Comparação							X == Y, X < Y
+__lt__					Comparação específica				X < Y (ou então __cmp__)
+__eq__					Comparação específica				X == Y (ou então __cmp__)
+__radd__				Operador + no lado direito			Não-instância + XOR
+__iadd__				Adição no local (ampliada)			X += Y (ou então __add__)
+__iter__				Contextos de iteração				loops for, testes in, outros
+__contains__			Membership test						item in X
+__index__				Integer Value						hex(X), bin(X), oct(X), 0[X], 0[X:]
+__enter__, __exit__		Gerenciamento de contexto			with obj as var:
+__get__, __set__		Atributo de descritores				X.attr, X.attr = value, del X.attr
+__new__					Criação								Criação de objetos, depois de __init__
+
+
+
+Eis alguns exemplos:
+
+>>> class indexer:
+	def __getitem__(self,index):
+		return index ** 2
+
+	
+>>> X = indexer()
+
+>>> X[2]					# X[i] chama __getitem__(X, i)
+4
+
+>>> for i in range(5):
+	print(X[i])
+
+	
+0
+1
+4
+9
+16
+>>> 
+
+>>> class stepper:
+	def __getitem__(self, i):
+		return self.data[i]
+
+	
+>>> X = stepper()			# X é um objeto stepper
+>>> X.data = "Spam"
+>>> X[1]				# A indexação chama __getitem__
+'p'
+>>> for item in X:			# Loops for chamam __getitem__
+	print(item)			# para itens de índices 0..N
+
+	
+S
+p
+a
+m
+>>> 
+
+>>> 'p' in X			# Tudo também chama __getitem__
+True
+
+>>> [c for c in X]		# Abrangência de lista
+['S', 'p', 'a', 'm']
+
+>>> list(map(str.upper, X))	# Chamada de map
+['S', 'P', 'A', 'M']
+
+>>> (a, b, c, d) = X
+>>> a, c, d
+('S', 'a', 'm')
+
+>>> list(X),tuple(X),''.join(X)
+(['S', 'p', 'a', 'm'], ('S', 'p', 'a', 'm'), 'Spam')
+
+>>> X
+<__main__.stepper object at 0x02DEDEF0>
+
+Arquivo exemploIterClass.py
+
+class Squares:
+	def __init__(self, start, stop): 	# Save state when created
+		self.value = start - 1
+		self.stop = stop
+	def __iter__(self): 				# Obtém objeto iterador
+		return self
+	def __next__(self): 				# Return a square on each iteration
+		if self.value == self.stop: 	# Also called by next built-in
+			raise StopIteration
+		self.value += 1
+		return self.value **
+		
+>>> from exemploIterClass import Squares
+>>> for i in Squares(1, 5):
+	print(i, end=' ')
+	
+1 4 9 16 25 
+
+>>> X = Squares(1, 5)
+>>> I = iter(X)
+
+>>> next(I)
+1
+>>> next(I)
+4
+>>> next(I)
+9
+>>> next(I)
+16
+>>> next(I)
+25
+
+>>> next(I)
+Traceback (most recent call last):
+  File "<pyshell#12>", line 1, in <module>
+    next(I)
+  File "C:\Users\a80581592\AppData\Local\Programs\Python\Python36-32\exemploIterClass.py", line 9, in __next__
+    raise StopIteration
+StopIteration
+
+ 
+Ao contrário de __getitem__, o __iter__ é projetado para uma única varredura e não para muitas.
+ 
+>>> X = Squares(1, 5)
+
+>>> [n for n in X]				# Acaba com os itens
+[1, 4, 9, 16, 25]
+
+>>> [n for n in X]				# Agora está vazia
+[]
+
+>>> [n for n in Squares(1, 5)]
+[1, 4, 9, 16, 25]
+
+>>> list(Squares(1,3))
+[1, 4, 9]
+
+
+O __getattr__ e o __setattr__ intercepta qualificações de atributo. Ele é útil como um gancho para responder aos pedidos de atributos de maneira genérica. Para atributos que __getattr__ não conhece ele lança uma exceção interna AttributeError para dizer para ao ython que esse é um nome indefinido.
+
+>>> class Empty:
+	def __getattr__(self, attrname):
+		if attrname == 'age':
+			return 40
+		else:
+			raise AttributeError(attrname)
+
+		
+>>> X = Empty()
+>>> X.age
+40
+>>> X.name
+Traceback (most recent call last):
+  File "<pyshell#127>", line 1, in <module>
+    X.name
+  File "<pyshell#124>", line 6, in __getattr__
+    raise AttributeError(attrname)
+AttributeError: name
+>>> 
+
+
+>>> class AccessControl:
+	def __setattr__(self, attr, value):
+		if attr == 'age':
+			self.__dict__[attr] = value + 10
+		else:
+			raise AttributeError(attr + ' not allowed')
+
+		
+>>> X = AccessControl()
+
+>>> X.age = 40
+
+>>> X.age
+50
+
+>>> X.name = 'Bob'
+Traceback (most recent call last):
+  File "<pyshell#162>", line 1, in <module>
+    X.name = 'Bob'
+  File "<pyshell#158>", line 6, in __setattr__
+    raise AttributeError(attr + ' not allowed')
+AttributeError: name not allowed
+
+Se definido, __repr__ (ou seu parente __str__) é chamado automaticamente, quando as instâncias de classe são impressas ou convertidas e strings; eles permitem que você defina para seus objetos uma string de impressão melhor do que a exibição padrão da instância.
+
+>>> class adder:
+	def __init__(self, value=0):
+		self.data = value 		# Inicializa os dados
+	def __add__(self, other):
+		self.data += other		# Adiciona outros no local
+
+		
+>>> x = adder()
+>>> print(x)
+<__main__.adder object at 0x02E4DF90>
+>>> x
+<__main__.adder object at 0x02E4DF90>
+>>> 
+>>> 
+>>> class addrepr(adder):					# Herdar __init__, __add__
+	def __repr__(self):						# Adiciona representação de string
+		return 'addrepr(%s)' %s self.data	# Converte para string como código
+	
+SyntaxError: invalid syntax
+>>> 
+>>> class addrepr(adder):
+	def __repr__(self):
+		return 'addrepr(%s)' % self.data
+
+	
+>>> x = addrepr(2)				# Executa __init__
+>>> x + 1						# Executa __add__
+>>> x							# Executa __repr__
+addrepr(3)
+>>> str(x), repr(x)				# Execute __repr__
+('addrepr(3)', 'addrepr(3)')
+>>> 
+
+O __add__ tecnicamente, é um método que não suporta o uso de objetos instância no lado direito do operador +. Para implementar tais expressões e, assim suportar operadores de estilo comutativo, escreva também o método __radd__.
+
+>>> class Commuter:
+	def __init__(self, val1):
+		self.val1 = val1
+	def __add__(self, other):
+		print('add', self.val1, other)
+	def __radd__(self, other):
+		print('radd', self.val1, other)
+
+		
+>>> x = Commuter(88)
+>>> y = Commuter(99)
+
+>>> x + 1				# __add__: instância + não-instância
+add 88 1
+
+>>> 1 + y				# __radd__: não-instância + instância
+radd 99 1
+
+>>> x + y				# __add__: instância + instância
+add 88 <__main__.Commuter object at 0x02E46090>
+
+Observação: Todo operador binário tem um método de sobrecarga do lado direito semelhante (por exemplo, __mul__ e __rmul__).
+
+O método __call__ é chamado quando sua instância é chamada. O Python executa um método __call__ para expressões de chamada de função aplicadas em suas instâncias. Isso permite que instâncias de class simulem a aparêbncia e o compoertamento de coisas como funções:
+
+>>> class Prod:
+	def __init__(self, val):
+		self.val = val
+	def __call__(self, other):
+		return self.val * other
+
+	
+>>> x = Prod(2)
+
+>>> x(3)
+6
+
+>>> x(4)
+8
+
+O construtor __init__ é chamado quando uma instância é gerada. Seu complemento, o método destrutor __del__, é executado automaticamente quando o espaço de uma instância está sendo recuperado (istp é, no momento da "coleta de lixo" - )
+
+>>> class Life:
+	def __init__(self, name='unknown'):
+		print('Hello ', name)
+		self.name = name
+	def __del__(self):
+		print('Goodbye ', self.name)
+
+		
+>>> brian = Life('Brian')
+Hello  Brian
+
+>>> brian = 'loretta'
+Goodbye  Brian
+
+Aqui, quando brian recebe uma string, perdemos a última referência para a instância de Life e, assim, executamos seu método destrutor. Isso funciona e pode ser útil para implementar algumas atividades de limpeza, como terminar conexões de servidores.
+
+class Employee:
+    def __init__(self, name, salary=0):
+        self.name = name
+        self.salary = salary
+    def giveRaise(self, percent):
+        self.salary = self.salary + (self.salary * percent)
+    def work(self):
+        print(self.name, "does stuff")
+    def __repr__(self):
+        return "<Employee: name=%s, salary=%s>" % (self.name, self.salary)
+
+class Chef(Employee):
+    def __init__(self, name):
+        Employee.__init__(self, name, 50000)
+    def work(self):
+        print(self.name, "makes food")
+
+class Server(Employee):
+    def __init__(self, name):
+        Employee.__init__(self, name, 40000)
+    def work(self):
+        print(self.name, "interfaces with customer")
+
+class PizzaRobot(Chef):
+    def __init__(self, name):
+        Chef.__init__(self, name)
+    def work(self):
+        print(self.name, "makes pizza")
+
+if __name__ == '__main__':
+    bob = PizzaRobot('bob')         # Cria o robor bob
+    print(bob)                      # Executa __repr__ herdado
+    bob.work()                      # Executa ação específica do tipo
+    bob.giveRaise(0.20)              # Dá um aumento de 20% para bob
+    print(bob);print()
+
+    for klass in Employee, Chef, Server, PizzaRobot:
+        obj = klass(klass.__name__)
+        obj.work()
+
+Quando executamos o código de auto-teste desse módulo, criamos um robô pizzaiolo chamado bob, o qual herda nomes de três classes: PizzaRobot, Chef e Employee. Por exemplo, imprimir bob executa o método Employee.__repr__ e dar um aumento a bob ativa Employee, giveRaise, pois é aí que a herança o encontra.
+		
+C:\> python.exe employee.py
+<Employee: name=bob, salary=50000>
+bob makes pizza
+<Employee: name=bob, salary=60000.0>
+
+Employee does stuff
+Chef makes food
+Server interfaces with customer
+PizzaRobot makes pizza
+
+C:\>
+
+Em uma hierarquia de classes como essa, você normalmente pode fazer instâncias de qualquer uma das classes e não apenas das que estão ambaixo. Por exemplo, o loop for no código de auto-teste desse módulo cria instâncias de todas as quatro classes; cada uma responde de forma diferente quando solicitada a trabalhar, pois o método work é diferente em cada uma. Na realidade, essas classes apenas simulam objetos do mundo real; atualmente, work imprime uma mensagem, mas poderia ser expandida posteriormente para realizar trabalho real.
+
+POO e Composição: Relacionamentos "TEM UM"
+------------------------------------------
+arquivo streams.py
+class Processor:
+    def __init__(self, reader, writer):
+        self.reader = reader
+        self.writer = writer
+    def process(self):
+        while True:
+            data = self.reader.readline()
+            if not data: break
+            data = self.converter(data)
+            self.writer.write(data)
+    def converter(self, data):
+        assert False, 'converter must de defined'
+
+
+arquivo converters.py
+from streams import Processor
+
+class Uppercase(Processor):
+    def converter(self, data):
+        return data.upper()
+
+if __name__ == '__main__':
+    import sys
+    obj = Uppercase(open('spam.txt'), sys.stdout)
+    obj.process()
+
+
+C:\>type spam.txt
+"spam"
+"Spam"
+"SPAM"
+
+C:\> python.exe converters.py
+"SPAM"
+"SPAM"
+"SPAM"
+
+C:\>
+
+Arquivo convert_and_write.py
+import converters
+
+prog = converters.Uppercase(open('spam.txt'), open('conv_spam.txt', 'w'))
+prog.process()
+
+C:\>python.exe convert_and_write.py
+
+C:\>type conv_spam.txt
+"SPAM"
+"SPAM"
+"SPAM"
+
+C:\>
+
+Arquivo conv_html.py
+from converters import Uppercase
+
+class HTMLize:
+    def write(self, line):
+        print('<PRE>%s</PRE>' % line.rstrip())
+
+Uppercase(open('spam.txt'), HTMLize()).process()
+
+
+
+C:\>python.exe conv_html.py
+<PRE>"SPAM"</PRE>
+<PRE>"SPAM"</PRE>
+<PRE>"SPAM"</PRE>
+
+C:\>
+
+
+programação da desfiguração de nomes
+------------------------------------
+Aqui está o funcionamento da desfiguração de nomes. Os nomes dentro de uma instrução class que começam com dois sublinhados (e não terminam com dois sublinhados) são automaticamente expandidos para incluir o nome da classe envolvente. Por exemplo, um nome como __X dentro de uma classe chamada Spam é alterada para _Spam__X, automaticamente: um único sublinhado, o nome da classe envolvente e o restante do nome original. Ciomo o nome modificado é prefixado com o nome da classe envolvente, ele é único e não entrará em conflito com nomes semelhantes criados por outras classes em uma hierarquia. Com isso um atributo de instância self.__X é transformado em self._Spam__X.
+
+E#ntradas de instâncias
+-----------------------
+
+Atribuindo-se uma lista de nomes de atributo de string ao atributo de classe especial __slots__, é possível para as classes de estilo novo limitarem o conjunto de atributos válidos que as instâncias da classe terão. Normalmente, esse atributo especial é configurado pela atribução à variável __slots__ no nível superior de uma instrução class. Apenas os nomes presentes na lista __slots__ podem ser atribuídos como atributos de instância. Entretanto, assim como todos os nomes no Python, os nomes de atributo de instância ainda devem ser atribuídos antes de poderem ser referenciados, mesmo se listados em __slots__. Aqui está um exemplo para ilustrar:
+
+>>> class limiter(object):
+	__slots__ = ["age", "name", "job" ]
+
+	
+>>> x = limiter()
+>>> x.age													# Precisa atribuir antes de usar
+Traceback (most recent call last):
+  File "<pyshell#19>", line 1, in <module>
+    x.age													# Precisa atribuir antes de usar
+AttributeError: age
+>>> x.age = 40
+>>> x.age
+40
+>>> x.ape = 1000 											# Inválido: não está nas entradas
+Traceback (most recent call last):
+  File "<pyshell#22>", line 1, in <module>
+    x.ape = 1000 	# Inválido: não está nas entradas
+AttributeError: 'limiter' object has no attribute 'ape'
+>>> 
+
+Esse recurso está previsto como uma maneira de capturar erros "tipográficos".
+
+Exceções
+========
+
+As exceções, que são eventos que podem modificar o fluxo de controle em um programa. No Python, as exceções são lançadas automaticamente no caso de erros e podem ser lançadas e interceptadas pelo seu código. Elas são processadas pelas três instruções que estudaremos nesta parte, a primeira das quais possui duas variações:
+
+.	try/except -> Captura e se recupera de exceções lançadas pelo Python ou por você
+.	try/finally -> Executa ações de limpeza, ocorram exceções ou não.
+.	raise -> Lança uma exceção manualemtne em seu código.
+.	assert -> Lança uma exceção condicionamente em seu código.
+
+
+Tratameno de Exceções: A história breve
+---------------------------------------
+
+Vamos supor que você tenha desenvolvido a seguine função:
+
+>>> def fetcher(obj, index):
+	return obj[index]
+
+>>>
+
+Na operação normal, ela retorna o resultado dos índices válidos:
+
+>>> x = 'spam'
+>>> fetcher(x, 3)		# É como x[3]
+'m'
+>>> 
+
+Entretanto, se você passar um valor de index inválido será lançado uma exceção IndexError.
+
+>>> fetcher(x, 4)
+Traceback (most recent call last):
+  File "<pyshell#36>", line 1, in <module>
+    fetcher(x, 4)
+  File "<pyshell#33>", line 2, in fetcher
+    return obj[index]
+IndexError: string index out of range
+>>>
+
+Com essa execeção mnão é tratada pelo seu código ela atinge a exceção padrão do Python.
+
+Se você não quer o comportamento de exceção padrão, encerre a chamada em uma instrução try para capturar a exceção por conta própria:
+
+>>> try:
+	fetcher(x, 4)
+except IndexError:
+	print("Got Exception")
+
+	
+Got Exception
+>>> 
+
+Podemos pular para um rotina e continuar nosso programa sem problemas:
+
+>>> def catcher():
+	try:
+		fetcher(x, 4)
+	except IndexError:
+		print("Got Exception")
+	print("Continuing")
+
+	
+>>> catcher()
+Got Exception
+Continuing
+>>> 
+
+
+As exceções podem ser lançadas pelo Python e por você, e podem ser capturadas ou não. Para lançar uma exceção manualmente, basta executar uma instrução raise (ou assert). As exceções definadas pelo usuário são capturadas da mesma maneira que as internas:
+
+>>> raise IndexError
+Traceback (most recent call last):
+  File "<pyshell#116>", line 1, in <module>
+    raise IndexError
+IndexError
+
+>>> assert False, "Nobody excepts the spanish Inquisition!"
+Traceback (most recent call last):
+  File "<pyshell#117>", line 1, in <module>
+    assert False, "Nobody excepts the spanish Inquisition!"
+AssertionError: Nobody excepts the spanish Inquisition!
+
+Se não forem capturadas, as exceções definidas pelo usuário atiginrão a rotina de tratamento de exceção de níel superior padrão e terminarão seu programa com uma mensagem de erro padrão. Neste caso, a mensagem padrão incluirá o texto da string usada para identificar a exceção:
+
+>>> try:
+	raise IndexError	# Trigger exception manually
+except IndexError:
+	print("Got exception")
+
+	
+Got exception
+>>> 
+
+Em outros casos, a mensagem de erro pode incluir texto fornecido por classes usadas para idetificar exceções. Conforme veremos no próximo tópico, as exceçõees baseadas em classe permite que scripts costruam categorias de exceção.
+
+>>> class AlreadyGotOne(Exception): pass 	# User-defined exception
+
+>>> def grail():
+	raise AlreadyGotOne()			# Raise an instance
+
+>>> try:
+	grail()
+except AlreadyGotOne:				# Catch class name
+	print("Got exception")
+
+	
+Got exception
+>>> 
+
+Finalmente, as instruções try também podem usar finally: a combinação try/finally especifica ações de término que sempre são executadas "ao sair" - aconteça uma exceção no bloco try ou não:
+
+>>> try:
+	fetcher(x, 3)
+finally:
+	print("After fetch")
+
+	
+'m'
+After fetch
+>>> 
+
+Aqui, quando o bloco try termina sem uma exceção, o bloco finally é executado e, então, o programa retorna após o bloco try inteiro. Neste caso, essa instrução parece um pouco boba - também poderíamos ter simpleesmente digitado a função print() imediatamente após uma chamada para a função e pulado a instrução try completamente:
+
+fetcher(x, 3)
+print("After fetch")
+
+Contudo, há um problema com esse código: se a chamada de função lançar uma exceção, nunca chegaremos à função print(). A combinação try/finally nos permite fazer melhor - quando uma exceção ocorre no bloco try, os blocos finally são executados enquanto o programa esrá se desenrolando:
+
+ >>> def after():
+	try:
+		fetcher(x, 4)
+	finally:
+		print("After fetch")
+	print("After Try?")
+
+	
+>>> after()
+After fetch
+Traceback (most recent call last):
+  File "<pyshell#209>", line 1, in <module>
+    after()
+  File "<pyshell#208>", line 3, in after
+    fetcher(x, 4)
+  File "<pyshell#33>", line 2, in fetcher
+    return obj[index]
+IndexError: string index out of range
+>>> 
+
+Aqui não recebemos a mensagem "After Try?", pois o controle não retorna após a combinação try/finally quando ocorre uma exceção. Em vez disso , o Python volta para executar a ação finally, mas depois continua propagando a exceção para uma rotina de tratamento anterior (neste caso, a rotina de tratamento padrão do início). Se alterar a chamada dentro dessa função, de modo a não lançar uma exceção, o código de finally ainda será executada, mas o programa continuará após a instrução try:
+
+>>> def after():
+	try:
+		fetcher(x, 3)
+	finally:
+		print("After fetch")
+	print("After Try?")
+
+	
+>>> after()
+After fetch
+After Try?
+>>> 
+
+Na prática, combinações try/except são úteis para capturar e recuperar-se de exceções e as combinações das exceções que possam ocorrer no código do bloco try. Por exemplo, você poderia usar try/except para capturar eerros lançados por códigos importados de uma biblioteca de terceiros e try/finally para garantir que as chamadas para fechar arquivos ou terminar conexões de servidore sempre sejam exceutadas.
+
+
+A Instrução try/except/else
+---------------------------
+
+A instrução try é outra instrução composta; sua forma mais completa está esbolçada a seguir. Ela começa com uma linha de cabeçalho try, sewguida por um bloco de instrução (normalmente) endentadas, depois uma ou mais cláusulas except que identificam as exceções a serem capturadas e uma cláusula else opcional no fim. As palavras try, except e else são associadas por uma endentação igual - elas são alinhadas verticalmente. Para referência, aqui está o formato geral:
+
+try:
+   <instrução>					# Executa esta ação primeiro
+except <nome1>:		
+	<instrução>					# Executa se nome1 é lançada durante o bloco try
+except <nome2>, <dados>:
+	<instruções>				# Executa se nome2 é lançada e recebe dados extras.
+except (nome3, nome4):
+	<instrução>					# Executa se qualquer uma dessas exceções ocorrer
+except:
+	<instrução>					# Executa para todas as outras exceções lançadas
+else:
+	<instrução>					# Executa se nenhuma exceção foi lançada pelo bloco try
+
+	
++-------------------------------+---------------------------------------------------+
+| Forma de cláusula				| Interpretação										|
++-------------------------------+---------------------------------------------------+
+| except:						| Captura todos os outros tipos de exceção.			|
++-------------------------------+---------------------------------------------------+
+| except nome:					| Captura uma exceção específica					|
++-------------------------------+---------------------------------------------------+
+| except nome, valor:			| Captura uma exceção e seus dados extras			|
++-------------------------------+---------------------------------------------------+
+| except (nome1, nome2):		| Captura qualquer uma das exceções listadas.		|
+| except (nome1, nome2), valor	| Captura qualquer uma e obtém os dados extras		|
++-------------------------------+---------------------------------------------------+
+| else:							| Executa o bloco se nhenhuma exceção for lançada.	|
++-------------------------------+---------------------------------------------------+
+| finally:						| Sempre executa o bloco							|
++-------------------------------+---------------------------------------------------+
+
+try:
+	action()
+except NameError:
+	perint("Erro: NameError")
+except IndexError:
+	print("Erro: IndexError")
+except KeyError:
+	print("Erro: KeyError")
+except (AttributeError, TypeError, SyntaxError):
+	print("Diversos erros: AttributeError, TypeError, SyntaxError")
+except:
+	print("Alguma coisa deu errado =( ") # trada todas as exceções
+else:
+	print("Tarefa executada com sucesso")
+finally:
+	print("Fechado o SOCKET e o FILE")
+	sock.close()
+	file.close()
+
+A cláusula except vazia é uma espécie de recurso curinga - como captura tudo, ela permite que suas rotinas de tratamento sejam tão gerais ou específicas quando você queria. Em alguns cenários, essa forma pode ser mais conviniente do que listar todas as exceções possíveis em uma instrução try.
+
+As cláusulas except vazias também acarretam alguns problemas de projeto. Embora sejam convinientes, elas também podem capturar exceções de sistema inesperadas, não relacionadas com seu código, e podem interceptar inadivertidamente exceções destinas a outras rotinas de tratamento. Por exemplo, no Python, até as chamadas de saída do sistema lançam exceções e, normalmente, você quer que elas passem.
+
+>>> def gobad(x,y):
+	return x / y
+
+>>> def gosouth(x):
+	print(gobad(x, 0))
+
+	
+>>> gosouth(1)
+Traceback (most recent call last):
+  File "<pyshell#7>", line 1, in <module>
+    gosouth(1)
+  File "<pyshell#6>", line 2, in gosouth
+    print(gobad(x, 0))
+  File "<pyshell#2>", line 2, in gobad
+    return x / y
+ZeroDivisionError: division by zero
+>>> 
+
+Quando uma exceção ocorre e não tratamos no Python, o Python imprime um rastreamento de pilha, o nome e todos os dados extras da exceção que foi lançada.
+
+Crie o aerquivo:
+
+class MyError(Exception): pass
+
+def stuff(file):
+    raise MyError()
+
+file = open('log.txt', 'w')
+
+try:
+    stuff(file)
+finally:
+    file.close()
+
+print('not reached')
+
+Crie o arquivo:
+# File mergedexc.py (Python 3.X + 2.X)
+sep = '-' * 45 + '\n'
+
+print(sep + 'EXCEPTION RAISED AND CAUGHT')
+try:
+    x = 'spam'[99]
+except IndexError:
+    print('except run')
+finally:
+    print('finally run')
+    print('after run')
+    print(sep + 'NO EXCEPTION RAISED')
+try:
+    x = 'spam'[3]
+except IndexError:
+    print('except run')
+finally:
+    print('finally run')
+    print('after run')
+    print(sep + 'NO EXCEPTION RAISED, WITH ELSE')
+try:
+    x = 'spam'[3]
+except IndexError:
+    print('except run')
+else:
+    print('else run')
+finally:
+    print('finally run')
+    print('after run')
+    print(sep + 'EXCEPTION RAISED BUT NOT CAUGHT')
+try:
+    x = 1 / 0
+except IndexError:
+    print('except run')
+finally:
+    print('finally run')
+
+print('after run')
+
+C:\>python.exe mergedexc.py
+---------------------------------------------
+EXCEPTION RAISED AND CAUGHT
+except run
+finally run
+after run
+---------------------------------------------
+NO EXCEPTION RAISED
+finally run
+after run
+---------------------------------------------
+NO EXCEPTION RAISED, WITH ELSE
+else run
+finally run
+after run
+---------------------------------------------
+EXCEPTION RAISED BUT NOT CAUGHT
+finally run
+Traceback (most recent call last):
+  File "mergedexc.py", line 32, in <module>
+    x = 1 / 0
+ZeroDivisionError: division by zero
+
+C:\>
+
+
+Raise
+-----
+
+Para lançar exceções explicitamente, você escreve instruções raise.
+
+>>> exc = IndexError()
+
+>>> raise exc
+Traceback (most recent call last):
+  File "<pyshell#1>", line 1, in <module>
+    raise exc
+IndexError
+
+>>> excs = [IndexError, TypeError]
+
+>>> raise excs[0]
+Traceback (most recent call last):
+  File "<pyshell#4>", line 1, in <module>
+    raise excs[0]
+IndexError
+
+>>> raise excs[1]
+Traceback (most recent call last):
+  File "<pyshell#5>", line 1, in <module>
+    raise excs[1]
+TypeError
+>>> 
+
+>>> class MyExc(Exception): pass
+
+>>> raise MyExc('spam')
+Traceback (most recent call last):
+  File "<pyshell#28>", line 1, in <module>
+    raise MyExc('spam')
+MyExc: spam
+>>> try:
+	raise MyExc('spam')
+except MyExc as X:
+	print(X.args)
+
+	
+('spam',)
+>>> try:
+	1 / 0
+except Exception as X:
+	print(X)
+
+	
+division by zero
+>>> X
+Traceback (most recent call last):
+  File "<pyshell#39>", line 1, in <module>
+    X
+NameError: name 'X' is not defined
+>>> 
+
+>>> class MyExc(Exception): pass
+
+>>> raise MyExc('spam')
+Traceback (most recent call last):
+  File "<pyshell#28>", line 1, in <module>
+    raise MyExc('spam')
+MyExc: spam
+>>> try:
+	raise MyExc('spam')
+except MyExc as X:
+	print(X.args)
+
+	
+('spam',)
+>>> try:
+	1 / 0
+except Exception as X:
+	print(X)
+
+	
+division by zero
+>>> X
+Traceback (most recent call last):
+  File "<pyshell#39>", line 1, in <module>
+    X
+NameError: name 'X' is not defined
+>>> 
+
+
+>>> try:
+	raise IndexError('spam')
+except IndexError:
+	print('propagaing')
+	raise
+
+propagaing
+Traceback (most recent call last):
+  File "<pyshell#73>", line 2, in <module>
+    raise IndexError('spam')
+IndexError: spam
+>>> 
+
+raise newexception from otherexception
+
+>>> try:
+	1/0
+except Exception as E:
+	raise TypeError('Bad') from E
+
+Traceback (most recent call last):
+  File "<pyshell#83>", line 2, in <module>
+    1/0
+ZeroDivisionError: division by zero
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<pyshell#83>", line 4, in <module>
+    raise TypeError('Bad') from E
+TypeError: Bad
+>>> 
+
+>>> try:
+	1/0
+except:
+	badname
+
+	
+Traceback (most recent call last):
+  File "<pyshell#108>", line 2, in <module>
+    1/0
+ZeroDivisionError: division by zero
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<pyshell#108>", line 4, in <module>
+    badname
+NameError: name 'badname' is not defined
+>>> 
+
+Assert
+------
+
+Como um caso um tanto especial, o Python inclui a instrução assert. Ela é principalmente um atalho sintático para um padrão de utilização de raise e pode ser considerada como uma instrução raise condicional. Uma intrução da forma:
+
+assert <test>, <data>
+
+if __debug__:
+   if not test:
+      raise AsssertionError(data)
+	  
+Em outras palavras, se o teste é avaliado como falso, o Python lança uma exceção, com o item de ados como os dados extras da exceção (se forem fornecidos). Assim como todas as exceções, a exceção de erro de afirmação (assention error) lançada eliminará seu programa, se não for capturada com uma instruçãi try.
+
+>>> def f(x):
+	assert x < 0, 'x must be negative'
+	return x ** 2
+
+>>> f(1)
+Traceback (most recent call last):
+  File "<pyshell#139>", line 1, in <module>
+    f(1)
+  File "<pyshell#138>", line 2, in f
+    assert x < 0, 'x must be negative'
+AssertionError: x must be negative
+>>> 
+
+É importante lembrar que a instrução assert é principalmente destinada a capturar restrições definidas pelo usuário e não erros de programação genuínos.
+
+>>> def reciprocal(x):
+	assert x != 0 		# Uma instrução assert inútil!
+	return 1 / x 		# O Python verifica se é zero automaticamente
+
+>>> reciprocal(1)
+1.0
+
+>>> reciprocal(0)
+Traceback (most recent call last):
+  File "<pyshell#172>", line 1, in <module>
+    reciprocal(0)
+  File "<pyshell#168>", line 2, in reciprocal
+    assert x != 0 		# Uma instrução assert inútil!
+AssertionError
+>>> 
+
+
+Exceções Baseadas em Strings
+----------------------------
+
+Em todos os exemplos que vimos até este ponto, as exceções definidas pelo usuário eram strings. Essa é a maneira mais simples de escrever uma exceção - qualquer valor de string pode ser usado para identificar uma exceção. Todas que vimos acima que não utilizou uma classe são de string.
+
+Exceções Baseadas em Classes
+----------------------------
+
+>>> class General(Exception): pass
+
+>>> class Specific1(General): pass
+
+>>> class Specific2(General): pass
+
+>>> def raiser0(): raise General()
+
+>>> def raiser1(): raise Specific1()
+
+>>> def raiser2(): raise Specific2()
+
+>>> for func in (raiser0, raiser1, raiser2):
+	try:
+		func()
+	except General as X:
+		print('Caught: %s' % X.__class__)
+
+		
+Caught: <class '__main__.General'>
+Caught: <class '__main__.Specific1'>
+Caught: <class '__main__.Specific2'>
+>>> 
+
+>>> class FormatError(Exception):
+	def __init__(self, line, file):
+		self.line = line
+		self.file = file
+
+		
+>>> def parser():
+	raise FormatError(42, file='spam.txt')
+
+>>> try: 
+	parser()
+except FormatError as X:
+	print('Error at: %s %s' % (X.file, X.line))
+
+	
+Error at: spam.txt 42
+>>> 
+
+>>> class FormatError(Exception): pass
+
+>>> def parser():
+	raise FormatError(42, 'spam.txt')
+
+>>> try:
+	parser()
+except FormatError as X:
+	print("Error at: ", X.args[0], X.args[1])
+
+	
+Error at:  42 spam.txt
+>>> 
+
+>>> class FormatError(Exception):
+	logfile = 'formaterror.txt'
+	def __init__(self, line, file):
+		self.line = line
+		self.file = file
+	def logerror(self):
+		log = open(self.logfile, 'a')
+		print("Error at: " self.file, self.line, file=log)
+		
+SyntaxError: invalid syntax
+>>> 
+>>> class FormatError(Exception):
+	logfile = 'formaterror.txt'
+	def __init__(self, line, file):
+		self.line = line
+		self.file = file
+	def logerror(self):
+		log = open(self.logfile, 'a')
+		print("Error at: ", self.file, self.line, file=log)
+
+		
+>>> def parser():
+	raise FormatError(40, 'spam.txt')
+
+>>> if __name__ = '__main__':
+	
+SyntaxError: invalid syntax
+>>> if __name__ == '__main__':
+	try:
+		parser()
+	except FormatError as exc:
+		exc.logerror()
+
+		
+>>> try:
+	parser()
+except FormatError as exc:
+	exc.logerror()
+
+	
+>>> 
+
+C:\>type formaterror.txt
+Error at:  spam.txt 40
+Error at:  spam.txt 40
+
+C:\>
+
+Projetando com Exceções
+-----------------------
+
+As Exceções nem sempre são erros
+
+No Python, todos os erros são exceções, mas nem todas as exceções são erros. Por exemplo, vimos que os métodos de leitura de objeto arquivo retornam strings vazias no final de um arquivo. A função interna input(), que conhecemos anteriormente foi usada em um loop interativo que lê uma linha de texto do fluxo de entrada padrão. Ao contrário de arquivos, input() lança a exceção interna EOFError() no final de um arquivo, em vez de retornar uma string vazia (uma string vazia de input() significa uma linha vazia).
+
+Apesar do seu nome EOFError (erro de fim de arquivo) é apenas um sinal necesse contexto e não um erro. Por causa desse comportamento, a não ser que o final de uma arquivo deva terminar um script, input() frequentemente aparece encerrada em uma rotina de tratamento try e aninhada em um loop, como no código a seguir:
+
+Conversão
+---------
+
+Conversão de inteiros
+---------------------
+
+>>> int(1.0), int(1.4), int(1.9), round(1.9), int(round(1.9))
+(1, 1, 1, 2, 2)
+>>> int("1")
+1
+>>> int("1.2")												# Não funciona
+Traceback (most recent call last):
+  File "<pyshell#412>", line 1, in <module>
+    int("1.2")
+ValueError: invalid literal for int() with base 10: '1.2'
+>>> 
+
+>>> def safeint(candidate):
+	converted = float(candidate)
+	truncated = int(converted)
+	if converted == truncated:
+		return truncated
+	else:
+		raise ValueError("%s would lose precision when cast" % candidate)
+
+	
+>>> safeint(3.0)
+3
+
+>>> safeint("3.0")
+3
+
+>>> safeint("3.1")
+Traceback (most recent call last):
+  File "<pyshell#462>", line 1, in <module>
+    safeint("3.1")
+  File "<pyshell#458>", line 7, in safeint
+    raise ValueError("%s would lose precision when cast" % candidate)
+ValueError: 3.1 would lose precision when cast
+
+>>> 
+
+
+Conversão de strings
+--------------------
+
+A conversão de strings podem ser feitas de várias maneiras. Além de usar str() ou unicode(), pode-se usar hex() ou oct(), que recebem valores inteiros (seja int() ou long()) como argumentos e retornam suas representções de string em formato hexadecimal ou octal respectivamente.
+
+>>> str(1.2)
+'1.2'
+
+>>> str(1000)
+'1000'
+
+>>> hex(1000)
+'0x3e8'
+
+>>> oct(1000)
+'0o1750'
+
+>>>
+
+A função interna abs() retorna o valor absoluto de escalares (valores inteiros, longos, de ponto flutuante) e a magnitude complexos (a raiz quadrada da soma das partes real e imaginárias elevadas ao quadrado).
+
+>>> abs(-1), abs(-1.2), abs(-3+4j) 	# 5 é sqrt(3*3 + 4*4)
+(1, 1.2, 5.0)
+>>> 
+
+As funções ord() e chr() retornam o valor ASCII de caracteres simples e vice-versa:
+
+>>> list(map(ord, "teste"))
+[116, 101, 115, 116, 101]
+
+>>> chr(65)
+'A'
+
+>>> ord('A')
+65
+
+>>> hex(65)
+'0x41'
+
+>>> list(map(chr, (116, 101, 115, 116, 101)))
+['t', 'e', 's', 't', 'e']
+
+>>> [chr(x) for x in (116, 101, 115, 116, 101)]
+['t', 'e', 's', 't', 'e']
+
+>>> ''.join([chr(x) for x in (116, 101, 115, 116, 101)])
+'teste'
+
+>>> S = 'ni'
+
+>>> S.encode('ascii'), S.encode('latin1'), S.encode('utf-8')
+(b'ni', b'ni', b'ni')
+
+>>> S.encode('utf-16'), len(S.encode('utf-16'))
+(b'\xff\xfen\x00i\x00', 6)
+
+>>> S.encode('utf-32'), len(S.encode('utf-32'))
+(b'\xff\xfe\x00\x00n\x00\x00\x00i\x00\x00\x00', 12)
+
+>>>  
+
+A funções min() e max() retorna um inteiro negativo, 0 ou um inteiro positivo, dependendo de seu primeiro argumento ser menor, igual ou maior que o segundo. Vale apenas enfatizar que a função cmp funciona com mais do que apenas números; ela compara caracteres usando seus valores ASCII. 
+
+
+>>> min("pif", "paf", "pof")
+'paf'
+
+>>> min("ZELDA!"), max("ZELDA!")
+('!', 'Z')
+
+>>> 
+
+
+Expressão Regular
+-----------------
+
+vamos utilizar o texto do arquivo peppers.txt
+
+This is a paragraph that mentions bell peppers multiple times. For one, here is a red pepper and dried tomato salad recipe. I don't like to use green papper in my salads as much because they have a harsher flavor.
+
+This second paragraph mentions red pepper and green pepper but not the "s" word (s-a-l-a-d), so no bells should show up.
+
+This third paragraph mentions red peppercorns and green peppercorns, which aren't vegetables but spices (by the way, bell peppers, they're chilies, but would you rather have a good cook or a good botanist prepare your salad?).
+
+Iremos substituir as strings "green pepper" e "red pepper", se e somente se elas ocorreerem juntas em um parágrafo, antes da palavra "salad", e não se elas forem seguidas (sem nenhum espaço) pela string "corn".
+
+Primeiro vamos abrir o arquivo e ler seu texto:
+
+>>> file = open('pepper.txt')
+>>> text = file.read()
+>>> 
+
+Lemos o texto inteiro de uma vez e evitamos sua divisão em linhas, pois vamos supor que os parágrafos sejam definidos por dois caracteres de nova linha consecutivos. É fácil fazer isso, usando a função split do módulo string:
+
+>>> paragraph = text.split('\n\n')
+>>> 
+
+Neste ponto dividiremos o texto em uma lista de strings de parágrafo e restará apenas efetuar a operação de substituição. É aqui que as expressões regulares entram em ação:
+
+>>> import re
+
+>>> matchstr = re.compile(
+	r"""\b(red|green)									# 'red' ou 'green' iniciando novas palavras
+		(\s+											# seguidas de espaços em branco
+		pepper											# a palavra 'papper',
+		(?!corn)										# se não for seguida imediatamente por 'corn'
+		(?=.*salad))""",								# e se for seguida em algum ponto por 'salad'.
+	re.IGNORECASE |										# Permite pepper, Pepper, PEPPER etc
+	re.DOTALL |											# Permite também que pontos correspondam a caracteres de nova linha.
+	re.VERBOSE)											# Isso permite os comentários e os caracteres de nova linha acima.
+>>> for PA in paragraph:
+	fixed_paragraph = matchstr.sub(r'bell\2', PA)
+	print(fixed_paragraph + '\n')
+
+	
+This is a paragraph that mentions bell peppers multiple times. For one, here is a bell pepper and dried tomato salad recipe. I don't like to use bell papper in my salads as much because they have a harsher flavor.
+
+This second paragraph mentions red pepper and green pepper but not the "s" word (s-a-l-a-d), so no bells should show up.
+
+This third paragraph mentions red peppercorns and green peppercorns, which aren't vegetables but spices (by the way, bell peppers, they're chilies, but would you rather have a good cook or a good botanist prepare your salad?).
+
+>>> 
+
+A primeira linha é simples, ma fundamental: toda perícia da expressão regular do Python está no módulo re.
+
+A chamada de re.complile() pega uma string (embora a sintaxe dessa string seja muito específica) e retorna um objeto chamado de objeto expressão regular compilada, o qual corresponde a essa string.
+
+O primeiro detalhe a notar a respeito da string na chamada de re.compile() é que trata-se de uma string "bruta" (as aspas são precedidas pela letra r). Prefixar uma letra r em uma string (apóstrofos ou aspas triplas) desativa a interpretação dos caracteres de barra invertida dentro da string. Em vez disso, poderíamos ter usado uma string normal, \\b, em vez de \b e \\s, em vez de \s. Neste caso, isso faz pouca diferença; para expressõers regulares compiladas, as strings brutas constituem uma sintaxe muito mais clara do que as barras invertidas com escape.
+
+A primeira linha no padrão é \b(red|green). \b significa "a string vazia, mas apenas no início ou no final de uma palavra". Seu uso aqui evita as correspondências que tenham red ou green como a parte final de uma palavra (como em "tired pepper", onde temos red em tired). O padrão (red|green) especifica uma alternação entre red OU green. Por tanto, ignore o parêntese da esquerda que se segue. \s é um símbolo especial que significa "qualquer caractere de espaço em branco" e + significa "uma ou mais ocorrência do que vier antes de mim"; portanto, juntos, \s+ significam "um ou mais espaços em branco". Então, pepper significa apenas a string 'pepper'. (?!corn) impede as correspondências de "padrões que tenham 'corn' como peppercorn. Finalmente, (?=.*salad) diz arbitrários (é isso que .* significa), seguido da palavra salad. OS caracteres ?= especificam que, embora o padrão deva determinar se a correspondência ocorre, ela não deve ser "consumida" pelo processo de correspondência; esse é um ponto sutíl que não abordaremos em detalhes aqui. Nesse ponto, definimos a correspondência de padrão para a substring.
+
+Os parenteses são utilizados para criar grupos. re.IGNORECASE ignora caixa alta e caixa baixa nos caracteres, re.DOTALL, especifica que o caracteres ponto (.) deve corresponder a qualquer caractere, incluíndo o caractere de nova linha (esse não pe o comportamento padrão). O re.VERBOSE, nos permite inserir caracteres de nova linha extras e comentários # na expressão regular, tornando-a mais fácil de ler e entender. Poderiamos ter escrito de forma mais compacta como:
+
+>>> matchstr2 = re.compile(r"\b(red|green)(\s+pepper(?!corn)(?=.*salad))", re.I | re.S)
+>>> 
+
+>>> print([matchstr2.sub(r'bell\2', x) for x in paragraph])
+["This is a paragraph that mentions bell peppers multiple times. For one, here is a bell pepper and dried tomato salad recipe. I don't like to use bell papper in my salads as much because they have a harsher flavor.", 'This second paragraph mentions red pepper and green pepper but not the "s" word (s-a-l-a-d), so no bells should show up.', "This third paragraph mentions red peppercorns and green peppercorns, which aren't vegetables but spices (by the way, bell peppers, they're chilies, but would you rather have a good cook or a good botanist prepare your salad?)."]
+>>> 
+
+Estamos chamando o método sub do objeto matchstr. Esse é um objeto expressão regular compilada, significando que parte do processamento da expressão já foi realizado (neste caso, fora do loop), acelerando assim a execução total do programa. Usamos uma string bruta novamente, para escrever o primeiro argumento do método. \2 é uma refrerência para o grupo 2 na expressão regular (conhecido em RegEx como retrovisor), em nosso caso, tudo que começa com um espaço em branco, seguido de 'pepper', até (e incluindo) a palavra 'salad' e substituíndo as ocorrencia que da match com esse grupo pela palavra 'bell' até o final.
+
+O arquivo pepper.txt tinha três paragrafos: o primeiro satifez duas vezes os requisitos da correspondência; o segundo paragrafo, não, pois não mencionou a palavra salad; e o teerceiro, não pois as palavras 'red' e green' estão antes de peeepepercorn e não de pepper.
+
+
+
+
+
+
+----- parei na página 443 ---- 1107
+
+
+
+Sobrecarga de Operacores - Operator Overloading
+===============================================
+
+__init__.py 		-> Utilizado para iniciar pacotes de módulos.
+__dict__			-> Utilizado para mapear os atributos, igual a função dir()
+__file__			-> 
+__name__			-> Contém o nome do programa igual argv[0].
+__all__ = []		-> Utilizado para especificar as strings que serão importadas
+__future__			-> Para ativar extensões opcionais que apareceream em versões futuras utilize a instrução from __future__ import name:
+__name__			-> Se o arquivo estiver sendo executado __name__ será configurado como a string "__main__", senão será usado com o nome do módulo.
+
+__import__			-> Usada para importar módulos em formato string.
+__init__			-> É executando assim que chamado ou importado
+					Exemplo:
+						class C1(C2):
+						   def __init__(self, who):
+						      self.name = who
+						I1 = C1('bob') -> Configura I1.name como 'bob'
+						I2 = C1('mel') -> Configura I2.name como 'mel'
+__add__				-> Captura expressões de adições quando encontrar +
+__mul__				-> Captura expressões de multiplicações quando encontrar *
+__str__				-> Executa dodas as vezes que encontrar um print()
+__sub__				-> Captura expressões de subtração
+

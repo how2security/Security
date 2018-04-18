@@ -1,0 +1,48 @@
+Ataques a Servidores WEB
+========================
+
+Tipos de Ataques
+- Jamming Networks
+- Flooding Service Ports
+- Misconfiguring Routers
+- Flooding Mail Servers
+
+DDoS
+----
+- FTP Bounce Attacks
+- Ports Scanning Attacks
+- Ping Flooding Attacks
+- Smurf Attacks
+- SYN Flooding Attacks
+- IP Fragmentation/Overlapping Fragment Attacks
+- IP Sequence Prediction Attacks
+- DNS Cache Poisoning
+- SNMP Attacks
+- Send Mail Attacks
+
+Fingerprinting Web Seerver
+httprint
+# find / -name signatures.txt
+# cat /usr/share/httprint/signatures.txt <-- onde ficam as assinaturas dos banners
+# httprint -h http://www.seualvo.com.br -s signatures.txt -P0
+
+www.netcraft.com
+
+# ./nikto.pl -update
+# ./nikto.pl -h 192.168.1.10
+
+Para ver os OSVDB acesse o endereço:
+http://www.osvdb.org/
+
+coloque o valor osvdb do lado direito 40478
+
+pegue o exploit, troque o ip pelo do alvo e execute no browser
+
+# ./w3af_gui
+
+# aptitude install arachni
+
+arachni 192.168.1.10
+
+# ./beef 
+

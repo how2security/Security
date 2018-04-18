@@ -1,0 +1,91 @@
+Testando o Sistema
+==================
+
+* Entender como ocorrem ataques de negação de serviço
+
+* Entender o que é DoS, DDoS e RDDoS
+
+* Entender o que é e como realizar sequestro de sessão
+
+Introdução
+----------
+
+Fora os ataques contra sites do governo pelo pessoal do anonymous e lolsec.
+
+DoS não se da apenas pela imudação de pacotes + o não tratamento das informações pode causar indisponibilidade.
+
+Exemplo: um pacote mal formado que a aplicação não trate e deixa o sistema indisponivel.
+
+ForkBoomb
+---------
+
+:(){ :|:& };: <ENTER>
+
++-- nome da função
+v
+:(){ :|:& };
+     ^
+     +-- chamo a função dentro dele e direciono a saida dela para ela mesmo :|: em backgroung & fecho a função };
+: <-- finalizo chamando ela =]
+
+Google: fork boomb e entre no link do wiki http://en.wikipedia.org/wiki/Fork_bomb
+
+DoS - Denial of Service
+=======================
+
+
+Ferramentas
+===========
+
+C4 --> Syn Flood
+
+c4 -h IP_HOST
+
+./c4 -h ip_alvo (metasploitable)
+
+
+DDoS - Distributed Denial of Service
+====================================
+
+Objetivo ainda é o de derrubar o alvo
+
+Realizado com várias máquinas zubis
+
+Comandado por uma botnet.
+
+Ferramenta:
+
+TFN2K
+
+./tfn iplist type ip port
+
+
+DRDoS - Distributed and Reflective Denial of Service
+====================================================
+
+Além de distribuido ele faz refletores com máquinas que não são zubins porém ele envia um pacote forjado (spoofing) para as máquinas que irá fazer as requisições para o refletores com o ip forjado com o ip do alvo fazendo que todas as máquinas responda para a vítima e não para quem iniciou realmente a comunicação com elas.
+
+
+
+Sequestro de Sessão
+===================
+
+Session hijacking é o sequestro da sessão dos usuários.
+
+As ferramentas que trabalham como sniffer e recriam a conexão com as informações capturadas são:
+	* Firesheep
+	* Session Thief
+	* Hunt
+	* Juggernaut
+
+Já o SSL Strip trabalha de forma diferente, pois ele faz um arp-spoof e ele abre a sessão do usuário dele para o servidor via SSL e clean text entre ele e o alvo. Assim podemos ver todo o trafego em texto puro.
+
+Prática
+=======
+
+Vamos primeiro testar o loic.sh e para isso necessitaremos de dois pacotes instalados:
+
+	aptitude install git-core monodevelop
+	
+
+

@@ -1,0 +1,355 @@
+LABSP_SW02#sh run
+Building configuration...
+
+Current configuration : 10755 bytes
+!
+version 12.2
+no service pad
+service tcp-keepalives-in
+service tcp-keepalives-out
+service timestamps debug datetime msec localtime show-timezone
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+service sequence-numbers
+!
+hostname LABSP_SW02
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered 10000
+logging console critical
+enable secret 5 $1$oMjo$bicJh1qcO3aUenX4Z.k.K.
+enable password 7 060506324F41
+!
+username suporte privilege 15 secret 5 $1$PdDQ$t.ggAsDY1oWuE7PnJ9lrU1
+no aaa new-model
+system mtu routing 1500
+vtp domain Brisa
+vtp mode transparent
+ip subnet-zero
+no ip source-route
+no ip gratuitous-arps
+!
+!
+ip domain-name brisa-lab.org.br
+!
+mls qos map cos-dscp 0 8 16 24 32 46 48 56
+mls qos srr-queue input bandwidth 90 10
+mls qos srr-queue input threshold 1 8 16
+mls qos srr-queue input threshold 2 34 66
+mls qos srr-queue input buffers 67 33 
+mls qos srr-queue input cos-map queue 1 threshold 2 1
+mls qos srr-queue input cos-map queue 1 threshold 3 0
+mls qos srr-queue input cos-map queue 2 threshold 1 2
+mls qos srr-queue input cos-map queue 2 threshold 2 4 6 7
+mls qos srr-queue input cos-map queue 2 threshold 3 3 5
+mls qos srr-queue input dscp-map queue 1 threshold 2 9 10 11 12 13 14 15
+mls qos srr-queue input dscp-map queue 1 threshold 3 0 1 2 3 4 5 6 7
+mls qos srr-queue input dscp-map queue 1 threshold 3 32
+mls qos srr-queue input dscp-map queue 2 threshold 1 16 17 18 19 20 21 22 23
+mls qos srr-queue input dscp-map queue 2 threshold 2 33 34 35 36 37 38 39 48
+mls qos srr-queue input dscp-map queue 2 threshold 2 49 50 51 52 53 54 55 56
+mls qos srr-queue input dscp-map queue 2 threshold 2 57 58 59 60 61 62 63
+mls qos srr-queue input dscp-map queue 2 threshold 3 24 25 26 27 28 29 30 31
+mls qos srr-queue input dscp-map queue 2 threshold 3 40 41 42 43 44 45 46 47
+mls qos srr-queue output cos-map queue 1 threshold 3 5
+mls qos srr-queue output cos-map queue 2 threshold 3 3 6 7
+mls qos srr-queue output cos-map queue 3 threshold 3 2 4
+mls qos srr-queue output cos-map queue 4 threshold 2 1
+mls qos srr-queue output cos-map queue 4 threshold 3 0
+mls qos srr-queue output dscp-map queue 1 threshold 3 40 41 42 43 44 45 46 47
+mls qos srr-queue output dscp-map queue 2 threshold 3 24 25 26 27 28 29 30 31
+mls qos srr-queue output dscp-map queue 2 threshold 3 48 49 50 51 52 53 54 55
+mls qos srr-queue output dscp-map queue 2 threshold 3 56 57 58 59 60 61 62 63
+mls qos srr-queue output dscp-map queue 3 threshold 3 16 17 18 19 20 21 22 23
+mls qos srr-queue output dscp-map queue 3 threshold 3 32 33 34 35 36 37 38 39
+mls qos srr-queue output dscp-map queue 4 threshold 1 8
+mls qos srr-queue output dscp-map queue 4 threshold 2 9 10 11 12 13 14 15
+mls qos srr-queue output dscp-map queue 4 threshold 3 0 1 2 3 4 5 6 7
+mls qos queue-set output 1 threshold 1 138 138 92 138
+mls qos queue-set output 1 threshold 2 138 138 92 400
+mls qos queue-set output 1 threshold 3 36 77 100 318
+mls qos queue-set output 1 threshold 4 20 50 67 400
+mls qos queue-set output 2 threshold 1 149 149 100 149
+mls qos queue-set output 2 threshold 2 118 118 100 235
+mls qos queue-set output 2 threshold 3 41 68 100 272
+mls qos queue-set output 2 threshold 4 42 72 100 242
+mls qos queue-set output 1 buffers 10 10 26 54
+mls qos queue-set output 2 buffers 16 6 17 61
+mls qos
+!
+crypto pki trustpoint TP-self-signed-3212751616
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-3212751616
+ revocation-check none
+ rsakeypair TP-self-signed-3212751616
+!
+!
+crypto pki certificate chain TP-self-signed-3212751616
+ certificate self-signed 01
+  3082025D 308201C6 A0030201 02020101 300D0609 2A864886 F70D0101 04050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 33323132 37353136 3136301E 170D3933 30333031 30303030 
+  35365A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 32313237 
+  35313631 3630819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100CCD2 AB3CE0F2 713EFC26 9A5D401A 4E29E1AA 9D87482E 2EA18ED6 79C805F8 
+  D3F581C0 FCED9159 FAFBF420 2BDA2806 F56D6FBB FA0CD5A3 E3E256A1 2EAAF3DF 
+  2531C2C3 7EF9C707 0869D524 CD1382C5 23EB38AA 7DC7EC41 7F0828CE 0EE69083 
+  F11512D1 62B27925 F7FE688B 6E726164 0E269C2B 4C17376E 7BC5C7B1 60BE708F 
+  4AA30203 010001A3 81843081 81300F06 03551D13 0101FF04 05300301 01FF302E 
+  0603551D 11042730 25822353 575F4C41 4E5F4C41 4253505F 4C474530 312E6272 
+  6973612D 6C61622E 6F72672E 6272301F 0603551D 23041830 1680147C 27B8C442 
+  CBCF5085 36F41226 7541A9D1 29D64530 1D060355 1D0E0416 04147C27 B8C442CB 
+  CF508536 F4122675 41A9D129 D645300D 06092A86 4886F70D 01010405 00038181 
+  0051A03B 5DCCFF1B 4DD7BF8A CCB19955 709C74C6 D16D3C70 4B7D36A5 DB88A59A 
+  5F910359 4212C77D 504FE539 A84F5C14 FE97AB6E DC8E8B21 BFCDE0EB BC6A2BCD 
+  23EAC1CE 87F4DEA2 8A819948 BB2190E4 DE09F76A F6522A81 1893B74B 4A867B97 
+  2858151B 46E5B7D7 3771BBAB 6227FE83 C1BA173E 83E01AD7 788004CE FFEDF109 F5
+  quit
+!
+!
+dot1x system-auth-control
+!
+!
+!
+spanning-tree mode pvst
+no spanning-tree optimize bpdu transmission
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+vlan 61   
+ name vBRISA-3G
+!
+vlan 62
+ name vBRISA-FT
+!
+vlan 63
+ name vVISIT
+!
+vlan 70
+ name vVPN
+!
+vlan 71
+ name vNET
+!
+vlan 79
+ name vGER
+!
+ip tcp synwait-time 10
+ip ssh time-out 60
+ip ssh authentication-retries 2
+ip ssh version 2
+!
+!
+interface Port-channel1
+ switchport mode trunk
+ switchport nonegotiate
+!
+interface FastEthernet0/1
+ description LABSP_ROUTER01
+ switchport trunk allowed vlan 1,79
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/2
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/3
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/4
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/5
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/6
+ description Mesa Rosemir - Ponto (K)
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/7
+ description LIVRE
+ shutdown
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/8
+ description LIVRE
+ shutdown
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/9
+ description LIVRE
+ shutdown
+!         
+interface FastEthernet0/10
+ description "LINK NET 60Mbps"
+ switchport access vlan 71
+ switchport mode access
+ switchport nonegotiate
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/11
+ description Router Embratel 10Mbps - VPN DF e RJ
+ switchport access vlan 70
+ switchport mode access
+!
+interface FastEthernet0/12
+ description Mesa Roberto - Ponto (D)
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/13
+ description LIVRE
+ shutdown
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!         
+interface FastEthernet0/14
+ description LIVRE
+ shutdown
+ spanning-tree bpdufilter enable
+ spanning-tree bpduguard enable
+!
+interface FastEthernet0/15
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/16
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/17
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/18
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/19
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/20
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/21
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/22
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/23
+ description LIVRE
+ shutdown
+!
+interface FastEthernet0/24
+ description TEMP CONEXAO SWITCH MESA ROBERTO
+ switchport mode trunk
+!
+interface GigabitEthernet0/1
+ description Link Aggregation Switch Giga
+ switchport mode trunk
+ switchport nonegotiate
+ srr-queue bandwidth share 10 10 60 20
+ srr-queue bandwidth shape 10 0 0 0
+ queue-set 2
+ priority-queue out 
+ mls qos trust cos
+ macro description cisco-switch
+ auto qos voip trust 
+ channel-group 1 mode active
+ spanning-tree link-type point-to-point
+!
+interface GigabitEthernet0/2
+ description Link Aggregation Switch Giga
+ switchport mode trunk
+ switchport nonegotiate
+ srr-queue bandwidth share 10 10 60 20
+ srr-queue bandwidth shape 10 0 0 0
+ queue-set 2
+ priority-queue out 
+ mls qos trust cos
+ macro description cisco-switch
+ auto qos voip trust 
+ channel-group 1 mode active
+ spanning-tree link-type point-to-point
+!
+interface Vlan1
+ no ip address
+ no ip route-cache
+!
+interface Vlan79
+ ip address 172.31.15.2 255.255.255.0
+ no ip route-cache
+!
+ip default-gateway 172.31.15.129
+no ip http server
+ip http secure-server
+logging trap debugging
+access-list 10 permit 136.166.97.246
+access-list 10 permit 136.166.97.243
+access-list 111 remark ACL BLOQUEAR TELNET (Port23)
+access-list 111 permit ip host 136.166.97.222 any
+access-list 111 permit ip host 136.166.97.218 any
+access-list 111 permit ip host 136.166.97.137 any
+access-list 111 deny   ip any any log
+access-list 111 permit tcp any any neq telnet
+snmp-server community brisa-ro RO 10
+snmp-server community brisa-sp RO 10
+snmp-server location BRISA-SP
+snmp-server contact Suporte - suporte@brisa.org.br
+snmp-server host 136.166.97.243 version 2c brisa-ro 
+snmp-server host 136.166.97.246 version 2c brisa-ro 
+snmp-server host 136.166.97.243 version 2c brisa-sp 
+snmp-server host 136.166.97.246 version 2c brisa-sp 
+!
+control-plane
+!
+banner motd ^CCC
+********************************* WARNING **************************************
+ WARNING NOTICE: This is a private system for use by BRISA The unauthorized
+ access or attempt, use or modification  of this system is  strictly prohibited.
+ Individuals  undertaking  such  unauthorized  access,  use or modification are
+ subject to company disciplinary proceedings and/or criminal and civil penalties
+ under applicable  domestic and  foreign  laws.  The use of  this system may be
+ monitored and  recorded for administrative and  security reasons in accordance
+ with local law.
+          
+********************************** AVISO ***************************************
+ AVISO: Este e um sistema  privado para uso exclusivo  da BRISA . Acessos nao
+ autorizados ou  tentativas, uso ou modificacao  deste sistema sao estritamente
+ restritos.   Individuos  que  executam  tal  acesso,  usam  ou  modificam  sem
+ autorizacao  estao sujeitos a procedimentos  disciplinares e penalidades civis
+ com base em leis domesticas e estrangeiras aplicaveis. O uso deste sistema pode
+ ser monitorado e armazenado para uso posterior conforme a lei local.^C
+!
+line con 0
+line vty 0 4
+ access-class 111 in
+ password 7 00071A150754
+ login local
+ length 0
+ transport input ssh
+line vty 5 15
+ access-class 111 in
+ login local
+ transport input ssh
+!
+end

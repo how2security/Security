@@ -1,0 +1,277 @@
+Google Hacking
+
+No Google Hacking não existe o conseito de busca errada. Tem sim, a da busca mais eficiente para nossas necessidades.
+
+Um busca sem sentido hoje pode se tornar uma excelente regra amanhã. Acredito que esse é o espírito Hacker de buscar coisas novas e tentar novos meios para resultados iguais ou difrentes. O que não é bom e sempre fazer a mesma coisa esperando resultados diferentes.
+
+Jonny Long
+
+Dois livros:
+	Google Hacking
+	No-Tech Hacking
+
+Criador de uma base de dados de Google Hacking, com diversas pesquisas promissoras dessa técnica. Essa base se chama GHDB (Google Hacking Data Base).
+
+CMS (Content Management System) joomla, wordpress, phpbb, etc...
+
+
+site Oficial:
+	http://www.hackersforcharity.org/ghdb/
+	http://johnny.ihackstuff.com/ghdb/
+Pelo Exploit-DB:
+	http://www.exploit-db.com/google-dorks/
+
+exemplo:
+	intext:"~~Joomla1.txt" title:"Index of /"
+http://businessbloggingmadeeasy.com/b/asgmj16~~Joomla1.txt
+http://www.thecafe-molehall.com/A.T.A.S/andiemma~~Joomla1.txt
+
+====
+<?php
+class JConfig {
+	var $offline = '0';
+	var $editor = 'tinymce';
+	var $list_limit = '20';
+	var $helpurl = 'http://help.joomla.org';
+	var $debug = '0';
+	var $debug_lang = '0';
+	var $sef = '0';
+	var $sef_rewrite = '0';
+	var $sef_suffix = '0';
+	var $feed_limit = '10';
+	var $feed_email = 'author';
+	var $secret = 'wcesVDD09u76Yaf1';
+	var $gzip = '0';
+	var $error_reporting = '-1';
+	var $xmlrpc_server = '0';
+	var $log_path = '/home/asgmj16/public_html/logs';
+	var $tmp_path = '/home/asgmj16/public_html/tmp';
+	var $live_site = '';
+	var $force_ssl = '0';
+	var $offset = '0';
+	var $caching = '0';
+	var $cachetime = '5';
+	var $cache_handler = 'file';
+	var $memcache_settings = array();
+	var $ftp_enable = '0';
+	var $ftp_host = '127.0.0.1';
+	var $ftp_port = '21';
+	var $ftp_user = '';
+	var $ftp_pass = '';
+	var $ftp_root = '';
+	var $dbtype = 'mysql';
+	var $host = 'localhost';
+	var $user = 'asgmj16_mtaldb';
+	var $db = 'asgmj16_talaqijd';
+	var $dbprefix = 'tal_';
+	var $mailer = 'mail';
+	var $mailfrom = 'salim@noblesoftonline.com';
+	var $fromname = '.:: M. M. Talaqi International ::.';
+	var $sendmail = '/usr/sbin/sendmail';
+	var $smtpauth = '0';
+	var $smtpsecure = 'none';
+	var $smtpport = '25';
+	var $smtpuser = '';
+	var $smtppass = '';
+	var $smtphost = 'localhost';
+	var $MetaAuthor = '0';
+	var $MetaTitle = '0';
+	var $lifetime = '15';
+	var $session_handler = 'database';
+	var $password = '!QW@mt1qw2';
+	var $sitename = '.:: M. M. Talaqi International ::.';
+	var $MetaDesc = '';
+	var $MetaKeys = '';
+	var $offline_message = 'This site is down for maintenance. Please check back again soon.';
+}
+?>
+
+<?php
+class JConfig {
+	public $offline = '1';
+	public $offline_message = 'Hacked By RastaMan
+Contact:HackerNet@hacker.ps';
+	public $display_offline_message = '1';
+	public $sitename = 'Hacked by RastaMan';
+	public $editor = 'tinymce';
+	public $list_limit = '20';
+	public $access = '1';
+	public $debug = '0';
+	public $debug_lang = '0';
+	public $dbtype = 'mysql';
+	public $host = 'localhost';
+	public $user = 'andiemma_dkjg403';
+	public $password = '3eSy8Px0w8';
+	public $db = 'andiemma_dkjg403';
+	public $dbprefix = 'ond_';
+	public $live_site = '';
+	public $secret = 'wnxhkwrh2g9bsian';
+	public $gzip = '1';
+	public $error_reporting = 'none';
+	public $helpurl = 'http://help.joomla.org/proxy/index.php?option=com_help&keyref=Help16:{keyref}';
+	public $ftp_host = '';
+	public $ftp_port = '';
+	public $ftp_user = '';
+	public $ftp_pass = '';
+	public $ftp_root = '';
+	public $ftp_enable = '1';
+	public $offset = 'UTC';
+	public $offset_user = 'UTC';
+	public $mailer = 'mail';
+	public $mailfrom = 'adminimeister@andi-emma-toby.net';
+	public $fromname = 'Andi-Emma-Toby';
+	public $sendmail = '/usr/sbin/sendmail';
+	public $smtpauth = '0';
+	public $smtpuser = 'adminimeister';
+	public $smtppass = '57meg8?mehim';
+	public $smtphost = 'localhost';
+	public $smtpsecure = 'none';
+	public $smtpport = '25';
+	public $caching = '0';
+	public $cache_handler = 'file';
+	public $cachetime = '15';
+	public $MetaDesc = 'Hacked By RastaMan';
+	public $MetaKeys = '';
+	public $MetaAuthor = '1';
+	public $sef = '1';
+	public $sef_rewrite = '1';
+	public $sef_suffix = '0';
+	public $unicodeslugs = '0';
+	public $feed_limit = '10';
+	public $log_path = '/home/andiemma/public_html/logs';
+	public $tmp_path = '/home/andiemma/public_html/tmp';
+	public $lifetime = '15';
+	public $session_handler = 'database';
+	public $MetaRights = '';
+	public $sitename_pagetitles = '0';
+	public $force_ssl = '0';
+	public $feed_email = 'author';
+	public $cookie_domain = '';
+	public $cookie_path = '';
+}
+
+
+====
+
+Baixar e-books
+http://www.wowebook.org/
+http://www.wowebook.be/
+ebooklink.net
+
+Uma vez que o Google tenha indexado ele fica na base de dados do Google.
+
+SEO --> é uma técnica de otimização de busca.
+robots --> o que indexa são os robos de buscas.
+
+Falar sobre o link "em cache" para ver a ultima versão do site. Faz um hand-on demostrando.
+
+mostre o www.archive.org para mostra versões anteriores de um site.
+
+As pessoas não tem o mesmo cuidado com as informações de uma empresa onde ele não tem mais vinculo. podendo vazar informações que anteriormente ele não falaria.
+
+Comandos Avançados
+==================
+
+intitle, allintitle --> Busca as strings no titulo da página. eles ficam entre as tags <title></title>. a diferenças entre os dois comandos é que o primeiro busca apenas a primeira string no titulo, e a seguinda pegarai todas as strings após o comando. allintitle:index of | intile:index+of.
+
+Exemplo:
+	intitle:index.of
+
+de uma navegada e mostre as informações que podemos obter atraves desse comando.
+
+----
+
+inurl, allinurl --> Busca strings na url. A diferença entre os comandos é semelhante ao intitle ,porém a busca é feita no endereço.
+
+
+Exemplos:
+
+vamos pesquisar possíveis acessos de VNC.
+	intitle:VNC inurl:5800
+	"VNC desktop" inurl:5800
+	intitle:VNC inurl:5900
+
+Vamos pesquisar Windows Small Business
+	inurl:ConnectComputer/precheck.htm
+	inurl:Remote/logon.aspx
+
+Vamos buscar TS do windows Web Abero:
+	intitle:Remote+Desktop inurl:tsweb
+	intitle:Remote+Desktop inurl:tsweb intext:Domain
+
+
+filetype --> Procura por aqruivos com a extensão procurada. caso vc precise consultar extensões pode ser feito através do site: http://filext.org.
+
+Exemplo:
+	quais extensões são legais de pesaquisar? sql, bak, bkp, gz, bz2, dump, doc/docx, xls/xlsx, pdf, dat, bdf,etc...
+
+	filetype:sql
+	filetype:sql inurl:gov.br
+	
+
+allintext --> Filtra conteúdos nas tags <body></body> e é semelhante a usar as strings pesquisadas dentro de "".
+
+site --> faz a busca somente no site informado.
+
+exemplo:
+	filetype:sql site:agenersa.rj.gov.br
+
+link --> busca por sites que contenha links para suas pesquisas.
+	link:www.oys.com.br
+
+inanchor --> encontra as strings dentro de uma ancora que são muito usados em páginas muito grande (#top).
+
+datarange --> procura sites publicados entre as datas. e como parametro de pesquisa deverá ser feito com o calendário juliano, então tem que converter datas em nosso calendario para calendario juliano.
+
+cache --> mostra a ultima versão da pág
+
+info --> Procurar por string dentro do texto descritivo do site.
+
+related --> é semelhante ao site, porém ele faz a busca por sites relacionados, que tenha o mesmo assunto,
+
+Exemplo:
+	related:www.uninove.br
+
+Levantamento de informações
+===========================
+
+currículo +identidade +cpf
+
+podemos usar estas informações para tirar documentos falsos, abrir contas bancárias. Veja a seriedade da coisa.
+
+"Uma mentira é bem mais aceita quando colocada entre duas verdades". Joseph Goebbels (Ministro da Propaganda de Hitler).
+
+
+GHDB
+====
+Footholds: intitle:"Joomla - Web Installer"
+
+da uma olhada e navegada nos temas.
+
+se você tem duvida sobre uma pesquisa poderá buscar uma ajuda de como montar suas pesquisas por essa base.
+
+Prática
+=======
+
+site:gov.br filetype:sql
+inurl:"powered by" site:site.com.br
+inurl:e-mail filetype:mdb
+intitle:VNC inurl:5800
+"Active Webcam Page" inurl:8080
+intitle:"toshiba network camera - User Login"
+intitle: "Flash Operator Panel" -filetype:php -wiki -cms -inurl:as
+"Microsoft-IIS/6.0" intitle:index.of
+
+Contramedidas
+=============
+
+* Possuir uma boa politica referente a publicações de informações na web.
+* Não deixar configurações padrões em servidores web.
+* sempre analise informações sobre a empresa nos mecanismos de buscas.
+* Alertar e treinar os funcionários da mepresa com relação as informações que os ligue a empresa.
+
+
+Falar sobre o robots.txt (www.4linux.com.br/robots.txt)
+
+
+

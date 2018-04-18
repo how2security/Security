@@ -1,0 +1,80 @@
+#!/bin/bash
+
+TOMCAT="/opt/tomcat/bin/catalina.sh"
+
+menu()
+{
+   clear
+
+   echo -e "\011\011\e[37;1m+--------------------------------+\e[m"
+   echo -e "\011\011\e[37;1m|\e[m   \e[32;1mMENU\e[m                         \e[37;1m|\e[m"
+   echo -e "\011\011\e[37;1m|                                |\e[m"
+   echo -e "\011\011\e[37;1m|\e[m   \e[34;1m1. VERIFICAR USO DE MEMORIA\e[m  \e[37;1m|\e[m"
+   echo -e "\011\011\e[37;1m|\e[m   \e[34;1m2. VERIFICAR USO DE DISCO\e[m    \e[37;1m|\e[m"
+   echo -e "\011\011\e[37;1m|\e[m   \e[34;1m3. VER DATA/HORA DO SERVIDOR\e[m \e[37;1m|\e[m"
+   echo -e "\011\011\e[37;1m|\e[m   \e[31;1m4. REINICIAR A MAQUINA\e[m       \e[37;1m|\e[m"
+   echo -e "\011\011\e[37;1m|   5. SAIR                      |\e[m"
+   echo -e "\011\011\e[37;1m|                                |\e[m"
+   echo -e "\011\011\e[37;1m+--------------------------------+\e[m"
+
+   echo -e "\e[37;1mEscolha uma das opções e precione <ENTER>:\e[m "
+}
+menu
+
+while true ;do
+
+   read ACAO
+   case $ACAO in
+      1)
+         /usr/bin/free -m
+         echo -e "\012\012"
+         echo -e "\e[37;1mPressione <ENTER> para voltar ao MENU...\e[m"
+         read TECLA
+         menu
+      ;;
+      2)
+         /bin/df -Tm
+         echo -e "\012\012"
+         echo -e "\e[37;1mPressione <ENTER> para voltar ao MENU...\e[m"
+         read TECLA
+         menu
+      ;;
+      3)
+         echo "HORARIO DO SERVIDR"
+         /bin/date
+         echo "HORARIO DO HARDWARE:"
+         sudo /sbin/hwclock
+         /bin/df -Tm
+         echo -e "\012\012"
+         echo -e "\e[37;1mPressione <ENTER> para voltar ao MENU...\e[m"
+         read TECLA
+         menu
+      ;;
+      3)
+         echo "HORARIO DO SERVIDR"
+         /bin/date
+         echo "HORARIO DO HARDWARE:"
+         sudo /sbin/hwclock
+         echo -e "\012\012"
+         echo -e "\e[37;1mPressione <ENTER> para voltar ao MENU...\e[m"
+         read TECLA
+         menu
+      ;;
+      4)
+         sudo /sbin/shutdown -r 3
+         echo "O SERVIDOR VEGA SERA REINICIADO EM 3 MINUTOS."
+         echo -e "\e[31;5mAGUARDE...\e[m"
+      ;;
+      5)
+         break
+      ;;
+      *)
+         echo -e "\e[31;5mERRO: OPCAO INVALIDA !!!\e[m"
+         echo -e "\e[37;1mPressione <ENTER> para voltar ao MENU...\e[m"
+         read TECLA
+         menu
+      ;;
+   esac
+done
+
+exit 0

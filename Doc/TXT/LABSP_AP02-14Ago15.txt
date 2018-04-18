@@ -1,0 +1,393 @@
+LABSP_AP02#sh run
+Building configuration...
+
+Current configuration : 11282 bytes
+!
+! Last configuration change at 16:33:02 SP Mon Aug 10 2015 by suporte
+! NVRAM config last updated at 16:33:06 SP Mon Aug 10 2015 by suporte
+! NVRAM config last updated at 16:33:06 SP Mon Aug 10 2015 by suporte
+version 15.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname LABSP_AP02
+!
+!
+logging buffered 10000
+logging rate-limit console 9
+logging console critical
+enable secret 5 $1$RP.g$xHApKYZjqb4pZD75Oj8oN.
+!
+no aaa new-model
+clock timezone SP -3 0
+no ip routing
+no ip cef
+ip domain name brisa-lab.local
+!
+!
+!
+dot11 syslog
+dot11 vlan-name vBRISA-3g vlan 61
+dot11 vlan-name vBRISA-FT vlan 62
+!
+dot11 ssid BRISA 3G
+   vlan 61
+   authentication open 
+   authentication key-management wpa version 2
+   mbssid guest-mode
+   wpa-psk ascii 7 03064902150E36454800485744
+!
+dot11 ssid BRISA FT
+   vlan 62
+   authentication open 
+   authentication key-management wpa version 2
+   mbssid guest-mode
+   wpa-psk ascii 7 096A470C15012317181824787B757D
+!
+dot11 ssid BRISA-LAB
+   vlan 1
+   authentication open 
+   authentication key-management wpa version 2
+   wpa-psk ascii 7 0037400511490E2F0C20425A581424101B0509
+!
+dot11 ssid BRISA-VISIT
+   vlan 63
+   authentication open 
+   authentication key-management wpa version 2
+   mbssid guest-mode
+   wpa-psk ascii 7 072F606A5B1A100A19
+!
+!
+crypto pki token default removal timeout 0
+!
+crypto pki trustpoint TP-self-signed-793438112
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-793438112
+ revocation-check none
+ rsakeypair TP-self-signed-793438112
+!
+!
+crypto pki certificate chain TP-self-signed-793438112
+ certificate self-signed 01
+  30820229 30820192 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  30312E30 2C060355 04031325 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 37393334 33383131 32301E17 0D393330 33303130 30313531 
+  385A170D 32303031 30313030 30303030 5A303031 2E302C06 03550403 1325494F 
+  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3739 33343338 
+  31313230 819F300D 06092A86 4886F70D 01010105 0003818D 00308189 02818100 
+  EB8F1C41 ABF49DB7 EB9C19DC 6143D277 0B259AEE 079E8301 C2EC565F A7F909E2 
+  77A1DB01 50BF6C48 F3DF6AC6 29D33C3C A9472FC3 6D448C9C 91195C9D 69BA2BD0 
+  664CC706 2154DBAD 6A0DCFD6 813736AB 9401EC8A 7E0C1F90 C462AE7D 50D8A07F 
+  BA7F5E71 977083E4 72B8CA8D 8EAEA99F 962A854F F539CCD6 4E89972D 3374A885 
+  02030100 01A35330 51300F06 03551D13 0101FF04 05300301 01FF301F 0603551D 
+  23041830 16801486 B270346B 85E87F5B 50B35A87 B5B2075D 10E49630 1D060355 
+  1D0E0416 041486B2 70346B85 E87F5B50 B35A87B5 B2075D10 E496300D 06092A86 
+  4886F70D 01010505 00038181 00081C8F F3981DC9 45D6BA5F 6DF65E07 F2378EC9 
+  B31C4EFA E56444FB 23B7EA51 A8CD4838 70E71079 C0FA1EF9 EE0068AC 11423026 
+  338A4228 BF894652 5C116A20 8DAC4B66 7C0C9351 1CAD2B67 AA4A871C F70D3B88 
+  333DE4AF 981455E1 68622A23 18473413 610F18A0 750D7DA4 2ABB68AF B65B6D52 
+  58929E68 713127C9 4AC30413 71
+        quit
+username Cisco password 7 0802455D0A16
+username suporte privilege 15 secret 5 $1$rER4$D8Br.SEoz4tQtBh1YDIqL/
+!
+!
+ip ssh time-out 60
+ip ssh version 2
+bridge irb
+!
+!
+!
+interface Dot11Radio0
+ no ip address
+ no ip route-cache
+ !
+ encryption mode ciphers aes-ccm 
+ !
+ encryption vlan 1 mode ciphers aes-ccm 
+ !
+ encryption vlan 61 mode ciphers aes-ccm 
+ !
+ encryption vlan 63 mode ciphers aes-ccm 
+ !
+ encryption vlan 62 mode ciphers aes-ccm 
+ !
+ ssid BRISA 3G
+ !
+ ssid BRISA FT
+ !
+ ssid BRISA-LAB
+ !
+ ssid BRISA-VISIT
+ !
+ antenna gain 0
+ stbc
+ beamform ofdm
+ mbssid
+ channel 2447
+ station-role root
+ no dot11 extension aironet
+ l2-filter bridge-group-acl
+!
+interface Dot11Radio0.1
+ encapsulation dot1Q 1
+ no ip route-cache
+ bridge-group 254
+ bridge-group 254 subscriber-loop-control
+ bridge-group 254 spanning-disabled
+ bridge-group 254 block-unknown-source
+ no bridge-group 254 source-learning
+ no bridge-group 254 unicast-flooding
+!
+interface Dot11Radio0.61
+ encapsulation dot1Q 61
+ no ip route-cache
+ bridge-group 61
+ bridge-group 61 subscriber-loop-control
+ bridge-group 61 input-address-list 700
+ bridge-group 61 spanning-disabled
+ bridge-group 61 block-unknown-source
+ no bridge-group 61 source-learning
+ no bridge-group 61 unicast-flooding
+!
+interface Dot11Radio0.62
+ encapsulation dot1Q 62
+ no ip route-cache
+ bridge-group 62
+ bridge-group 62 subscriber-loop-control
+ bridge-group 62 spanning-disabled
+ bridge-group 62 block-unknown-source
+ no bridge-group 62 source-learning
+ no bridge-group 62 unicast-flooding
+!
+interface Dot11Radio0.63
+ encapsulation dot1Q 63
+ no ip route-cache
+ bridge-group 63
+ bridge-group 63 subscriber-loop-control
+ bridge-group 63 spanning-disabled
+ bridge-group 63 block-unknown-source
+ no bridge-group 63 source-learning
+ no bridge-group 63 unicast-flooding
+!
+interface Dot11Radio0.79
+ encapsulation dot1Q 79 native
+ no ip route-cache
+ bridge-group 1
+ bridge-group 1 subscriber-loop-control
+ bridge-group 1 spanning-disabled
+ bridge-group 1 block-unknown-source
+ no bridge-group 1 source-learning
+ no bridge-group 1 unicast-flooding
+!
+interface Dot11Radio1
+ no ip address
+ no ip route-cache
+ !
+ encryption mode ciphers aes-ccm 
+ !
+ encryption vlan 1 mode ciphers aes-ccm 
+ !
+ encryption vlan 61 mode ciphers aes-ccm 
+ !
+ encryption vlan 63 mode ciphers aes-ccm 
+ !
+ encryption vlan 62 mode ciphers aes-ccm 
+ !
+ ssid BRISA 3G
+ !
+ ssid BRISA FT
+ !
+ ssid BRISA-LAB
+ !
+ ssid BRISA-VISIT
+ !
+ antenna gain 0
+ no dfs band block
+ stbc
+ beamform ofdm
+ mbssid
+ channel dfs
+ station-role root
+ no dot11 extension aironet
+ l2-filter bridge-group-acl
+!
+interface Dot11Radio1.1
+ encapsulation dot1Q 1
+ no ip route-cache
+ bridge-group 254
+ bridge-group 254 subscriber-loop-control
+ bridge-group 254 spanning-disabled
+ bridge-group 254 block-unknown-source
+ no bridge-group 254 source-learning
+ no bridge-group 254 unicast-flooding
+!
+interface Dot11Radio1.61
+ encapsulation dot1Q 61
+ no ip route-cache
+ bridge-group 61
+ bridge-group 61 subscriber-loop-control
+ bridge-group 61 input-address-list 700
+ bridge-group 61 spanning-disabled
+ bridge-group 61 block-unknown-source
+ no bridge-group 61 source-learning
+ no bridge-group 61 unicast-flooding
+!
+interface Dot11Radio1.62
+ encapsulation dot1Q 62
+ no ip route-cache
+ bridge-group 62
+ bridge-group 62 subscriber-loop-control
+ bridge-group 62 spanning-disabled
+ bridge-group 62 block-unknown-source
+ no bridge-group 62 source-learning
+ no bridge-group 62 unicast-flooding
+!
+interface Dot11Radio1.63
+ encapsulation dot1Q 63
+ no ip route-cache
+ bridge-group 63
+ bridge-group 63 subscriber-loop-control
+ bridge-group 63 spanning-disabled
+ bridge-group 63 block-unknown-source
+ no bridge-group 63 source-learning
+ no bridge-group 63 unicast-flooding
+!
+interface Dot11Radio1.79
+ encapsulation dot1Q 79 native
+ no ip route-cache
+ bridge-group 1
+ bridge-group 1 subscriber-loop-control
+ bridge-group 1 spanning-disabled
+ bridge-group 1 block-unknown-source
+ no bridge-group 1 source-learning
+ no bridge-group 1 unicast-flooding
+!         
+interface GigabitEthernet0
+ no ip address
+ no ip route-cache
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0.1
+ encapsulation dot1Q 1
+ no ip route-cache
+ bridge-group 254
+ bridge-group 254 spanning-disabled
+ no bridge-group 254 source-learning
+!
+interface GigabitEthernet0.61
+ encapsulation dot1Q 61
+ no ip route-cache
+ bridge-group 61
+ bridge-group 61 spanning-disabled
+ no bridge-group 61 source-learning
+!
+interface GigabitEthernet0.62
+ encapsulation dot1Q 62
+ no ip route-cache
+ bridge-group 62
+ bridge-group 62 spanning-disabled
+ no bridge-group 62 source-learning
+!
+interface GigabitEthernet0.63
+ encapsulation dot1Q 63
+ no ip route-cache
+ bridge-group 63
+ bridge-group 63 spanning-disabled
+ no bridge-group 63 source-learning
+!
+interface GigabitEthernet0.79
+ encapsulation dot1Q 79 native
+ no ip route-cache
+ bridge-group 1
+ bridge-group 1 spanning-disabled
+ no bridge-group 1 source-learning
+!
+interface BVI1
+ ip address 172.31.15.22 255.255.255.0
+ no ip route-cache
+!
+ip default-gateway 172.31.15.129
+ip forward-protocol nd
+no ip http server
+ip http authentication local
+ip http secure-server
+ip http help-path http://www.cisco.com/warp/public/779/smbiz/prodconfig/help/eag
+!
+access-list 10 permit 136.166.97.243
+access-list 111 remark PERMITE ACESSO SSH MAQUINAS TI
+access-list 111 permit ip host 136.166.97.222 any
+access-list 111 permit ip host 136.166.97.218 any
+access-list 111 permit ip host 136.166.97.137 any
+access-list 111 deny   ip any any log
+access-list 111 permit tcp any any neq telnet
+access-list 700 permit 4474.6ceb.5aa4   0000.0000.0000
+access-list 700 permit 001b.7781.1ae9   0000.0000.0000
+access-list 700 permit 742f.68f2.2b3f   0000.0000.0000
+access-list 700 permit 0026.e112.a677   0000.0000.0000
+access-list 700 permit 0026.e112.a602   0000.0000.0000
+access-list 700 permit 0026.e4c4.a599   0000.0000.0000
+access-list 700 permit 0026.e112.a503   0000.0000.0000
+access-list 700 permit 0026.e112.a426   0000.0000.0000
+access-list 700 permit 0026.e112.a311   0000.0000.0000
+access-list 700 permit 0026.e4c4.a142   0000.0000.0000
+access-list 700 permit 0026.e4c4.a603   0000.0000.0000
+access-list 700 permit 0026.e4c4.a597   0000.0000.0000
+access-list 700 permit 0026.e4c4.a524   0000.0000.0000
+access-list 700 permit 0026.e4c4.a633   0000.0000.0000
+access-list 700 permit 0026.e4c4.a678   0000.0000.0000
+access-list 700 permit 0026.e4c4.a681   0000.0000.0000
+access-list 700 permit 0026.e4c4.a155   0000.0000.0000
+access-list 700 permit 0026.e617.a443   0000.0000.0000
+access-list 700 permit 0026.e3a0.a499   0000.0000.0000
+access-list 700 permit 0026.e3a0.a541   0000.0000.0000
+access-list 700 permit 0026.e2a0.a995   0000.0000.0000
+access-list 700 permit 0026.e3a0.a589   0000.0000.0000
+access-list 700 permit 0026.e3a0.a634   0000.0000.0000
+access-list 700 permit 0026.e2a0.b995   0000.0000.0000
+access-list 700 permit 0026.e3a0.b589   0000.0000.0000
+access-list 700 permit 0026.e3a0.b634   0000.0000.0000
+access-list 700 permit 0026.e7a0.a641   0000.0000.0000
+access-list 700 permit 0026.e112.a653   0000.0000.0000
+access-list 700 permit 0026.e7a0.a656   0000.0000.0000
+access-list 700 permit 0026.e4c4.a692   0000.0000.0000
+access-list 700 permit 0026.e4c4.a680   0000.0000.0000
+access-list 700 permit 0026.e4c4.a711   0000.0000.0000
+access-list 700 permit 0026.e112.a709   0000.0000.0000
+access-list 700 permit 0029.cac6.1279   0000.0000.0000
+access-list 700 permit 0029.cac8.3186   0000.0000.0000
+access-list 700 permit e490.7e42.cece   0000.0000.0000
+access-list 700 permit 0026.e4c4.a539   0000.0000.0000
+access-list 700 permit 0026.e4c4.a234   0000.0000.0000
+access-list 700 permit 0026.e112.b657   0000.0000.0000
+access-list 700 permit 0026.e4c4.a694   0000.0000.0000
+access-list 700 deny   0000.0000.0000   ffff.ffff.ffff
+snmp-server community brisa-sp RO 10
+snmp-server ifindex persist
+snmp-server location BRISA-SP
+snmp-server contact Suporte - suporte@brisa.org.br
+snmp-server chassis-id LABSP_AP02
+snmp-server host 136.166.97.243 informs version 2c brisa-sp 
+snmp-server host 136.166.97.243 version 2c brisa-sp 
+bridge 1 route ip
+!
+!
+!
+line con 0
+ access-class 111 in
+ password 7 112829461B1528030A796F
+ login
+line vty 0 4
+ access-class 111 in
+ login local
+ transport input ssh
+line vty 5 15
+ access-class 111 in
+ login local
+ transport input ssh
+!
+end
+

